@@ -1,6 +1,6 @@
 import { getStoryBundle, isFinalContent, getEvidenceWarningAr } from '../../lib/dataService.js';
 import { escapeHtml, getReviewBadge, isMainStoryNode } from '../../lib/utils.js';
-import { renderAyahInlineHtml } from '../../lib/ayahDisplay.js';
+import { renderAyahInlineHtml, bindMushafOpenButtons } from '../../lib/ayahDisplay.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { openStudyModal } from '../study/studyModal.js';
@@ -127,6 +127,8 @@ export async function renderStoryMode(container, onReady) {
     root.querySelector('#story-open-study').addEventListener('click', () => {
       openStudyModal({ type: 'node', id: node.id });
     });
+
+    bindMushafOpenButtons(root);
   }
 
   onReady?.((nodeId) => renderStory(nodeId));

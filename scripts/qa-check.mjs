@@ -802,6 +802,25 @@ if (!runNodeScript(['scripts/test_owner_review_workspace.mjs'], true)) {
   fail('test_owner_review_workspace', '');
 } else pass('test_owner_review_workspace logic tests');
 
+if (!runNodeScript(['scripts/test_mushaf_reader.mjs'], true)) {
+  fail('test_mushaf_reader', '');
+} else pass('test_mushaf_reader logic tests');
+
+const mushafDesignPath = join(root, 'docs/mushaf_reader_design.md');
+if (!existsSync(mushafDesignPath)) fail('mushaf_reader_design.md missing', mushafDesignPath);
+else pass('mushaf_reader_design.md exists');
+
+for (const mushafModule of [
+  'src/features/mushaf/mushafReader.js',
+  'src/features/mushaf/mushafNavigation.js',
+  'src/features/mushaf/mushafPageView.js',
+  'src/features/mushaf/mushafSettings.js',
+  'src/features/mushaf/mushafBookmarks.js',
+]) {
+  if (!existsSync(join(root, mushafModule))) fail('mushaf module missing', mushafModule);
+  else pass(`mushaf module exists: ${mushafModule}`);
+}
+
 const finalChecklistPath = join(root, 'docs/final_owner_review_checklist.md');
 const desktopReviewPath = join(root, 'docs/run_desktop_review.md');
 if (!existsSync(finalChecklistPath)) fail('final_owner_review_checklist.md missing', finalChecklistPath);

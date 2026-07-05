@@ -5,7 +5,7 @@
     "batch_id": "evidence_mapping_all_batches",
     "description_ar": "مسودة مُجمّعة من قرارات المالك — ليست محتوى معتمدًا. لا تُطبّق تلقائيًا على seed أو Supabase.",
     "source_review_template": "examples/evidence_patch.all_batches.owner_review.approved_by_owner.json",
-    "compiled_at": "2026-07-05T10:37:49.102Z",
+    "compiled_at": "2026-07-05T10:47:48.452Z",
     "compiler_version": "1.0.0",
     "summary": {
       "total_input": 48,

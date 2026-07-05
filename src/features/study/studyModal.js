@@ -1,6 +1,6 @@
 import { getRepository, isFinalContent, getStoryBundle, getEvidenceWarningAr } from '../../lib/dataService.js';
 import { escapeHtml, formatAyahRef, getNodesForSurah, nodeTypeLabel } from '../../lib/utils.js';
-import { renderAyahRangeHtml } from '../../lib/ayahDisplay.js';
+import { renderAyahRangeHtml, bindMushafOpenButtons } from '../../lib/ayahDisplay.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
 
@@ -56,6 +56,7 @@ export async function openStudyModal(target) {
       document.dispatchEvent(new CustomEvent('qsu:select-story', { detail: { nodeId } }));
       document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' });
     });
+    bindMushafOpenButtons(body);
   } catch (err) {
     body.innerHTML = `<div class="modal-body"><p class="state-box error">${escapeHtml(err.message)}</p>${closeBtn()}</div>`;
     overlay.querySelector('.close')?.addEventListener('click', closeStudyModal);

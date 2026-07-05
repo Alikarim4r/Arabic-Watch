@@ -9,6 +9,7 @@ import { renderGraphView } from './features/graph/graphView.js';
 import { renderStoryMode } from './features/story/storyMode.js';
 import { renderSearchView } from './features/search/searchUI.js';
 import { renderSurahGrid } from './features/surahs/surahGrid.js';
+import { renderMushafReader } from './features/mushaf/mushafReader.js';
 import { renderEraTimeline, renderStudyCards } from './features/home/eraTimeline.js';
 
 const env = getEnvConfig();
@@ -62,6 +63,7 @@ async function bootstrap() {
       }),
       renderSearchView(document.querySelector('#search-mount')),
       renderSurahGrid(document.querySelector('#surahs-mount')),
+      renderMushafReader(document.querySelector('#mushaf-mount')),
     ]);
 
     renderEraTimeline(document.querySelector('#timeline-mount'), nodes, eras);

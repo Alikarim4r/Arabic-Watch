@@ -296,7 +296,73 @@ for (const { name, context } of contexts) {
   if (!studyFallback.includes('غير مستورد')) {
     errors.push(`[${name}] study modal missing Quran text fallback`);
   }
+  const mushafBtnStudy = await page.locator('.modal-body [data-mushaf-open]').count();
+  if (mushafBtnStudy < 1) errors.push(`[${name}] study modal missing فتح في المصحف button`);
   await closeModal();
+
+  // Mushaf Reader section
+  await page.goto('http://127.0.0.1:3456/#mushaf', { waitUntil: 'networkidle' });
+  await page.waitForSelector('#mushaf', { timeout: 15000 });
+  const mushafHeading = await page.locator('#mushaf h2').innerText();
+  if (!mushafHeading.includes('قارئ المصحف')) {
+    errors.push(`[${name}] mushaf section missing heading`);
+  }
+  const navMushaf = await page.locator('.nav a[href="#mushaf"]').count();
+  if (navMushaf < 1) errors.push(`[${name}] nav missing المصحف link`);
+  const missingNote = await page.locator('#mushaf .quran-missing-note').first().innerText();
+  if (!missingNote.includes('غير مستورد')) {
+    errors.push(`[${name}] mushaf missing Quran text placeholder`);
+  }
+  await page.selectOption('#mushaf-surah-select', '2');
+  await page.waitForTimeout(400);
+  const surahHeader = await page.locator('.mushaf-surah-title').innerText();
+  if (!surahHeader.includes('البقرة')) {
+    errors.push(`[${name}] mushaf surah selector failed: ${surahHeader}`);
+  }
+  await page.fill('#mushaf-goto-ayah', '31');
+  await page.fill('#mushaf-goto-surah', '2');
+  await page.click('#mushaf-goto-quick');
+  await page.waitForTimeout(400);
+  const refOnly = await page.locator('.mushaf-ayah-ref-only').first().innerText();
+  if (!refOnly.includes('البقرة') || !refOnly.includes('31')) {
+    errors.push(`[${name}] mushaf missing ayah reference placeholder: ${refOnly}`);
+  }
+  await page.locator('#mushaf-font-size').fill('28');
+  await page.waitForTimeout(200);
+  const fontSize = await page.evaluate(() =>
+    getComputedStyle(document.querySelector('#mushaf-reading-area')).getPropertyValue('--mushaf-font-size')
+  );
+  if (!fontSize.includes('28')) errors.push(`[${name}] mushaf font size setting failed: ${fontSize}`);
+  await page.click('#mushaf-bookmark');
+  await page.waitForTimeout(300);
+  const bookmarkItems = await page.locator('.mushaf-bookmark-item').count();
+  if (bookmarkItems < 1) errors.push(`[${name}] mushaf bookmark add failed`);
+  await page.click('#mushaf-bookmark');
+  await page.waitForTimeout(300);
+  const lastReadStored = await page.evaluate(() => localStorage.getItem('qsu_mushaf_last_read'));
+  if (!lastReadStored || !lastReadStored.includes('"surahId":2')) {
+    errors.push(`[${name}] mushaf last read not saved`);
+  }
+  const disclaimerMushaf = await page.locator('#mushaf .mushaf-disclaimer').innerText();
+  if (!disclaimerMushaf.includes('هذا ملخص تعليمي')) {
+    errors.push(`[${name}] mushaf missing Arabic disclaimer`);
+  }
+  const globalDisclaimer = await page.locator('#disclaimer-mount').innerText();
+  if (!globalDisclaimer.includes('هذا ملخص تعليمي')) {
+    errors.push(`[${name}] global Arabic disclaimer missing`);
+  }
+
+  // Story mushaf open button
+  await page.goto('http://127.0.0.1:3456/#story', { waitUntil: 'networkidle' });
+  await page.waitForSelector('#storySelect', { timeout: 10000 });
+  await page.selectOption('#storySelect', 'yusuf');
+  await page.waitForTimeout(500);
+  const storyMushafBtn = await page.locator('#story-root [data-mushaf-open]').count();
+  if (storyMushafBtn < 1) errors.push(`[${name}] story mode missing فتح في المصحف button`);
+  await page.locator('#story-root [data-mushaf-open]').first().click();
+  await page.waitForTimeout(500);
+  const mushafAfterStory = await page.locator('#mushaf').count();
+  if (mushafAfterStory < 1) errors.push(`[${name}] فتح في المصحف did not open mushaf section`);
 
   // Story Mode evidence warnings
   await page.goto('http://127.0.0.1:3456/#story', { waitUntil: 'networkidle' });
