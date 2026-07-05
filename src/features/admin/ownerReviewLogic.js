@@ -33,6 +33,60 @@ export const DECISIONS_REQUIRING_OWNER_NOTE = new Set([
   'rename_event',
 ]);
 
+/** Arabic validation status messages for owner review UI */
+export const VALIDATION_MESSAGES_AR = {
+  undecided: 'لم يتم اتخاذ قرار بعد',
+  missing_source_id: 'يحتاج مصدر',
+  missing_owner_note: 'يحتاج ملاحظة المالك',
+  invalid_ayah_range: 'يحتاج تصحيح نطاق الآيات',
+  cannot_approve_yet: 'لا يمكن الاعتماد قبل اكتمال الشروط',
+  valid_compile_only: 'صالح للتجميع كمقترح فقط',
+  rejected_proposal: 'مرفوض كمقترح — ليس اعتمادًا نهائيًا',
+  invalid: 'قرار غير صالح',
+};
+
+export const DECISION_LABELS_AR = {
+  undecided: 'لم يُحدَّد',
+  approve_after_source_check: 'موافقة بعد التحقق من المصدر',
+  revise_ayah_range: 'تصحيح نطاق الآيات',
+  rename_event: 'إعادة تسمية الحدث',
+  split_event: 'تقسيم الحدث',
+  reject_mapping: 'رفض الربط',
+  needs_source: 'يحتاج مصدر',
+};
+
+export const OWNER_BACKUP_WARNING_AR =
+  'قرارات المراجعة محفوظة محليًا في هذا المتصفح. يرجى تصدير JSON بشكل دوري حتى لا تضيع القرارات.';
+
+export const OWNER_BROWSER_TIP_AR =
+  'موصى به: Google Chrome أو Microsoft Edge — وضع ملء الشاشة على سطح المكتب. تجنّب نافذة المعاينة الصغيرة في Cursor للمراجعة الكاملة.';
+
+export const OWNER_EXPORT_SAFETY_WARNINGS_AR = [
+  'لا يُطبَّق شيء على المحتوى من هذه الواجهة.',
+  'لا يصبح أي قرار نهائيًا للعرض العام تلقائيًا.',
+  'قرار approve_after_source_check يتطلب لاحقًا Content Batch ثم Controlled Apply.',
+  'بدون source_id لا يمكن الاعتماد.',
+  'بدون owner_note لا يمكن الاعتماد.',
+];
+
+/**
+ * @param {{ status?: string, messageAr?: string }} preview
+ */
+export function getValidationMessageAr(preview) {
+  if (preview?.messageAr) return preview.messageAr;
+  const map = {
+    undecided: VALIDATION_MESSAGES_AR.undecided,
+    'missing source_id': VALIDATION_MESSAGES_AR.missing_source_id,
+    'missing owner_note': VALIDATION_MESSAGES_AR.missing_owner_note,
+    'invalid ayah range': VALIDATION_MESSAGES_AR.invalid_ayah_range,
+    'cannot approve yet': VALIDATION_MESSAGES_AR.cannot_approve_yet,
+    valid: VALIDATION_MESSAGES_AR.valid_compile_only,
+    'rejected proposal': VALIDATION_MESSAGES_AR.rejected_proposal,
+    invalid: VALIDATION_MESSAGES_AR.invalid,
+  };
+  return map[preview?.status] || preview?.status || '';
+}
+
 function str(v) {
   return String(v ?? '').trim();
 }
@@ -103,6 +157,7 @@ export function getEntryValidationPreview(entry, ctx = {}) {
   if (!decision || decision === 'undecided') {
     return {
       status: 'undecided',
+      messageAr: VALIDATION_MESSAGES_AR.undecided,
       issues: [],
       canApprove: false,
       readyForCompile: true,
@@ -114,6 +169,7 @@ export function getEntryValidationPreview(entry, ctx = {}) {
     if (!str(entry.owner_note)) {
       return {
         status: 'missing owner_note',
+        messageAr: VALIDATION_MESSAGES_AR.missing_owner_note,
         issues: ['owner_note مطلوب لـ reject_mapping'],
         canApprove: false,
         readyForCompile: false,
@@ -122,6 +178,7 @@ export function getEntryValidationPreview(entry, ctx = {}) {
     }
     return {
       status: 'rejected proposal',
+      messageAr: VALIDATION_MESSAGES_AR.rejected_proposal,
       issues: [],
       canApprove: false,
       readyForCompile: true,
@@ -130,7 +187,14 @@ export function getEntryValidationPreview(entry, ctx = {}) {
   }
 
   if (decision === 'needs_source') {
-    return { status: 'valid', issues: [], canApprove: false, readyForCompile: true, invalid: false };
+    return {
+      status: 'valid',
+      messageAr: VALIDATION_MESSAGES_AR.valid_compile_only,
+      issues: [],
+      canApprove: false,
+      readyForCompile: true,
+      invalid: false,
+    };
   }
 
   if (decision === 'revise_ayah_range') {
@@ -138,18 +202,27 @@ export function getEntryValidationPreview(entry, ctx = {}) {
     if (!ayah.valid) {
       return {
         status: 'invalid ayah range',
+        messageAr: VALIDATION_MESSAGES_AR.invalid_ayah_range,
         issues: ayah.errors,
         canApprove: false,
         readyForCompile: false,
         invalid: true,
       };
     }
-    return { status: 'valid', issues: [], canApprove: false, readyForCompile: true, invalid: false };
+    return {
+      status: 'valid',
+      messageAr: VALIDATION_MESSAGES_AR.valid_compile_only,
+      issues: [],
+      canApprove: false,
+      readyForCompile: true,
+      invalid: false,
+    };
   }
 
   if (DECISIONS_REQUIRING_OWNER_NOTE.has(decision) && !str(entry.owner_note)) {
     return {
       status: 'missing owner_note',
+      messageAr: VALIDATION_MESSAGES_AR.missing_owner_note,
       issues: ['owner_note مطلوب'],
       canApprove: false,
       readyForCompile: false,
@@ -172,13 +245,24 @@ export function getEntryValidationPreview(entry, ctx = {}) {
       issues.push(`source_id غير موجود: ${sourceId}`);
     }
     let status = 'valid';
-    if (issues.some((i) => i.includes('source_id'))) status = 'missing source_id';
-    else if (issues.some((i) => i.includes('owner_note'))) status = 'missing owner_note';
-    else if (issues.some((i) => i.includes('cannot approve'))) status = 'cannot approve yet';
-    else if (issues.length) status = 'invalid';
+    let messageAr = VALIDATION_MESSAGES_AR.valid_compile_only;
+    if (issues.some((i) => i.includes('source_id'))) {
+      status = 'missing source_id';
+      messageAr = VALIDATION_MESSAGES_AR.missing_source_id;
+    } else if (issues.some((i) => i.includes('owner_note'))) {
+      status = 'missing owner_note';
+      messageAr = VALIDATION_MESSAGES_AR.missing_owner_note;
+    } else if (issues.some((i) => i.includes('cannot approve'))) {
+      status = 'cannot approve yet';
+      messageAr = VALIDATION_MESSAGES_AR.cannot_approve_yet;
+    } else if (issues.length) {
+      status = 'invalid';
+      messageAr = VALIDATION_MESSAGES_AR.invalid;
+    }
 
     return {
       status,
+      messageAr,
       issues,
       canApprove: canProposeOwnerApproved(entry, entry),
       readyForCompile: issues.length === 0 || status === 'cannot approve yet',
@@ -189,6 +273,7 @@ export function getEntryValidationPreview(entry, ctx = {}) {
   if (decision === 'rename_event' && !str(entry.corrected_event_title)) {
     return {
       status: 'invalid',
+      messageAr: VALIDATION_MESSAGES_AR.invalid,
       issues: ['corrected_event_title مطلوب لـ rename_event'],
       canApprove: false,
       readyForCompile: false,
@@ -196,7 +281,14 @@ export function getEntryValidationPreview(entry, ctx = {}) {
     };
   }
 
-  return { status: 'valid', issues: [], canApprove: false, readyForCompile: true, invalid: false };
+  return {
+    status: 'valid',
+    messageAr: VALIDATION_MESSAGES_AR.valid_compile_only,
+    issues: [],
+    canApprove: false,
+    readyForCompile: true,
+    invalid: false,
+  };
 }
 
 /**
@@ -212,6 +304,7 @@ export function summarizeWorkspaceStats(mappings, ctx = {}) {
     rename_event: 0,
     split_event: 0,
     reject_mapping: 0,
+    rejected: 0,
     needs_source: 0,
     invalid: 0,
     readyForCompilation: 0,
@@ -222,7 +315,10 @@ export function summarizeWorkspaceStats(mappings, ctx = {}) {
   mappings.forEach((entry) => {
     const decision = str(entry.owner_decision) || 'undecided';
     if (decision === 'undecided' || !decision) counts.undecided += 1;
-    else if (counts[decision] !== undefined) counts[decision] += 1;
+    else if (decision === 'reject_mapping') {
+      counts.reject_mapping += 1;
+      counts.rejected += 1;
+    } else if (counts[decision] !== undefined) counts[decision] += 1;
 
     const preview = getEntryValidationPreview(entry, ctx);
     if (preview.invalid) counts.invalid += 1;

@@ -5,6 +5,10 @@ import { showToast } from '../../components/toast.js';
 import {
   OWNER_DECISION_OPTIONS,
   OWNER_TEMPLATE_PATH,
+  OWNER_BACKUP_WARNING_AR,
+  OWNER_BROWSER_TIP_AR,
+  OWNER_EXPORT_SAFETY_WARNINGS_AR,
+  DECISION_LABELS_AR,
   buildOwnerReviewCsv,
   buildOwnerReviewExportTemplate,
   canProposeOwnerApproved,
@@ -13,6 +17,7 @@ import {
   filterOwnerMappings,
   formatAyahRange,
   getEntryValidationPreview,
+  getValidationMessageAr,
   mergeOwnerDecisions,
   readOwnerDecisionStore,
   summarizeWorkspaceStats,
@@ -57,6 +62,7 @@ export async function renderOwnerReviewWorkspacePanel(root, ctx) {
     onSelectOwnerItem,
     onOwnerFiltersChange,
     onToast,
+    showConfirmDialog,
   } = ctx;
 
   const sourceIds = new Set(tafsirSources.map((s) => s.id));
@@ -86,36 +92,44 @@ export async function renderOwnerReviewWorkspacePanel(root, ctx) {
   const selected = working.mappings.find((m) => m.event_id === selectedId) || filtered[0] || null;
   const selectedPreview = selected ? getEntryValidationPreview(selected, validationCtx) : null;
   const selectedIdx = selected ? filtered.findIndex((m) => m.event_id === selected.event_id) : -1;
+  const globalIdx = selected ? working.mappings.findIndex((m) => m.event_id === selected.event_id) : -1;
 
   const batchIds = [...new Set(working.mappings.map((m) => m.batch_id))];
+  const progressPct = stats.total ? Math.round(((stats.total - stats.undecided) / stats.total) * 100) : 0;
 
   root.innerHTML = `
-    <div class="admin-owner-review" id="owner-review-workspace">
+    <div class="admin-owner-review" id="owner-review-workspace" dir="rtl">
       ${isLocalMode ? `<div class="draft-banner admin-demo-banner">${escapeHtml(getAuthModeLabelAr())}</div>` : ''}
 
       <div class="glass pad admin-owner-header">
-        <h3 class="gold">مراجعة المالك — كل الدفعات (48)</h3>
-        <p class="muted">قالب: <code>${escapeHtml(OWNER_TEMPLATE_PATH)}</code> · examples: <code>examples/evidence_patch.all_batches.owner_review_template.json</code></p>
+        <div class="owner-header-row">
+          <div>
+            <h3 class="gold">مراجعة المالك — كل الدفعات (48)</h3>
+            <p class="muted owner-help-text">${escapeHtml(OWNER_BROWSER_TIP_AR)}</p>
+          </div>
+          <div class="owner-progress-ring" aria-label="تقدّم المراجعة">
+            <strong>${progressPct}%</strong>
+            <span>مُراجع</span>
+          </div>
+        </div>
         <div class="admin-warning warn">${escapeHtml(OWNER_WARNING_AR)}</div>
+        <div class="admin-warning rose owner-backup-warning" id="owner-backup-warning">${escapeHtml(OWNER_BACKUP_WARNING_AR)}</div>
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
       </div>
 
-      <div class="glass pad admin-owner-stats">
-        <div class="admin-stats admin-stats-owner">
-          <div class="stat"><strong>${stats.total}</strong><span>إجمالي</span></div>
-          <div class="stat muted"><strong>${stats.undecided}</strong><span>undecided</span></div>
-          <div class="stat"><strong>${stats.approve_after_source_check}</strong><span>approve_after_source_check</span></div>
-          <div class="stat"><strong>${stats.revise_ayah_range}</strong><span>revise_ayah_range</span></div>
-          <div class="stat"><strong>${stats.rename_event}</strong><span>rename_event</span></div>
-          <div class="stat"><strong>${stats.split_event}</strong><span>split_event</span></div>
-          <div class="stat rose"><strong>${stats.reject_mapping}</strong><span>reject_mapping</span></div>
-          <div class="stat warn"><strong>${stats.needs_source}</strong><span>needs_source</span></div>
-          <div class="stat ${stats.invalid ? 'rose' : 'ok'}"><strong>${stats.invalid}</strong><span>invalid decisions</span></div>
-        </div>
-        <div class="admin-owner-compile-summary">
-          <span class="tag ${stats.readyForCompilation === 48 ? 'green' : 'warn'}">ready: ${stats.readyForCompilation}</span>
-          <span class="tag rose">not ready: ${stats.notReady}</span>
-          <span class="tag warn">requires action: ${stats.requiresOwnerAction}</span>
+      <div class="glass pad admin-owner-progress" id="owner-progress-dashboard">
+        <h4 class="gold">لوحة تقدّم المراجعة</h4>
+        <div class="admin-stats admin-stats-owner-progress">
+          <div class="stat"><strong>${stats.total}</strong><span>إجمالي الربط</span></div>
+          <div class="stat muted"><strong>${stats.undecided}</strong><span>لم يُحدَّد</span></div>
+          <div class="stat"><strong>${stats.approve_after_source_check}</strong><span>موافقة بعد مصدر</span></div>
+          <div class="stat warn"><strong>${stats.needs_source}</strong><span>يحتاج مصدر</span></div>
+          <div class="stat"><strong>${stats.revise_ayah_range}</strong><span>تصحيح آيات</span></div>
+          <div class="stat"><strong>${stats.rename_event}</strong><span>إعادة تسمية</span></div>
+          <div class="stat"><strong>${stats.split_event}</strong><span>تقسيم</span></div>
+          <div class="stat rose"><strong>${stats.rejected}</strong><span>مرفوض</span></div>
+          <div class="stat ${stats.invalid ? 'rose' : 'ok'}"><strong>${stats.invalid}</strong><span>قرارات غير صالحة</span></div>
+          <div class="stat ok"><strong>${stats.readyForCompilation}</strong><span>جاهز للتجميع</span></div>
         </div>
         <p class="muted" id="owner-save-status">
           ${lastSavedAt ? `آخر حفظ: ${escapeHtml(new Date(lastSavedAt).toLocaleString('ar-SA'))}` : 'لم يُحفظ بعد'}
@@ -124,63 +138,78 @@ export async function renderOwnerReviewWorkspacePanel(root, ctx) {
       </div>
 
       <div class="admin-owner-toolbar glass pad">
-        <label class="owner-search-label">بحث
-          <input type="search" id="owner-search" placeholder="event_id · عنوان · نبي · آية" value="${escapeHtml(filters.q || '')}" />
+        <label class="owner-search-label">بحث <span class="muted">(/)</span>
+          <input type="search" id="owner-search" placeholder="معرّف الحدث · العنوان · النبي · الآية" value="${escapeHtml(filters.q || '')}" autocomplete="off" />
         </label>
-        <label>دفعة
+        <label>الدفعة
           <select id="owner-filter-batch">
             <option value="">الكل</option>
             ${batchIds.map((b) => `<option value="${escapeHtml(b)}" ${filters.batchId === b ? 'selected' : ''}>${escapeHtml(BATCH_LABELS[b] || b)}</option>`).join('')}
           </select>
         </label>
-        <label>قرار
+        <label>القرار
           <select id="owner-filter-decision">
             <option value="">الكل</option>
-            ${OWNER_DECISION_OPTIONS.map((d) => `<option value="${d}" ${filters.decision === d ? 'selected' : ''}>${d}</option>`).join('')}
+            ${OWNER_DECISION_OPTIONS.map((d) => `<option value="${d}" ${filters.decision === d ? 'selected' : ''}>${escapeHtml(DECISION_LABELS_AR[d] || d)}</option>`).join('')}
           </select>
         </label>
-        <label>مخاطر
+        <label>المخاطر
           <select id="owner-filter-risk">
             <option value="">الكل</option>
             ${['high', 'medium', 'low'].map((r) => `<option value="${r}" ${filters.riskLevel === r ? 'selected' : ''}>${r}</option>`).join('')}
           </select>
         </label>
-        <label>صحة
+        <label>الصحة
           <select id="owner-filter-validity">
             <option value="">الكل</option>
-            <option value="valid" ${filters.validity === 'valid' ? 'selected' : ''}>valid</option>
-            <option value="invalid" ${filters.validity === 'invalid' ? 'selected' : ''}>invalid</option>
+            <option value="valid" ${filters.validity === 'valid' ? 'selected' : ''}>صالح</option>
+            <option value="invalid" ${filters.validity === 'invalid' ? 'selected' : ''}>غير صالح</option>
           </select>
         </label>
-        <div class="admin-actions">
-          <button type="button" class="btn sm" id="owner-prev" ${selectedIdx <= 0 ? 'disabled' : ''}>السابق (k)</button>
-          <button type="button" class="btn sm" id="owner-next" ${selectedIdx < 0 || selectedIdx >= filtered.length - 1 ? 'disabled' : ''}>التالي (j)</button>
+        <div class="admin-actions owner-nav-actions">
+          <button type="button" class="btn sm" id="owner-prev" ${selectedIdx <= 0 ? 'disabled' : ''} title="السابق (k)">◀ السابق</button>
+          <span class="muted owner-nav-pos">${globalIdx >= 0 ? `${globalIdx + 1} / ${stats.total}` : '—'}</span>
+          <button type="button" class="btn sm" id="owner-next" ${selectedIdx < 0 || selectedIdx >= filtered.length - 1 ? 'disabled' : ''} title="التالي (j)">التالي ▶</button>
         </div>
       </div>
 
       <div class="admin-owner-grid">
-        <div class="glass pad admin-main">
-          <h4 class="gold">القائمة (${filtered.length})</h4>
+        <div class="glass pad admin-main owner-list-panel">
+          <h4 class="gold">قائمة الربط (${filtered.length})</h4>
+          <div class="owner-queue-header muted">
+            <span>الحدث</span><span>النبي</span><span>الآية</span><span>الحالة</span>
+          </div>
           <div class="admin-queue owner-queue" id="owner-queue">
-            ${filtered.length ? filtered.map((m) => ownerQueueItem(m, selected, validationCtx)).join('') : '<div class="state-box">لا توجد نتائج.</div>'}
+            ${filtered.length ? filtered.map((m, i) => ownerQueueItem(m, selected, validationCtx, i)).join('') : '<div class="state-box">لا توجد نتائج.</div>'}
           </div>
         </div>
 
         <div class="glass pad admin-detail owner-detail-panel" id="owner-detail-panel">
-          ${selected ? ownerFormHtml(selected, selectedPreview, tafsirSources) : '<div class="state-box">اختر عنصرًا من القائمة.</div>'}
+          ${selected ? ownerFormHtml(selected, selectedPreview, tafsirSources) : '<div class="state-box">اختر عنصرًا من القائمة للمراجعة.</div>'}
         </div>
       </div>
 
       <div class="glass pad admin-export-bar owner-export-bar">
-        <div class="admin-actions">
-          <button type="button" class="btn sm" id="owner-save-local">حفظ محلي (s)</button>
-          <button type="button" class="btn sm" id="owner-export-json">تصدير قرارات JSON</button>
-          <button type="button" class="btn sm" id="owner-import-json">استيراد قرارات JSON</button>
-          <button type="button" class="btn sm" id="owner-export-csv">تصدير CSV</button>
-          <button type="button" class="btn sm" id="owner-copy-item">نسخ عنصر JSON</button>
-          <button type="button" class="btn sm" id="owner-copy-all">نسخ كل القرارات JSON</button>
+        <div class="owner-safety-warnings" id="owner-safety-warnings">
+          <h4 class="gold">تذكير قبل التصدير أو التجميع</h4>
+          <ul class="owner-safety-list">
+            ${OWNER_EXPORT_SAFETY_WARNINGS_AR.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="admin-actions owner-export-actions">
+          <button type="button" class="btn sm" id="owner-save-local" title="حفظ (s)">💾 حفظ محلي</button>
+          <button type="button" class="btn sm" id="owner-export-json">⬇ تصدير JSON</button>
+          <button type="button" class="btn sm" id="owner-import-json">⬆ استيراد JSON</button>
+          <button type="button" class="btn sm" id="owner-export-csv">⬇ تصدير CSV</button>
           <button type="button" class="btn primary sm" id="owner-compile-revised">إنشاء Revised Proposed Patch</button>
         </div>
+        <details class="owner-advanced-export">
+          <summary class="muted">خيارات متقدمة (نسخ JSON)</summary>
+          <div class="admin-actions" style="margin-top:8px">
+            <button type="button" class="btn sm" id="owner-copy-item">نسخ عنصر JSON</button>
+            <button type="button" class="btn sm" id="owner-copy-all">نسخ كل القرارات JSON</button>
+          </div>
+        </details>
         <input type="file" id="owner-import-file" accept="application/json,.json" hidden />
         <pre class="admin-patch-preview" id="owner-compile-preview"></pre>
       </div>
@@ -195,72 +224,88 @@ export async function renderOwnerReviewWorkspacePanel(root, ctx) {
     onSelectOwnerItem,
     onOwnerFiltersChange,
     onToast,
+    showConfirmDialog,
   });
 }
 
-function ownerQueueItem(item, selected, ctx) {
+function ownerQueueItem(item, selected, ctx, index) {
   const preview = getEntryValidationPreview(item, ctx);
+  const messageAr = getValidationMessageAr(preview);
   const active = selected?.event_id === item.event_id ? ' active' : '';
   const riskClass = item.risk_level === 'high' ? 'rose' : item.risk_level === 'medium' ? 'warn' : '';
-  const decision = String(item.owner_decision || '').trim() || 'undecided';
+  const statusClass = preview.invalid ? 'rose' : preview.status === 'undecided' ? 'muted' : 'green';
   return `
-    <button type="button" class="admin-queue-item owner-queue-item${active}" data-event-id="${escapeHtml(item.event_id)}">
-      <span class="muted">${escapeHtml(item.event_id)}</span>
-      <strong>${escapeHtml(item.title_ar)}</strong>
-      <span class="tag ${riskClass}">${escapeHtml(item.risk_level || '—')}</span>
-      <span class="tag">${escapeHtml(formatAyahRange(item))}</span>
-      <span class="tag ${preview.invalid ? 'rose' : preview.status === 'undecided' ? 'muted' : 'green'}">${escapeHtml(preview.status)}</span>
-      <span class="muted">${escapeHtml(decision)}</span>
+    <button type="button" class="admin-queue-item owner-queue-item${active}" data-event-id="${escapeHtml(item.event_id)}" title="${escapeHtml(messageAr)}">
+      <span class="owner-q-title"><strong>${escapeHtml(item.title_ar)}</strong><span class="muted">${escapeHtml(item.event_id)}</span></span>
+      <span class="owner-q-node">${escapeHtml(item.node_name_ar)}</span>
+      <span class="owner-q-ayah tag">${escapeHtml(formatAyahRange(item))}</span>
+      <span class="owner-q-status tag ${statusClass}" data-validation-ar>${escapeHtml(messageAr)}</span>
+      ${item.risk_level === 'high' ? `<span class="tag rose owner-q-risk">⚠</span>` : ''}
     </button>`;
 }
 
 function ownerFormHtml(item, preview, tafsirSources) {
   const finalOptions = ['', 'pending', 'needs_source'];
   if (canProposeOwnerApproved(item, item)) finalOptions.push('approved');
+  const messageAr = getValidationMessageAr(preview);
+  const previewClass = preview.invalid ? 'admin-error' : preview.status === 'valid' || preview.status === 'undecided' ? 'admin-ok' : 'warn';
 
   return `
     <div class="owner-item-header">
       <h3 class="gold">${escapeHtml(item.title_ar)}</h3>
-      <p class="muted">${escapeHtml(item.event_id)} · ${escapeHtml(item.node_name_ar)} · ${escapeHtml(item.batch_id)}</p>
-      <p>${escapeHtml(item.summary_ar)}</p>
-      <div class="owner-readonly-meta">
-        <p><strong>مقترح:</strong> ${escapeHtml(formatAyahRange(item))} · ${escapeHtml(item.relation_type)}</p>
-        <p><strong>evidence_note_ar:</strong> ${escapeHtml(item.evidence_note_ar)}</p>
-        <p><strong>reviewer_note:</strong> ${escapeHtml(item.reviewer_note)}</p>
-        ${item.risk_level ? `<p><span class="tag ${item.risk_level === 'high' ? 'rose' : 'warn'}">risk: ${escapeHtml(item.risk_level)}</span></p>` : ''}
-        ${item.overlap_warning ? `<div class="admin-warning warn">${escapeHtml(item.overlap_warning)}</div>` : ''}
-      </div>
-      <div class="admin-warning ${preview.invalid ? 'admin-error' : preview.status === 'valid' || preview.status === 'undecided' ? 'admin-ok' : 'warn'}">
-        معاينة التحقق: <strong>${escapeHtml(preview.status)}</strong>
-        ${preview.issues.length ? ` — ${escapeHtml(preview.issues.join(' · '))}` : ''}
-      </div>
+      <p class="muted">${escapeHtml(item.event_id)} · ${escapeHtml(item.node_name_ar)} · ${escapeHtml(BATCH_LABELS[item.batch_id] || item.batch_id)}</p>
     </div>
 
-    <form class="admin-curation-form owner-decision-form" id="owner-decision-form">
-      <input type="hidden" name="event_id" value="${escapeHtml(item.event_id)}" />
-      <label>owner_decision
-        <select name="owner_decision" id="owner-decision-select">
-          ${OWNER_DECISION_OPTIONS.map((d) => `<option value="${d}" ${(String(item.owner_decision || '').trim() || 'undecided') === d ? 'selected' : ''}>${d}</option>`).join('')}
-        </select>
-      </label>
-      <label>corrected_surah_id <input name="corrected_surah_id" type="number" min="1" max="114" value="${item.corrected_surah_id ?? ''}" /></label>
-      <label>corrected_ayah_from <input name="corrected_ayah_from" type="number" min="1" value="${item.corrected_ayah_from ?? ''}" /></label>
-      <label>corrected_ayah_to <input name="corrected_ayah_to" type="number" min="1" value="${item.corrected_ayah_to ?? ''}" /></label>
-      <label>corrected_event_title <input name="corrected_event_title" type="text" value="${escapeHtml(item.corrected_event_title || '')}" /></label>
-      <label>source_id
-        <select name="source_id">
-          <option value="">—</option>
-          ${tafsirSources.map((s) => `<option value="${s.id}" ${item.source_id === s.id ? 'selected' : ''}>${escapeHtml(s.name_ar)}</option>`).join('')}
-        </select>
-      </label>
-      <label>owner_note <textarea name="owner_note" rows="3">${escapeHtml(item.owner_note || '')}</textarea></label>
-      <label>final_recommended_status
-        <select name="final_recommended_status" id="owner-final-status">
-          ${finalOptions.map((v) => `<option value="${v}" ${(item.final_recommended_status || '') === v ? 'selected' : ''}>${v || '—'}</option>`).join('')}
-        </select>
-      </label>
-    </form>
-    <p class="muted" style="font-size:13px">لا يُعتمد تلقائيًا — التصدير والتجميع يولّدان مقترحات فقط.</p>
+    <section class="owner-section owner-section-proposed">
+      <h4 class="gold">البيانات المقترحة (للقراءة فقط)</h4>
+      <p class="owner-summary">${escapeHtml(item.summary_ar)}</p>
+      <dl class="owner-meta-dl">
+        <div><dt>نطاق الآية المقترح</dt><dd>${escapeHtml(formatAyahRange(item))}</dd></div>
+        <div><dt>نوع الربط</dt><dd>${escapeHtml(item.relation_type)}</dd></div>
+        <div><dt>ملاحظة الدليل</dt><dd>${escapeHtml(item.evidence_note_ar)}</dd></div>
+        <div><dt>ملاحظة المراجع</dt><dd>${escapeHtml(item.reviewer_note)}</dd></div>
+      </dl>
+      ${item.risk_level ? `<p><span class="tag ${item.risk_level === 'high' ? 'rose' : 'warn'}">مستوى المخاطر: ${escapeHtml(item.risk_level)}</span></p>` : ''}
+      ${item.overlap_warning ? `<div class="admin-warning warn owner-overlap-warning">${escapeHtml(item.overlap_warning)}</div>` : ''}
+    </section>
+
+    <section class="owner-section owner-section-validation">
+      <div class="admin-warning ${previewClass}" id="owner-validation-preview" data-validation-ar>
+        <strong>معاينة التحقق:</strong> ${escapeHtml(messageAr)}
+        ${preview.issues.length ? `<br><span class="muted">${escapeHtml(preview.issues.join(' · '))}</span>` : ''}
+      </div>
+    </section>
+
+    <section class="owner-section owner-section-decisions">
+      <h4 class="gold">قرار المالك</h4>
+      <form class="admin-curation-form owner-decision-form" id="owner-decision-form">
+        <input type="hidden" name="event_id" value="${escapeHtml(item.event_id)}" />
+        <label>قرار المالك
+          <select name="owner_decision" id="owner-decision-select">
+            ${OWNER_DECISION_OPTIONS.map((d) => `<option value="${d}" ${(String(item.owner_decision || '').trim() || 'undecided') === d ? 'selected' : ''}>${escapeHtml(DECISION_LABELS_AR[d] || d)}</option>`).join('')}
+          </select>
+        </label>
+        <div class="owner-correction-grid">
+          <label>سورة مصححة <input name="corrected_surah_id" type="number" min="1" max="114" value="${item.corrected_surah_id ?? ''}" placeholder="1–114" /></label>
+          <label>من آية <input name="corrected_ayah_from" type="number" min="1" value="${item.corrected_ayah_from ?? ''}" /></label>
+          <label>إلى آية <input name="corrected_ayah_to" type="number" min="1" value="${item.corrected_ayah_to ?? ''}" /></label>
+        </div>
+        <label>عنوان مصحح <input name="corrected_event_title" type="text" value="${escapeHtml(item.corrected_event_title || '')}" /></label>
+        <label>المصدر
+          <select name="source_id">
+            <option value="">— اختر مصدرًا —</option>
+            ${tafsirSources.map((s) => `<option value="${s.id}" ${item.source_id === s.id ? 'selected' : ''}>${escapeHtml(s.name_ar)}</option>`).join('')}
+          </select>
+        </label>
+        <label>ملاحظة المالك <textarea name="owner_note" rows="4" placeholder="وثّق سبب القرار…">${escapeHtml(item.owner_note || '')}</textarea></label>
+        <label>الحالة الموصى بها نهائيًا
+          <select name="final_recommended_status" id="owner-final-status">
+            ${finalOptions.map((v) => `<option value="${v}" ${(item.final_recommended_status || '') === v ? 'selected' : ''}>${v || '—'}</option>`).join('')}
+          </select>
+        </label>
+      </form>
+      <p class="muted owner-form-note">لا يُعتمد تلقائيًا — التصدير والتجميع يولّدان مقترحات فقط.</p>
+    </section>
   `;
 }
 
@@ -303,7 +348,7 @@ function updateSaveStatus(root) {
 }
 
 function bindOwnerWorkspaceEvents(root, opts) {
-  const { filtered, working, selected, validationCtx, onSelectOwnerItem, onOwnerFiltersChange, onToast } = opts;
+  const { filtered, working, selected, validationCtx, onSelectOwnerItem, onOwnerFiltersChange, onToast, showConfirmDialog } = opts;
 
   const autosave = debounce(() => {
     if (!selected) return;
@@ -352,8 +397,17 @@ function bindOwnerWorkspaceEvents(root, opts) {
     saveLocalDraft(root, onToast);
   });
 
-  root.querySelector('#owner-export-json')?.addEventListener('click', () => {
+  root.querySelector('#owner-export-json')?.addEventListener('click', async () => {
     persistCurrentForm(root, selected?.event_id);
+    if (showConfirmDialog) {
+      const confirmed = await showConfirmDialog({
+        title: 'تصدير قرارات المالك',
+        actionLabel: 'تصدير JSON — لا يُطبَّق على المحتوى',
+        recordLabel: '48 mapping(s)',
+        requireNote: false,
+      });
+      if (!confirmed.confirmed) return;
+    }
     const merged = mergeOwnerDecisions(baseTemplateCache, sessionOverrides);
     const exportDoc = buildOwnerReviewExportTemplate(merged);
     const validation = validateOwnerReviewTemplateForExport(exportDoc, validationCtx);
@@ -361,7 +415,7 @@ function bindOwnerWorkspaceEvents(root, opts) {
       showToast(`تصدير مع تحذيرات: ${validation.errors[0]}`, 'error', 4000);
     }
     downloadFile('owner_review_decisions.json', JSON.stringify(exportDoc, null, 2));
-    showToast('تم تصدير JSON', 'success');
+    showToast('تم تصدير JSON — احتفظ بنسخة احتياطية', 'success');
   });
 
   root.querySelector('#owner-export-csv')?.addEventListener('click', () => {
@@ -408,8 +462,17 @@ function bindOwnerWorkspaceEvents(root, opts) {
     e.target.value = '';
   });
 
-  root.querySelector('#owner-compile-revised')?.addEventListener('click', () => {
+  root.querySelector('#owner-compile-revised')?.addEventListener('click', async () => {
     persistCurrentForm(root, selected?.event_id);
+    if (showConfirmDialog) {
+      const confirmed = await showConfirmDialog({
+        title: 'إنشاء Revised Proposed Patch',
+        actionLabel: 'تجميع مقترح مُنقَّح — تنزيل فقط',
+        recordLabel: '48 mapping(s)',
+        requireNote: false,
+      });
+      if (!confirmed.confirmed) return;
+    }
     const merged = mergeOwnerDecisions(baseTemplateCache, sessionOverrides);
     const compiled = compileOwnerReviewDecisions(merged, validationCtx);
     const preview = root.querySelector('#owner-compile-preview');

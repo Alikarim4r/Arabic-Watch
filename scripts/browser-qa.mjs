@@ -138,11 +138,27 @@ for (const { name, context } of contexts) {
   if (!ownerHeading.includes('مراجعة المالك')) {
     errors.push(`[${name}] owner review workspace missing heading`);
   }
+  const progressDashboard = await page.locator('#owner-progress-dashboard').count();
+  if (progressDashboard < 1) errors.push(`[${name}] owner progress dashboard missing`);
+  const progressTotal = await page.locator('.admin-stats-owner-progress .stat strong').first().innerText();
+  if (progressTotal !== '48') errors.push(`[${name}] progress dashboard total expected 48, got ${progressTotal}`);
+  const backupWarning = await page.locator('#owner-backup-warning').innerText();
+  if (!backupWarning.includes('تصدير JSON')) {
+    errors.push(`[${name}] owner backup warning missing`);
+  }
+  const validationAr = await page.locator('[data-validation-ar]').first().innerText();
+  if (!validationAr.includes('قرار')) {
+    errors.push(`[${name}] Arabic validation message missing: ${validationAr}`);
+  }
+  const safetyWarnings = await page.locator('#owner-safety-warnings').innerText();
+  if (!safetyWarnings.includes('لا يُطبَّق')) {
+    errors.push(`[${name}] owner safety warnings missing`);
+  }
   const ownerQueueCount = await page.locator('.owner-queue-item').count();
   if (ownerQueueCount !== 48) {
     errors.push(`[${name}] owner review workspace expected 48 items, got ${ownerQueueCount}`);
   }
-  const ownerWarning = await page.locator('.admin-owner-header .admin-warning').innerText();
+  const ownerWarning = await page.locator('.admin-owner-header .admin-warning.warn').first().innerText();
   if (!ownerWarning.includes('بانتظار مراجعة المالك')) {
     errors.push(`[${name}] owner review missing owner warning`);
   }
@@ -172,8 +188,18 @@ for (const { name, context } of contexts) {
   if (!stored || !stored.includes('needs_source')) {
     errors.push(`[${name}] owner review localStorage autosave missing`);
   }
+  await page.click('#owner-export-json');
+  await page.waitForSelector('.qsu-confirm-overlay', { timeout: 5000 }).catch(() => null);
+  if (await page.locator('.qsu-confirm-overlay').count()) {
+    await page.click('#qsu-confirm-ok');
+    await page.waitForTimeout(300);
+  }
   await page.click('#owner-compile-revised');
-  await page.waitForTimeout(400);
+  await page.waitForSelector('.qsu-confirm-overlay', { timeout: 5000 }).catch(() => null);
+  if (await page.locator('.qsu-confirm-overlay').count()) {
+    await page.click('#qsu-confirm-ok');
+    await page.waitForTimeout(300);
+  }
   const compilePreview = await page.locator('#owner-compile-preview').innerText();
   if (!compilePreview.includes('approved_proposed: 0')) {
     errors.push(`[${name}] owner compile should have 0 approved with undecided decisions: ${compilePreview}`);

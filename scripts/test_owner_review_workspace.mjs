@@ -17,9 +17,10 @@ const {
   buildOwnerReviewExportTemplate,
   validateOwnerReviewTemplateForExport,
   canProposeOwnerApproved,
-  readOwnerDecisionStore,
-  writeOwnerDecisionStore,
-  OWNER_REVIEW_STORAGE_KEY,
+  getValidationMessageAr,
+  summarizeWorkspaceStats,
+  VALIDATION_MESSAGES_AR,
+  OWNER_BACKUP_WARNING_AR,
 } = await import(pathToFileURL(`${root}/src/features/admin/ownerReviewLogic.js`).href);
 
 const { isFinalContent } = await import(pathToFileURL(`${root}/src/lib/dataService.js`).href);
@@ -89,7 +90,19 @@ assert(exportValidation.valid, 'export template validates for blank decisions');
 const publicFinal = (seed.story_events || []).filter((e) => isFinalContent(e));
 assert(publicFinal.length === 6, 'public-final count remains 6');
 
-const storeKey = OWNER_REVIEW_STORAGE_KEY;
+const undecidedPreview = getEntryValidationPreview(template.mappings[0], ctx);
+assert(undecidedPreview.messageAr === VALIDATION_MESSAGES_AR.undecided, 'Arabic undecided message');
+assert(getValidationMessageAr(undecidedPreview).includes('قرار'), 'getValidationMessageAr returns Arabic');
+
+const stats = summarizeWorkspaceStats(template.mappings, ctx);
+assert(stats.total === 48, 'progress dashboard total is 48');
+assert(stats.undecided === 48, 'all undecided initially');
+assert(stats.readyForCompilation === 48, 'ready for compile when undecided');
+assert(stats.rejected === 0, 'rejected count starts at 0');
+
+assert(OWNER_BACKUP_WARNING_AR.includes('تصدير JSON'), 'backup warning mentions JSON export');
+
+const storeKey = 'qsu_owner_review_decisions';
 assert(storeKey === 'qsu_owner_review_decisions', 'localStorage key is defined');
 
 if (failed) {

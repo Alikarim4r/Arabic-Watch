@@ -802,6 +802,16 @@ if (!runNodeScript(['scripts/test_owner_review_workspace.mjs'], true)) {
   fail('test_owner_review_workspace', '');
 } else pass('test_owner_review_workspace logic tests');
 
+const finalChecklistPath = join(root, 'docs/final_owner_review_checklist.md');
+const desktopReviewPath = join(root, 'docs/run_desktop_review.md');
+if (!existsSync(finalChecklistPath)) fail('final_owner_review_checklist.md missing', finalChecklistPath);
+else pass('final_owner_review_checklist.md exists');
+if (!existsSync(desktopReviewPath)) fail('run_desktop_review.md missing', desktopReviewPath);
+else pass('run_desktop_review.md exists');
+if (readFileSync(desktopReviewPath, 'utf8').includes('Chrome') === false) {
+  fail('run_desktop_review.md missing Chrome recommendation', '');
+} else pass('run_desktop_review.md recommends Chrome/Edge');
+
 if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
 else pass('public-final safe event count remains 6');
 
