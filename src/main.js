@@ -13,8 +13,8 @@ import { renderEraTimeline, renderStudyCards } from './features/home/eraTimeline
 
 const env = getEnvConfig();
 configure({
-  dataMode: env.dataMode,
-  provider: env.dataMode,
+  dataMode: env.effectiveDataMode,
+  provider: env.effectiveDataMode,
   publicMode: true,
   supabaseUrl: env.supabaseUrl,
   supabaseAnonKey: env.supabaseAnonKey,

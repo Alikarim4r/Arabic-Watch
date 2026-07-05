@@ -1,5 +1,12 @@
 import { getRepository, getDataMode, isFinalContent, getEvidenceWarningAr } from '../../lib/dataService.js';
-import { getEnvConfig } from '../../config/env.js';
+import { getEnvConfig, isLocalRuntime, isSupabaseRuntime } from '../../config/env.js';
+import {
+  canAccessAdminReview,
+  getAuthModeLabelAr,
+  getAuthState,
+  isAdmin,
+  isReviewer,
+} from '../../lib/authService.js';
 import { escapeHtml, formatAyahRef } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
@@ -10,7 +17,13 @@ import {
   resolveSourceLabels,
   summarizeReviewStats,
 } from './reviewQueue.js';
-import { applyMockOverrides, saveMockOverride, submitReviewAction } from './reviewActions.js';
+import {
+  applyMockOverrides,
+  loadReviewActionHistory,
+  renderReviewHistoryHtml,
+  saveMockOverride,
+  submitReviewAction,
+} from './reviewActions.js';
 import { renderEvidenceCurationPanel } from './evidenceCurationPanel.js';
 
 /** @type {Object|null} */
@@ -45,10 +58,19 @@ export async function renderAdminReview(container) {
   ]);
 
   const env = getEnvConfig();
+  const auth = await getAuthState();
+  const canAccess = await canAccessAdminReview();
   const provider = (await repo.getProvider?.()) || getDataMode();
+
+  if (!canAccess) {
+    root.innerHTML = renderAccessDenied(auth);
+    return;
+  }
 
   state = {
     repo,
+    auth,
+    env,
     nodes,
     events,
     themes,
@@ -76,12 +98,27 @@ export async function renderAdminReview(container) {
   renderAdminPanel(root);
 }
 
-function renderAdminPanel(root) {
+function renderAccessDenied(auth) {
+  return `
+    <div class="glass pad admin-access-denied">
+      <h3 class="gold">صلاحية المراجعة مطلوبة</h3>
+      <p>وضع Supabase نشط — يلزم حساب <strong>reviewer</strong> أو <strong>admin</strong> للوصول إلى لوحة المراجعة.</p>
+      <p class="muted">المستخدم الحالي: ${escapeHtml(auth.user?.email || 'غير مسجّل')} · الدور: ${escapeHtml(auth.role)}</p>
+      <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
+    </div>`;
+}
+
+async function renderAdminPanel(root) {
   if (!state) return;
 
   if (state.activeTab === 'curation') {
-    renderEvidenceCurationPanel(root, {
+    await renderEvidenceCurationPanel(root, {
       repo: state.repo,
+      auth: state.auth,
+      isLocalMode: isLocalRuntime(),
+      isSupabaseMode: isSupabaseRuntime(),
+      canSubmitPatches: isLocalRuntime() || (await isReviewer()),
+      isAdmin: await isAdmin(),
       events: state.events,
       nodes: state.nodes,
       themes: state.themes,
@@ -125,7 +162,18 @@ function renderAdminPanel(root) {
       ? `<div class="admin-warning">⚠️ ${stats.pending + stats.needs_source} سجلًا (${Math.round(pendingRatio * 100)}%) ما زال قيد المراجعة — لا يُعرض كمحتوى نهائي في الوضع العام.</div>`
       : '';
 
+  const demoBanner = isLocalRuntime()
+    ? `<div class="draft-banner admin-demo-banner">${escapeHtml(getAuthModeLabelAr())}</div>`
+    : `<div class="admin-warning">${escapeHtml(getAuthModeLabelAr())}</div>`;
+
+  let historyHtml = '<p class="muted">—</p>';
+  if (selected && state.repo.getReviewActionHistory) {
+    const history = await loadReviewActionHistory(state.repo, selected.recordType, selected.id);
+    historyHtml = renderReviewHistoryHtml(history, { localMode: isLocalRuntime() });
+  }
+
   root.innerHTML = `
+    ${demoBanner}
     <div class="admin-tabs">
       <button type="button" class="btn sm primary" data-tab="review">مراجعة عامة</button>
       <button type="button" class="btn sm" data-tab="curation">Evidence Curation</button>
@@ -145,7 +193,7 @@ function renderAdminPanel(root) {
             ? `<div class="admin-warning">📍 ${stats.needs_precise_mapping} سجلًا بدون دليل قرآني دقيق — لا يُعرض كمحتوى نهائي.</div>`
             : ''
         }
-        <p class="muted admin-meta">وضع البيانات: <strong>${escapeHtml(getDataMode())}</strong> · المزود: <strong>${escapeHtml(String(providerLabel()))}</strong></p>
+        <p class="muted admin-meta">وضع البيانات: <strong>${escapeHtml(getDataMode())}</strong> · المطلوب: <strong>${escapeHtml(state.env.dataMode)}</strong> · المزود: <strong>${escapeHtml(String(providerLabel()))}</strong> · الدور: <strong>${escapeHtml(state.auth.role)}</strong></p>
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
 
         <h3 class="gold">تصفية</h3>
@@ -212,7 +260,7 @@ function renderAdminPanel(root) {
       </div>
 
       <div class="admin-detail glass pad" id="admin-detail">
-        ${selected ? detailHtml(selected) : '<p class="muted">اختر سجلًا للمراجعة.</p>'}
+        ${selected ? detailHtml(selected, historyHtml) : '<p class="muted">اختر سجلًا للمراجعة.</p>'}
       </div>
     </div>
   `;
@@ -228,9 +276,11 @@ function renderAdminPanel(root) {
 
 function providerLabel() {
   const env = getEnvConfig();
-  if (getDataMode() === 'local') return 'local JSON';
+  if (env.effectiveDataMode === 'local') {
+    return env.dataMode === 'supabase' ? 'local JSON (supabase fallback)' : 'local JSON';
+  }
   if (!env.isSupabaseConfigured) return 'supabase (fallback → local)';
-  return 'supabase placeholder';
+  return 'supabase';
 }
 
 function queueItemHtml(record, selected) {
@@ -248,7 +298,7 @@ function queueItemHtml(record, selected) {
     </button>`;
 }
 
-function detailHtml(record) {
+function detailHtml(record, historyHtml = '<p class="muted">—</p>') {
   const sources = resolveSourceLabels(state.tafsirSources, record.source_ids);
   const ayahList =
     record.ayahs?.length > 0
@@ -310,7 +360,10 @@ function detailHtml(record) {
       <button type="button" class="btn sm" data-action="reject">رفض</button>
       <button type="button" class="btn sm" data-action="request_revision">طلب تعديل</button>
     </div>
-    <p class="muted" style="margin-top:10px;font-size:13px">الإجراءات تجريبية — تُحفظ في الجلسة فقط حتى ربط Supabase.</p>
+    <p class="muted" style="margin-top:10px;font-size:13px">${isLocalRuntime() ? 'الإجراءات تُحفظ في الجلسة فقط — لا تُعتمد تلقائيًا على المحتوى العام.' : 'الإجراءات تُسجَّل في Supabase — لا تُحدّث جداول المحتوى المعتمد تلقائيًا.'}</p>
+
+    <h4 class="gold" style="margin-top:18px">سجل إجراءات المراجعة</h4>
+    ${historyHtml}
   `;
 }
 
@@ -353,10 +406,12 @@ function bindAdminEvents(root, records) {
       if (!selected) return;
       const action = btn.dataset.action;
       const note = root.querySelector('#admin-note')?.value || '';
-      saveMockOverride(selected, action, note);
-      await submitReviewAction(state.repo, { record: selected, action, note });
-      state.toast = `تم تسجيل «${action}» (تجريبي) لـ ${selected.title_ar}`;
-      renderAdminPanel(root);
+      if (isLocalRuntime()) {
+        saveMockOverride(selected, action, note);
+      }
+      const result = await submitReviewAction(state.repo, { record: selected, action, note });
+      state.toast = result.message || `تم تسجيل «${action}» لـ ${selected.title_ar}`;
+      await renderAdminPanel(root);
     });
   });
 }

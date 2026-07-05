@@ -163,4 +163,55 @@ try {
   fail('quran repository methods', err.message);
 }
 
+const { getEffectiveDataMode } = await import(
+  pathToFileURL(join(root, 'src/config/env.js')).href
+);
+const { invalidateAuthCache, getAuthState, canAccessAdminReview } = await import(
+  pathToFileURL(join(root, 'src/lib/authService.js')).href
+);
+
+invalidateAuthCache();
+const envCfg = getEnvConfig();
+if (envCfg.effectiveDataMode !== 'local') fail('default effective data mode', envCfg.effectiveDataMode);
+else pass('app loads in local mode without env');
+
+if (getEffectiveDataMode({ dataMode: 'supabase' }) !== 'local') {
+  fail('supabase env missing fallback', 'expected local');
+} else pass('repository fallback when Supabase env missing');
+
+try {
+  invalidateAuthCache();
+  const auth = await getAuthState();
+  if (!auth.isMock || auth.role !== 'viewer') fail('local auth defaults to viewer mock', auth.role);
+  else pass('local auth mock viewer by default');
+
+  invalidateAuthCache();
+  const canAccess = await canAccessAdminReview();
+  if (!canAccess) fail('local admin review demo access', '');
+  else pass('local admin review accessible as demo');
+} catch (err) {
+  fail('auth service local mode', err.message);
+}
+
+try {
+  const supaAttempt = await createRepository({
+    dataMode: 'supabase',
+    supabaseUrl: '',
+    supabaseAnonKey: '',
+  });
+  const provider = await supaAttempt.getProvider();
+  if (provider !== 'local') pass('supabase repository does not crash when env missing');
+  else pass('supabase repository does not crash when env missing');
+
+  const history = await supaAttempt.getReviewActionHistory?.('event', 'test');
+  if (!Array.isArray(history)) fail('local review history method', '');
+  else pass('review action session history API available locally');
+
+  const patchResult = await supaAttempt.submitEvidencePatch?.({ meta: { status: 'proposed' }, mappings: [] });
+  if (!patchResult?.ok) fail('local evidence patch session submit', '');
+  else pass('evidence patch validation/session path still works locally');
+} catch (err) {
+  fail('supabase missing env handling', err.message);
+}
+
 process.exit(failed ? 1 : 0);

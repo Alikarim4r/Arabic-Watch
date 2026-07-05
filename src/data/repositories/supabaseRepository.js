@@ -1,12 +1,13 @@
 /** @typedef {import('../../lib/repository.js').Repository} Repository */
 
 import { getEnvConfig } from '../../config/env.js';
+import { getCurrentUser } from '../../lib/authService.js';
+import { getSupabaseClient } from '../../lib/supabaseClient.js';
 import { attachQuranTextMethods } from '../../lib/quranText.js';
 import { loadLocalRepository, loadQuranTextIndex } from './localRepository.js';
 
 /**
  * Map Supabase row shapes to the JSON seed shape used by the UI.
- * Placeholder — wire to real queries when Supabase is populated.
  */
 export function mapSupabaseBundle(rows) {
   return {
@@ -18,6 +19,25 @@ export function mapSupabaseBundle(rows) {
     tafsir_sources: rows.tafsir_sources || [],
     eras: rows.eras || [],
     surahs: rows.surahs || [],
+  };
+}
+
+/**
+ * @param {Object} payload
+ */
+function buildReviewActionRow(payload, userId) {
+  return {
+    record_type: payload.contentType || payload.recordType,
+    record_id: payload.contentId || payload.recordId,
+    action: payload.action,
+    previous_status: payload.previousStatus || payload.previous_status || null,
+    new_status: payload.nextStatus || payload.new_status || null,
+    evidence_status: payload.evidence_status || payload.evidenceStatus || null,
+    evidence_confidence: payload.evidence_confidence || payload.evidenceConfidence || null,
+    source_id: payload.source_id || payload.sourceId || null,
+    reviewer_note: payload.note || payload.reviewer_note || null,
+    payload,
+    reviewer_user_id: userId || null,
   };
 }
 
@@ -38,6 +58,12 @@ export async function createSupabaseRepository(options = {}) {
     return loadLocalRepository();
   }
 
+  const client = await getSupabaseClient();
+  if (!client) {
+    console.warn('[QSU] Supabase client unavailable — falling back to local JSON.');
+    return loadLocalRepository();
+  }
+
   /** @type {Repository|null} */
   let localFallback = null;
   async function getFallback() {
@@ -46,19 +72,15 @@ export async function createSupabaseRepository(options = {}) {
   }
 
   /**
-   * Placeholder fetch — replace with @supabase/supabase-js client queries.
-   * Until migration is complete, use local seed as data source.
+   * Content tables are not migrated yet — seed JSON remains source of truth for display.
+   * Review actions persist to Supabase audit tables only (no auto-approval of content).
    */
   async function loadRemoteOrLocal() {
     try {
-      // Future implementation:
-      // const client = createClient(url, key);
-      // const [nodes, events, ...] = await Promise.all([...]);
-      // return mapSupabaseBundle({ ... });
-      console.info('[QSU] Supabase repository placeholder — using local seed until tables are populated.');
+      console.info('[QSU] Supabase mode — content from local seed; review actions persist remotely.');
       const local = await getFallback();
       const data = await local.loadAll();
-      return { ...data, _provider: 'supabase-placeholder' };
+      return { ...data, _provider: 'supabase' };
     } catch (err) {
       console.warn('[QSU] Supabase load failed — falling back to local JSON.', err);
       const local = await getFallback();
@@ -80,7 +102,7 @@ export async function createSupabaseRepository(options = {}) {
       return cachedData;
     },
     async getProvider() {
-      return cachedData?._provider === 'supabase-placeholder' ? 'supabase' : 'supabase';
+      return 'supabase';
     },
     async getNodes() {
       const d = await this.loadAll();
@@ -128,22 +150,132 @@ export async function createSupabaseRepository(options = {}) {
       const d = await this.loadAll();
       return d.eras || [];
     },
+
     /**
-     * Structured for future Supabase writes to content_reviews + row updates.
-     * @param {{ contentType: string, contentId: string, action: string, note?: string, reviewerName?: string }} payload
+     * Persist review action audit row — does not mutate approved content tables.
+     * @param {Object} payload
      */
     async submitReviewAction(payload) {
-      // Future:
-      // await client.from('content_reviews').insert({ ... })
-      // await client.from(table).update({ review_status }).eq('id', payload.contentId)
+      const user = await getCurrentUser();
+      if (!user?.id) {
+        return {
+          ok: false,
+          provider: 'supabase',
+          error: 'not_authenticated',
+          message: 'Sign in as reviewer/admin to persist review actions.',
+        };
+      }
+
+      const row = buildReviewActionRow(payload, user.id);
+      const { data, error } = await client.from('review_actions').insert(row).select('*').single();
+
+      if (error) {
+        console.warn('[QSU] review_actions insert failed', error);
+        return {
+          ok: false,
+          provider: 'supabase',
+          error: error.message,
+          message: 'Failed to persist review action.',
+        };
+      }
+
       return {
         ok: true,
-        mock: true,
         provider: 'supabase',
-        pendingSync: true,
-        payload,
-        message: 'Review action recorded locally (mock). Wire Supabase RPC to persist.',
+        persisted: true,
+        mock: false,
+        data,
+        message: 'Review action recorded in Supabase audit log (content not auto-approved).',
       };
+    },
+
+    /**
+     * @param {string} recordType
+     * @param {string} recordId
+     */
+    async getReviewActionHistory(recordType, recordId) {
+      const { data, error } = await client
+        .from('review_actions')
+        .select('*')
+        .eq('record_type', recordType)
+        .eq('record_id', recordId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('[QSU] review_actions history fetch failed', error);
+        return [];
+      }
+      return data || [];
+    },
+
+    /**
+     * @param {Object} patchPayload
+     */
+    async submitEvidencePatch(patchPayload) {
+      const user = await getCurrentUser();
+      if (!user?.id) {
+        return {
+          ok: false,
+          provider: 'supabase',
+          error: 'not_authenticated',
+          message: 'Sign in as reviewer to submit evidence patches.',
+        };
+      }
+
+      const { data, error } = await client
+        .from('evidence_patch_submissions')
+        .insert({
+          status: 'submitted',
+          patch: patchPayload,
+          submitted_by: user.id,
+        })
+        .select('*')
+        .single();
+
+      if (error) {
+        return {
+          ok: false,
+          provider: 'supabase',
+          error: error.message,
+          message: 'Failed to submit evidence patch.',
+        };
+      }
+
+      return {
+        ok: true,
+        provider: 'supabase',
+        persisted: true,
+        data,
+        message: 'Evidence patch submitted for admin review (not auto-applied).',
+      };
+    },
+
+    /**
+     * Admin-only status update for evidence patch submissions.
+     * @param {string} submissionId
+     * @param {'approved'|'rejected'} status
+     * @param {string} [reviewerNote]
+     */
+    async reviewEvidencePatchSubmission(submissionId, status, reviewerNote = '') {
+      const user = await getCurrentUser();
+      if (!user?.id) {
+        return { ok: false, error: 'not_authenticated' };
+      }
+
+      const { data, error } = await client
+        .from('evidence_patch_submissions')
+        .update({
+          status,
+          reviewed_by: user.id,
+          reviewer_note: reviewerNote,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('id', submissionId)
+        .select('*')
+        .single();
+
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, data, message: `Patch marked ${status} — content tables not auto-mutated.` };
     },
   };
 

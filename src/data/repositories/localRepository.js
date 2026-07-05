@@ -4,6 +4,12 @@ import { attachQuranTextMethods } from '../../lib/quranText.js';
 
 let cachedData = null;
 
+/** @type {Object[]} */
+const sessionReviewHistory = [];
+
+/** @type {Object[]} */
+const sessionEvidencePatches = [];
+
 /**
  * @param {Object} data
  * @param {Object|null} [quranIndex]
@@ -65,20 +71,87 @@ export function createLocalJsonRepository(data, quranIndex = null) {
       return d.eras || [];
     },
     /**
-     * Mock review action — local JSON is read-only in demo mode.
-     * @param {{ contentType: string, contentId: string, action: string, note?: string }} _payload
+     * Mock review action — local JSON is read-only; session-only audit trail.
+     * @param {Object} payload
      */
-    async submitReviewAction(_payload) {
+    async submitReviewAction(payload) {
+      const entry = {
+        id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        record_type: payload.contentType,
+        record_id: payload.contentId,
+        action: payload.action,
+        previous_status: payload.previousStatus,
+        new_status: payload.nextStatus || localActionToStatus(payload.action),
+        reviewer_note: payload.note || null,
+        payload,
+        created_at: new Date().toISOString(),
+        source: 'local_session',
+      };
+      sessionReviewHistory.unshift(entry);
       return {
         ok: true,
         mock: true,
         provider: 'local',
-        message: 'Local JSON mode is read-only. Connect Supabase to persist reviews.',
+        persisted: false,
+        data: entry,
+        message: 'Local JSON mode is read-only. Review action saved in session only.',
+      };
+    },
+
+    /**
+     * @param {string} recordType
+     * @param {string} recordId
+     */
+    async getReviewActionHistory(recordType, recordId) {
+      return sessionReviewHistory.filter(
+        (row) => row.record_type === recordType && row.record_id === recordId
+      );
+    },
+
+    /**
+     * @param {Object} patchPayload
+     */
+    async submitEvidencePatch(patchPayload) {
+      const entry = {
+        id: `local-patch-${Date.now()}`,
+        status: 'draft',
+        patch: patchPayload,
+        created_at: new Date().toISOString(),
+        source: 'local_session',
+      };
+      sessionEvidencePatches.unshift(entry);
+      return {
+        ok: true,
+        mock: true,
+        provider: 'local',
+        persisted: false,
+        data: entry,
+        message: 'Evidence patch kept in local session only — export JSON to apply manually.',
+      };
+    },
+
+    async reviewEvidencePatchSubmission() {
+      return {
+        ok: false,
+        mock: true,
+        provider: 'local',
+        message: 'Patch approval requires Supabase admin mode.',
       };
     },
   };
 
   return attachQuranTextMethods(repo, quranIndex);
+}
+
+function localActionToStatus(action) {
+  switch (action) {
+    case 'approve':
+      return 'approved';
+    case 'needs_source':
+      return 'needs_source';
+    default:
+      return 'pending';
+  }
 }
 
 /**

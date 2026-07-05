@@ -1,12 +1,14 @@
 import { escapeHtml } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
+import { getAuthModeLabelAr } from '../../lib/authService.js';
 import { quranTextStatusBadgeHtml } from '../../lib/ayahDisplay.js';
 import {
   buildExportPatch,
   EVIDENCE_GUIDANCE_AR,
   validatePatchEntry,
 } from './evidenceValidation.js';
+import { submitEvidencePatch } from './reviewActions.js';
 import {
   buildMappingQueue,
   getAllSessionPatches,
@@ -20,7 +22,7 @@ import {
  * @param {Object} ctx
  */
 export async function renderEvidenceCurationPanel(root, ctx) {
-  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo } = ctx;
+  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo, isLocalMode, canSubmitPatches } = ctx;
   const stats = summarizeEvidenceStats(events, eventAyahs);
   const queue = buildMappingQueue(events, nodes, themes, eventAyahs);
   const selectedId = ctx.curationSelectedId || queue[0]?.id || null;
@@ -46,6 +48,7 @@ export async function renderEvidenceCurationPanel(root, ctx) {
 
   root.innerHTML = `
     <div class="admin-curation">
+      ${isLocalMode ? `<div class="draft-banner admin-demo-banner">${escapeHtml(getAuthModeLabelAr())}</div>` : ''}
       <div class="admin-tabs">
         <button type="button" class="btn sm" data-tab="review">مراجعة عامة</button>
         <button type="button" class="btn sm primary" data-tab="curation">Evidence Curation</button>
@@ -91,6 +94,7 @@ export async function renderEvidenceCurationPanel(root, ctx) {
         <div class="admin-actions">
           <button type="button" class="btn sm" id="curation-save-draft">حفظ مسودة الجلسة</button>
           <button type="button" class="btn primary sm" id="curation-export-patch">تصدير JSON Patch</button>
+          ${!isLocalMode && canSubmitPatches ? '<button type="button" class="btn sm" id="curation-submit-patch">إرسال Patch إلى Supabase</button>' : ''}
         </div>
         <pre class="admin-patch-preview" id="curation-validation-msg"></pre>
       </div>
@@ -158,6 +162,38 @@ export async function renderEvidenceCurationPanel(root, ctx) {
     downloadJson(payload, `evidence_patch_${Date.now()}.json`);
     msgEl.textContent = `تم تصدير ${patches.length} mapping(s) — status: proposed (غير معتمد)`;
     msgEl.className = 'admin-patch-preview admin-ok';
+  });
+
+  root.querySelector('#curation-submit-patch')?.addEventListener('click', async () => {
+    const msgEl = root.querySelector('#curation-validation-msg');
+    const patches = getAllSessionPatches();
+    if (!patches.length && selected) {
+      const current = readForm(root);
+      if (current?.event_id) patches.push(current);
+    }
+    if (!patches.length) {
+      msgEl.textContent = 'لا توجد مسودات للإرسال.';
+      msgEl.className = 'admin-patch-preview admin-error';
+      return;
+    }
+    for (const p of patches) {
+      const result = validatePatchEntry(p, validationCtx);
+      if (!result.valid) {
+        msgEl.textContent = `${p.event_id}:\n${result.errors.join('\n')}`;
+        msgEl.className = 'admin-patch-preview admin-error';
+        return;
+      }
+    }
+    const payload = buildExportPatch(patches);
+    const submitResult = await submitEvidencePatch(repo, payload);
+    if (!submitResult.ok) {
+      msgEl.textContent = submitResult.message || submitResult.error || 'فشل الإرسال';
+      msgEl.className = 'admin-patch-preview admin-error';
+      return;
+    }
+    msgEl.textContent = submitResult.message || 'تم إرسال patch — غير معتمد تلقائيًا';
+    msgEl.className = 'admin-patch-preview admin-ok';
+    onToast?.(submitResult.message);
   });
 }
 

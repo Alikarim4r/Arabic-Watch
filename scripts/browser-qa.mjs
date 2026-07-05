@@ -105,13 +105,29 @@ for (const { name, context } of contexts) {
   if (!exportMsg.includes('تصدير') && !exportMsg.includes('مسودة')) {
     errors.push(`[${name}] curation export failed: ${exportMsg}`);
   }
-  const disclaimer = await page.locator('#admin-review .admin-disclaimer').first().innerText();
-  if (!disclaimer.includes('هذا ملخص تعليمي')) {
+  const curationDisclaimer = await page.locator('#admin-review .admin-disclaimer').first().innerText();
+  if (!curationDisclaimer.includes('هذا ملخص تعليمي')) {
     errors.push(`[${name}] admin review missing Arabic disclaimer`);
   }
   const quranBadge = await page.locator('.admin-evidence-stats .tag.rose').first().innerText();
   if (!quranBadge.includes('النص غير مستورد')) {
     errors.push(`[${name}] admin curation missing النص غير مستورد badge`);
+  }
+
+  // Admin Review local demo banner + review history
+  await page.locator('[data-tab="review"]').click();
+  await page.waitForTimeout(300);
+  const demoBanner = await page.locator('#admin-review .admin-demo-banner').first().innerText();
+  if (!demoBanner.includes('وضع تجريبي محلي')) {
+    errors.push(`[${name}] admin review missing local demo banner`);
+  }
+  await page.locator('.admin-queue-item').first().click();
+  await page.waitForTimeout(200);
+  await page.locator('#admin-detail [data-action="needs_source"]').click();
+  await page.waitForTimeout(800);
+  const detailText = await page.locator('#admin-detail').innerText();
+  if (!detailText.includes('needs_source') && !detailText.includes('سجل إجراءات المراجعة')) {
+    errors.push(`[${name}] admin review history panel missing after action`);
   }
 
   // Story Mode Quran text fallback (no full import in repo)

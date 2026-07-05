@@ -1,7 +1,10 @@
-/** @typedef {'approve'|'needs_source'|'reject'|'request_revision'} ReviewAction */
+/** @typedef {'approve'|'needs_source'|'reject'|'request_revision'|'add_evidence'|'update_evidence'} ReviewAction */
+
+import { escapeHtml } from '../../lib/utils.js';
+import { isLocalRuntime } from '../../config/env.js';
 
 /**
- * Map UI action to target review_status for future Supabase updates.
+ * Map UI action to target review_status for audit rows (not auto-applied to content).
  * @param {ReviewAction} action
  */
 export function mapReviewActionToStatus(action) {
@@ -20,8 +23,7 @@ export function mapReviewActionToStatus(action) {
 }
 
 /**
- * Mock review submission — structured for future Supabase persistence.
- * @param {import('../../lib/repository.js').Repository} repo
+ * @param {import('../lib/repository.js').Repository} repo
  * @param {{ record: Object, action: ReviewAction, note?: string, reviewerName?: string }} params
  */
 export async function submitReviewAction(repo, { record, action, note = '', reviewerName = 'reviewer' }) {
@@ -34,6 +36,8 @@ export async function submitReviewAction(repo, { record, action, note = '', revi
     note,
     reviewerName,
     previousStatus: record.review_status,
+    evidence_status: record.evidence_status || null,
+    evidence_confidence: record.evidence_confidence || null,
   };
 
   if (typeof repo.submitReviewAction === 'function') {
@@ -49,7 +53,44 @@ export async function submitReviewAction(repo, { record, action, note = '', revi
 }
 
 /**
- * In-memory mock state for demo admin (session-only, not persisted to JSON).
+ * @param {import('../lib/repository.js').Repository} repo
+ * @param {string} recordType
+ * @param {string} recordId
+ */
+export async function loadReviewActionHistory(repo, recordType, recordId) {
+  if (typeof repo.getReviewActionHistory !== 'function') return [];
+  return repo.getReviewActionHistory(recordType, recordId);
+}
+
+/**
+ * @param {Object[]} history
+ * @param {{ localMode?: boolean }} [options]
+ */
+export function renderReviewHistoryHtml(history, options = {}) {
+  const localMode = options.localMode ?? isLocalRuntime();
+  if (!history?.length) {
+    return `<p class="muted">${localMode ? 'لا يوجد سجل مراجعة في هذه الجلسة بعد.' : 'لا يوجد سجل مراجعة مسجّل بعد.'}</p>`;
+  }
+
+  return `
+    <ul class="source-list admin-history">
+      ${history
+        .map(
+          (row) => `
+        <li>
+          <strong>${escapeHtml(row.action)}</strong>
+          <span class="muted">${escapeHtml(row.created_at || '')}</span><br/>
+          ${row.previous_status || row.new_status ? `<span class="tag">${escapeHtml(row.previous_status || '—')} → ${escapeHtml(row.new_status || '—')}</span>` : ''}
+          ${row.reviewer_note ? `<p>${escapeHtml(row.reviewer_note)}</p>` : ''}
+          ${row.source === 'local_session' ? '<span class="tag rose">جلسة محلية</span>' : ''}
+        </li>`
+        )
+        .join('')}
+    </ul>`;
+}
+
+/**
+ * In-memory mock state for demo admin (session-only UI override, not persisted to JSON).
  * @type {Map<string, { review_status: string, note?: string, action: string, at: string }>}
  */
 export const mockReviewOverrides = new Map();
@@ -84,4 +125,19 @@ export function saveMockOverride(record, action, note) {
     note,
     at: new Date().toISOString(),
   });
+}
+
+/**
+ * @param {import('../lib/repository.js').Repository} repo
+ * @param {Object} patchPayload
+ */
+export async function submitEvidencePatch(repo, patchPayload) {
+  if (typeof repo.submitEvidencePatch === 'function') {
+    return repo.submitEvidencePatch(patchPayload);
+  }
+  return {
+    ok: true,
+    mock: true,
+    message: 'Evidence patch export only in local mode.',
+  };
 }

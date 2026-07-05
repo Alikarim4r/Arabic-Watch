@@ -1,4 +1,4 @@
-import { getEnvConfig } from '../../config/env.js';
+import { getEnvConfig, getEffectiveDataMode } from '../../config/env.js';
 import { loadLocalRepository } from './localRepository.js';
 import { createSupabaseRepository } from './supabaseRepository.js';
 
@@ -10,7 +10,11 @@ import { createSupabaseRepository } from './supabaseRepository.js';
  */
 export async function createRepository(overrides = {}) {
   const env = getEnvConfig();
-  const mode = overrides.dataMode || env.dataMode;
+  const mode = getEffectiveDataMode(overrides);
+
+  if (env.supabaseFallbackReason && (overrides.dataMode || env.dataMode) === 'supabase') {
+    console.warn(`[QSU] ${env.supabaseFallbackReason}`);
+  }
 
   if (mode === 'supabase') {
     try {
