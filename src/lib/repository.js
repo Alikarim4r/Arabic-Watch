@@ -11,6 +11,8 @@
  * @property {string} [summary_ar]
  * @property {ReviewStatus} [review_status]
  * @property {SourceStatus} [source_status]
+ * @property {'precise_evidence'|'needs_precise_mapping'} [evidence_status]
+ * @property {'quran_explicit'|'tafsir_based'|'scholarly_inference'|'needs_review'} [evidence_confidence]
  */
 
 /**
@@ -23,6 +25,8 @@
  * @property {string} [certainty_level]
  * @property {ReviewStatus} [review_status]
  * @property {SourceStatus} [source_status]
+ * @property {'precise_evidence'|'needs_precise_mapping'} [evidence_status]
+ * @property {'quran_explicit'|'tafsir_based'|'scholarly_inference'|'needs_review'} [evidence_confidence]
  * @property {string[]} [theme_ids]
  * @property {string[]} [lessons_ar]
  * @property {Object[]} [sources]

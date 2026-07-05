@@ -47,11 +47,22 @@ function record(id, pass, detail = '', samples = []) {
   );
 }
 
-// 2. Event ayahs have valid surah_id and ayah range
+// 2. Evidence-aware ayah validation (no round-robin / fallback)
 {
   const invalid = [];
+  const ayahByEvent = new Map(eventAyahs.map((a) => [a.event_id, a]));
+
   for (const ay of eventAyahs) {
     const surah = surahById.get(ay.surah_id);
+    const ev = events.find((e) => e.id === ay.event_id);
+    if (!ev) {
+      invalid.push({ id: ay.event_id, reason: 'orphan event_ayah (event missing)' });
+      continue;
+    }
+    if (ev.evidence_status !== 'precise_evidence') {
+      invalid.push({ id: ay.event_id, reason: 'ayah on non-precise event (fallback forbidden)' });
+      continue;
+    }
     if (!surah) {
       invalid.push({ id: ay.event_id, reason: `unknown surah_id ${ay.surah_id}` });
       continue;
@@ -60,30 +71,37 @@ function record(id, pass, detail = '', samples = []) {
       invalid.push({ id: ay.event_id, reason: 'non-integer ayah range' });
       continue;
     }
-    if (ay.ayah_from < 1 || ay.ayah_to < ay.ayah_from) {
+    if (ay.ayah_from < 1 || ay.ayah_to < ay.ayah_from || ay.ayah_to > surah.ayah_count) {
       invalid.push({ id: ay.event_id, reason: `invalid range ${ay.ayah_from}-${ay.ayah_to}` });
-      continue;
-    }
-    if (ay.ayah_to > surah.ayah_count) {
-      invalid.push({
-        id: ay.event_id,
-        reason: `ayah_to ${ay.ayah_to} exceeds surah ${ay.surah_id} (${surah.ayah_count})`,
-      });
-    }
-    if (!events.some((e) => e.id === ay.event_id)) {
-      invalid.push({ id: ay.event_id, reason: 'orphan event_ayah (event missing)' });
     }
   }
-  const eventsWithoutAyah = events.filter((e) => !eventAyahs.some((a) => a.event_id === e.id));
+
+  const preciseMissingAyah = events.filter(
+    (e) => e.evidence_status === 'precise_evidence' && !ayahByEvent.has(e.id)
+  );
+  const mappingWithAyah = events.filter(
+    (e) => e.evidence_status === 'needs_precise_mapping' && ayahByEvent.has(e.id)
+  );
+  const missingEvidenceFields = events.filter((e) => !e.evidence_status || !e.evidence_confidence);
+
   record(
     'event_ayahs_valid',
-    invalid.length === 0 && eventsWithoutAyah.length === 0,
+    invalid.length === 0 &&
+      preciseMissingAyah.length === 0 &&
+      mappingWithAyah.length === 0 &&
+      missingEvidenceFields.length === 0,
     invalid.length
       ? `${invalid.length} invalid ayah rows`
-      : eventsWithoutAyah.length
-        ? `${eventsWithoutAyah.length} events without ayah`
-        : `${eventAyahs.length} ayah rows valid for ${events.length} events`,
-    [...invalid.map((x) => `${x.id}: ${x.reason}`), ...eventsWithoutAyah.map((e) => e.id)]
+      : preciseMissingAyah.length
+        ? `${preciseMissingAyah.length} precise events missing ayah`
+        : mappingWithAyah.length
+          ? `${mappingWithAyah.length} needs_precise_mapping events still have ayah rows`
+          : `${eventAyahs.length} ayah rows on precise events only`,
+    [
+      ...invalid.map((x) => `${x.id}: ${x.reason}`),
+      ...preciseMissingAyah.map((e) => e.id),
+      ...mappingWithAyah.map((e) => e.id),
+    ]
   );
 }
 
@@ -182,6 +200,29 @@ function record(id, pass, detail = '', samples = []) {
       ? `${approvedMissingBadgeData.length} approved items have source_status none`
       : 'No approved records with source_status none',
     approvedMissingBadgeData.map((x) => x.id)
+  );
+}
+
+// 7. Precise evidence required for final events
+{
+  const finalEvents = events.filter((e) => isFinalContent(e));
+  const badFinal = finalEvents.filter(
+    (e) =>
+      e.evidence_status !== 'precise_evidence' ||
+      e.evidence_confidence === 'needs_review' ||
+      !eventAyahs.some((a) => a.event_id === e.id)
+  );
+  const needsReviewFinal = events.filter(
+    (e) =>
+      e.evidence_confidence === 'needs_review' && e.review_status === 'approved'
+  );
+  record(
+    'final_requires_precise_evidence',
+    badFinal.length === 0 && needsReviewFinal.length === 0,
+    badFinal.length
+      ? `${badFinal.length} final events missing precise evidence`
+      : `${finalEvents.length} public-final events have precise evidence`,
+    [...badFinal.map((e) => e.id), ...needsReviewFinal.map((e) => e.id)]
   );
 }
 
@@ -296,7 +337,7 @@ Integrated into \`npm run qa\`:
 
 - Ayah rows store references only (no licensed full ayah text).
 - Events with empty \`sources\` arrays rely on \`source_status: pending\` and draft banners in UI.
-- Round-robin ayah assignment from prototype (18 refs → 59 events) is structurally valid; scholarly mapping still pending.
+- Round-robin ayah assignment removed in Phase 5. Only \`precise_evidence\` events may have \`event_ayahs\` rows (see \`precise_event_evidence.json\`).
 `;
 
 writeFileSync(join(root, 'docs/data_integrity_report.md'), report, 'utf8');

@@ -58,10 +58,23 @@ if (!pendingFilter.every((r) => r.review_status === 'pending')) fail('search rev
 else pass('search review filter');
 
 for (const ev of events) {
-  const ay = (seed.event_ayahs || []).filter((a) => a.event_id === ev.id);
-  if (!ay.length) fail(`event ${ev.id} has ayah`, 'missing');
+  if (ev.evidence_status === 'precise_evidence') {
+    const ay = (seed.event_ayahs || []).filter((a) => a.event_id === ev.id);
+    if (!ay.length) fail(`precise event ${ev.id} missing ayah`, 'missing');
+  }
+  if (ev.evidence_status === 'needs_precise_mapping') {
+    const ay = (seed.event_ayahs || []).filter((a) => a.event_id === ev.id);
+    if (ay.length) fail(`needs_precise_mapping event ${ev.id} has ayah`, 'forbidden fallback');
+  }
 }
-pass('all events have ayah links');
+pass('evidence ayah rules for events');
+
+const finalEvents = events.filter((e) => isFinalContent(e));
+const badFinalEvidence = finalEvents.filter(
+  (e) => e.evidence_status !== 'precise_evidence' || e.evidence_confidence === 'needs_review'
+);
+if (badFinalEvidence.length) fail('final events require precise evidence', badFinalEvidence.map((e) => e.id));
+else pass('final events require precise_evidence');
 
 if (surahs.length !== 114) fail('surah count', surahs.length);
 else pass('114 surahs in data');

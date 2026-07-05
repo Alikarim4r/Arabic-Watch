@@ -42,6 +42,57 @@ export function getDataMode() {
 }
 
 /**
+ * @param {{ node_id?: string, event_order?: number, recordType?: string }} item
+ */
+export function isEventRecord(item) {
+  return item?.recordType === 'event' || item?.node_id != null || item?.event_order != null;
+}
+
+/**
+ * @param {{ review_status?: string, source_status?: string, evidence_status?: string, evidence_confidence?: string }} item
+ */
+export function hasPreciseEvidence(item) {
+  return (
+    item?.evidence_status === 'precise_evidence' &&
+    item?.evidence_confidence !== 'needs_review'
+  );
+}
+
+/**
+ * @param {{ review_status?: string, source_status?: string, evidence_status?: string, evidence_confidence?: string, node_id?: string, event_order?: number, recordType?: string }} item
+ */
+export function isFinalContent(item) {
+  if (!publicMode) return true;
+  if (item?.review_status !== 'approved') return false;
+  if (!item?.source_status || item.source_status === 'none' || item.source_status === 'needs_source') {
+    return false;
+  }
+  if (isEventRecord(item)) {
+    if (item.evidence_status !== 'precise_evidence') return false;
+    if (item.evidence_confidence === 'needs_review') return false;
+  }
+  return true;
+}
+
+/**
+ * @param {Object} item
+ * @returns {string|null}
+ */
+export function getEvidenceWarningAr(item) {
+  if (!isEventRecord(item)) return null;
+  if (item.evidence_status === 'needs_precise_mapping') {
+    return 'لا يوجد ربط آيات دقيق لهذا الحدث بعد — لا يُعرض كدليل نهائي.';
+  }
+  if (item.evidence_confidence === 'needs_review') {
+    return 'الأدلة القرآنية مسودة وتحتاج مراجعة علمية.';
+  }
+  if (item.review_status !== 'approved') {
+    return 'المحتوى غير مراجع — لا يُعتمد كحكم أو تفسير نهائي.';
+  }
+  return null;
+}
+
+/**
  * @returns {Promise<Repository>}
  */
 export async function getRepository() {
@@ -61,14 +112,6 @@ export async function getRepository() {
  */
 export function isApprovedForPublic(item) {
   return item?.review_status === 'approved';
-}
-
-/**
- * @param {{ review_status?: string, source_status?: string }} item
- */
-export function isFinalContent(item) {
-  if (!publicMode) return true;
-  return item?.review_status === 'approved' && item?.source_status !== 'none';
 }
 
 export async function getGraphData() {

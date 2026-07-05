@@ -1,4 +1,4 @@
-import { getStoryBundle, isFinalContent } from '../../lib/dataService.js';
+import { getStoryBundle, isFinalContent, getEvidenceWarningAr } from '../../lib/dataService.js';
 import { escapeHtml, formatAyahRef, getReviewBadge, isMainStoryNode } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { renderStateBox } from '../../components/loadingState.js';
@@ -58,9 +58,11 @@ export async function renderStoryMode(container, onReady) {
       .map((tid) => themes.find((t) => t.id === tid))
       .filter(Boolean);
 
-    const draftBanner = !isFinalContent(current)
-      ? `<div class="draft-banner">محتوى ${getReviewBadge(current.review_status).label} — ليس تفسيرًا نهائيًا.</div>`
-      : '';
+    const evidenceWarning = getEvidenceWarningAr(current);
+    const draftBanner =
+      !isFinalContent(current) || evidenceWarning
+        ? `<div class="draft-banner">${escapeHtml(evidenceWarning || `محتوى ${getReviewBadge(current.review_status).label} — ليس تفسيرًا نهائيًا.`)}</div>`
+        : '';
 
     root.innerHTML = `
       <div class="search-box story-controls">
@@ -86,7 +88,7 @@ export async function renderStoryMode(container, onReady) {
           <p>${escapeHtml(current.summary_ar)}</p>
           <div>${themeChips.map((t) => `<span class="tag green">${escapeHtml(t.name_ar)}</span>`).join('')}</div>
           <div class="ayah-card-inline">
-            ${ayahs.map((a) => `<span class="tag blue">${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)}</span>`).join('')}
+            ${ayahs.length ? ayahs.map((a) => `<span class="tag blue">${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)}</span>`).join('') : '<span class="tag rose">لا يوجد دليل آيات دقيق</span>'}
             ${reviewBadgeHtml(current.review_status)}
           </div>
           <br />

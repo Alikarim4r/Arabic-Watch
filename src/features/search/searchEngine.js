@@ -48,6 +48,8 @@ export function searchIndex({ nodes, events, themes, surahs, query, filters, pub
       summary_ar: event.summary_ar,
       review_status: event.review_status,
       source_status: event.source_status,
+      evidence_status: event.evidence_status,
+      evidence_confidence: event.evidence_confidence,
       themeIds: event.theme_ids || [],
       searchText: [event.title_ar, event.summary_ar, ...(event.lessons_ar || [])].join(' '),
       hrefType: 'event',

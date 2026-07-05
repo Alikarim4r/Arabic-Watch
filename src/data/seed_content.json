@@ -1,9 +1,10 @@
 {
   "meta": {
-    "version": "0.3.0",
+    "version": "0.4.0",
     "migrated_from": "quran_story_universe_10_10_final.html",
     "disclaimer_ar": "هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة.",
-    "public_mode_note": "المحتوى غير المراجع يُعرض للتجربة فقط وليس كحكم أو تفسير نهائي."
+    "public_mode_note": "المحتوى غير المراجع يُعرض للتجربة فقط وليس كحكم أو تفسير نهائي.",
+    "evidence_policy": "Round-robin ayah assignment removed. Only curated precise_event_evidence.json mappings are trusted."
   },
   "tafsir_sources": [
     {
@@ -1844,7 +1845,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "khalq",
         "khilafah",
@@ -1856,7 +1857,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "adam_02__",
@@ -1866,7 +1869,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "khalq",
         "khilafah",
@@ -1878,7 +1881,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "adam_03__",
@@ -1888,7 +1893,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "khalq",
         "khilafah",
@@ -1900,7 +1905,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "adam_04__",
@@ -1910,7 +1917,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "khalq",
         "khilafah",
@@ -1922,7 +1929,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ayyub_01__",
@@ -1932,7 +1941,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "bala",
@@ -1944,7 +1953,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ayyub_02__",
@@ -1954,7 +1965,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "bala",
@@ -1966,7 +1977,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ayyub_03__",
@@ -1976,7 +1989,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "bala",
@@ -1988,7 +2001,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "dawud_01__",
@@ -1998,7 +2013,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "theme_0cfa8d19",
@@ -2010,7 +2025,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "dawud_02__",
@@ -2020,7 +2037,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "theme_0cfa8d19",
@@ -2032,7 +2049,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "dawud_03__",
@@ -2042,7 +2061,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "theme_0cfa8d19",
@@ -2054,7 +2073,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "dhulqarnayn_01__",
@@ -2064,7 +2085,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "justice",
@@ -2076,7 +2097,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "dhulqarnayn_02__",
@@ -2086,7 +2109,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "justice",
@@ -2098,7 +2121,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "dhulqarnayn_03__",
@@ -2108,7 +2133,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "justice",
@@ -2120,7 +2145,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ibrahim_idols",
@@ -2144,7 +2171,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة الأنبياء 51-70"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ibrahim_kaaba",
@@ -2154,7 +2183,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "needs_source",
-      "source_status": "none",
+      "source_status": "needs_source",
       "theme_ids": [
         "tawhid",
         "hujjah",
@@ -2163,7 +2192,9 @@
       "lessons_ar": [
         "العبادة والدعاء مع العمل."
       ],
-      "sources": []
+      "sources": [],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ibrahim_03__",
@@ -2173,7 +2204,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tawhid",
         "hujjah",
@@ -2185,7 +2216,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ibrahim_04__",
@@ -2195,7 +2228,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tawhid",
         "hujjah",
@@ -2207,7 +2240,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "ibrahim_05__",
@@ -2217,7 +2252,7 @@
       "event_order": 5,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tawhid",
         "hujjah",
@@ -2229,7 +2264,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "isa_birth",
@@ -2239,7 +2276,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mu_jiza",
         "ghulu",
@@ -2253,7 +2290,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة مريم 16-21"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "isa_02__",
@@ -2263,7 +2302,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mu_jiza",
         "ghulu",
@@ -2275,7 +2314,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "isa_03__",
@@ -2285,7 +2326,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mu_jiza",
         "ghulu",
@@ -2297,7 +2338,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "isa_04__",
@@ -2307,7 +2350,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mu_jiza",
         "ghulu",
@@ -2319,7 +2362,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "maryam_withdraw",
@@ -2329,7 +2374,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "theme_37798439",
         "taharah",
@@ -2343,7 +2388,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة آل عمران 37"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "maryam_02__",
@@ -2353,7 +2400,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "theme_37798439",
         "taharah",
@@ -2365,7 +2412,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "maryam_03__",
@@ -2375,7 +2424,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "theme_37798439",
         "taharah",
@@ -2387,7 +2436,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "maryam_04__",
@@ -2397,7 +2448,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "theme_37798439",
         "taharah",
@@ -2409,7 +2460,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "muhammad_revelation",
@@ -2434,7 +2487,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة العلق 1-5"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
     },
     {
       "id": "muhammad_02__",
@@ -2444,7 +2499,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "wahy",
         "tathbeet",
@@ -2456,7 +2511,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "muhammad_03__",
@@ -2466,7 +2523,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "wahy",
         "tathbeet",
@@ -2478,7 +2535,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "muhammad_04__",
@@ -2488,7 +2547,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "wahy",
         "tathbeet",
@@ -2500,7 +2559,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "muhammad_05__",
@@ -2510,7 +2571,7 @@
       "event_order": 5,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "wahy",
         "tathbeet",
@@ -2522,7 +2583,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_birth",
@@ -2547,7 +2610,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة القصص 7-13"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
     },
     {
       "id": "musa_firawn",
@@ -2556,8 +2621,8 @@
       "summary_ar": "عاد موسى إلى فرعون بالآيات والحجة.",
       "event_order": 2,
       "certainty_level": "quran_explicit",
-      "review_status": "approved",
-      "source_status": "cited",
+      "review_status": "pending",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2572,7 +2637,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة طه 24-56"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_03__",
@@ -2582,7 +2649,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2594,7 +2661,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_04__",
@@ -2604,7 +2673,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2616,7 +2685,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_05__",
@@ -2626,7 +2697,7 @@
       "event_order": 5,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2638,7 +2709,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_06__",
@@ -2648,7 +2721,7 @@
       "event_order": 6,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2660,7 +2733,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_07__",
@@ -2670,7 +2745,7 @@
       "event_order": 7,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2682,7 +2757,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_08__",
@@ -2692,7 +2769,7 @@
       "event_order": 8,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2704,7 +2781,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "musa_09__",
@@ -2714,7 +2793,7 @@
       "event_order": 9,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tughyan",
         "najah",
@@ -2726,7 +2805,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "nuh_dawah",
@@ -2750,7 +2831,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة نوح 5-20"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
     },
     {
       "id": "nuh_ark",
@@ -2774,7 +2857,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة هود 36-44"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
     },
     {
       "id": "nuh_03__",
@@ -2784,7 +2869,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "dawah",
@@ -2796,7 +2881,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "nuh_04__",
@@ -2806,7 +2893,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "dawah",
@@ -2818,7 +2905,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "sulayman_01__",
@@ -2828,7 +2917,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "shukr",
@@ -2840,7 +2929,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "sulayman_02__",
@@ -2850,7 +2941,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "shukr",
@@ -2862,7 +2953,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "sulayman_03__",
@@ -2872,7 +2965,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "mulk",
         "shukr",
@@ -2884,7 +2977,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yunus_01__",
@@ -2894,7 +2989,7 @@
       "event_order": 1,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tawbah",
         "theme_a29381b7",
@@ -2906,7 +3001,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yunus_02__",
@@ -2916,7 +3013,7 @@
       "event_order": 2,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tawbah",
         "theme_a29381b7",
@@ -2928,7 +3025,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yunus_03__",
@@ -2938,7 +3037,7 @@
       "event_order": 3,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tawbah",
         "theme_a29381b7",
@@ -2950,7 +3049,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yunus_04__",
@@ -2960,7 +3061,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "tawbah",
         "theme_a29381b7",
@@ -2972,7 +3073,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yusuf_dream",
@@ -2997,7 +3100,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة يوسف 4-6"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
     },
     {
       "id": "yusuf_well",
@@ -3022,7 +3127,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة يوسف 7-18"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
     },
     {
       "id": "yusuf_prison",
@@ -3047,7 +3154,9 @@
           "source_id": "quran_text",
           "note_ar": "سورة يوسف 23-57"
         }
-      ]
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
     },
     {
       "id": "yusuf_04__",
@@ -3057,7 +3166,7 @@
       "event_order": 4,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "iffah",
@@ -3069,7 +3178,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yusuf_05__",
@@ -3079,7 +3190,7 @@
       "event_order": 5,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "iffah",
@@ -3091,7 +3202,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yusuf_06__",
@@ -3101,7 +3214,7 @@
       "event_order": 6,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "iffah",
@@ -3113,7 +3226,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yusuf_07__",
@@ -3123,7 +3238,7 @@
       "event_order": 7,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "iffah",
@@ -3135,7 +3250,9 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     },
     {
       "id": "yusuf_08__",
@@ -3145,7 +3262,7 @@
       "event_order": 8,
       "certainty_level": "quran_explicit",
       "review_status": "pending",
-      "source_status": "cited",
+      "source_status": "pending",
       "theme_ids": [
         "sabr",
         "iffah",
@@ -3157,45 +3274,71 @@
           "source_id": "quran_text",
           "note_ar": "مرجع قرآني — راجع event_ayahs"
         }
-      ]
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
     }
   ],
   "event_ayahs": [
     {
-      "event_id": "adam_01__",
-      "surah_id": 2,
-      "ayah_from": 30,
-      "ayah_to": 37,
-      "ayah_key": "2:30-37",
+      "event_id": "ibrahim_idols",
+      "surah_id": 6,
+      "ayah_from": 74,
+      "ayah_to": 79,
+      "ayah_key": "6:74-79",
       "relation_type": "main",
-      "note_ar": "تأسيس الكرامة والعلم والتوبة"
+      "evidence_note_ar": "النظر في الكواكب والحجة العقلية — مسودة تحتاج مراجعة",
+      "note_ar": "النظر في الكواكب والحجة العقلية — مسودة تحتاج مراجعة"
     },
     {
-      "event_id": "adam_02__",
-      "surah_id": 2,
-      "ayah_from": 30,
-      "ayah_to": 37,
-      "ayah_key": "2:30-37",
-      "relation_type": "supporting",
-      "note_ar": "تأسيس الكرامة والعلم والتوبة"
+      "event_id": "ibrahim_kaaba",
+      "surah_id": 21,
+      "ayah_from": 51,
+      "ayah_to": 70,
+      "ayah_key": "21:51-70",
+      "relation_type": "main",
+      "evidence_note_ar": "تحطيم الأصنام — مسودة تحتاج مراجعة ومصدر",
+      "note_ar": "تحطيم الأصنام — مسودة تحتاج مراجعة ومصدر"
     },
     {
-      "event_id": "adam_03__",
-      "surah_id": 2,
-      "ayah_from": 30,
-      "ayah_to": 37,
-      "ayah_key": "2:30-37",
-      "relation_type": "supporting",
-      "note_ar": "تأسيس الكرامة والعلم والتوبة"
+      "event_id": "isa_birth",
+      "surah_id": 19,
+      "ayah_from": 16,
+      "ayah_to": 21,
+      "ayah_key": "19:16-21",
+      "relation_type": "main",
+      "evidence_note_ar": "ولادة عيسى — مسودة تحتاج مراجعة",
+      "note_ar": "ولادة عيسى — مسودة تحتاج مراجعة"
     },
     {
-      "event_id": "adam_04__",
-      "surah_id": 2,
-      "ayah_from": 30,
+      "event_id": "maryam_withdraw",
+      "surah_id": 3,
+      "ayah_from": 37,
       "ayah_to": 37,
-      "ayah_key": "2:30-37",
-      "relation_type": "supporting",
-      "note_ar": "تأسيس الكرامة والعلم والتوبة"
+      "ayah_key": "3:37",
+      "relation_type": "main",
+      "evidence_note_ar": "اعتزال مريم — مسودة تحتاج مراجعة",
+      "note_ar": "اعتزال مريم — مسودة تحتاج مراجعة"
+    },
+    {
+      "event_id": "muhammad_revelation",
+      "surah_id": 96,
+      "ayah_from": 1,
+      "ayah_to": 5,
+      "ayah_key": "96:1-5",
+      "relation_type": "main",
+      "evidence_note_ar": "أول الوحي في غار حراء",
+      "note_ar": "أول الوحي في غار حراء"
+    },
+    {
+      "event_id": "musa_birth",
+      "surah_id": 28,
+      "ayah_from": 7,
+      "ayah_to": 13,
+      "ayah_key": "28:7-13",
+      "relation_type": "main",
+      "evidence_note_ar": "ولادة موسى وإلقاؤه في اليم",
+      "note_ar": "ولادة موسى وإلقاؤه في اليم"
     },
     {
       "event_id": "nuh_dawah",
@@ -3204,493 +3347,48 @@
       "ayah_to": 20,
       "ayah_key": "71:5-20",
       "relation_type": "main",
-      "note_ar": "صبر الداعية وتنوع البلاغ"
+      "evidence_note_ar": "آيات دعوة نوح عليه السلام",
+      "note_ar": "آيات دعوة نوح عليه السلام"
     },
     {
       "event_id": "nuh_ark",
-      "surah_id": 71,
-      "ayah_from": 5,
-      "ayah_to": 20,
-      "ayah_key": "71:5-20",
-      "relation_type": "supporting",
-      "note_ar": "صبر الداعية وتنوع البلاغ"
-    },
-    {
-      "event_id": "nuh_03__",
-      "surah_id": 71,
-      "ayah_from": 5,
-      "ayah_to": 20,
-      "ayah_key": "71:5-20",
-      "relation_type": "supporting",
-      "note_ar": "صبر الداعية وتنوع البلاغ"
-    },
-    {
-      "event_id": "nuh_04__",
-      "surah_id": 71,
-      "ayah_from": 5,
-      "ayah_to": 20,
-      "ayah_key": "71:5-20",
-      "relation_type": "supporting",
-      "note_ar": "صبر الداعية وتنوع البلاغ"
-    },
-    {
-      "event_id": "ibrahim_idols",
-      "surah_id": 6,
-      "ayah_from": 74,
-      "ayah_to": 79,
-      "ayah_key": "6:74-79",
+      "surah_id": 11,
+      "ayah_from": 36,
+      "ayah_to": 44,
+      "ayah_key": "11:36-44",
       "relation_type": "main",
-      "note_ar": "الحجة العقلية"
-    },
-    {
-      "event_id": "ibrahim_kaaba",
-      "surah_id": 2,
-      "ayah_from": 124,
-      "ayah_to": 124,
-      "ayah_key": "2:124",
-      "relation_type": "supporting",
-      "note_ar": "الإمامة بعد الابتلاء"
-    },
-    {
-      "event_id": "ibrahim_03__",
-      "surah_id": 6,
-      "ayah_from": 74,
-      "ayah_to": 79,
-      "ayah_key": "6:74-79",
-      "relation_type": "supporting",
-      "note_ar": "الحجة العقلية"
-    },
-    {
-      "event_id": "ibrahim_04__",
-      "surah_id": 2,
-      "ayah_from": 124,
-      "ayah_to": 124,
-      "ayah_key": "2:124",
-      "relation_type": "supporting",
-      "note_ar": "الإمامة بعد الابتلاء"
-    },
-    {
-      "event_id": "ibrahim_05__",
-      "surah_id": 6,
-      "ayah_from": 74,
-      "ayah_to": 79,
-      "ayah_key": "6:74-79",
-      "relation_type": "supporting",
-      "note_ar": "الحجة العقلية"
+      "evidence_note_ar": "صنع السفينة والطوفان",
+      "note_ar": "صنع السفينة والطوفان"
     },
     {
       "event_id": "yusuf_dream",
       "surah_id": 12,
       "ayah_from": 4,
-      "ayah_to": 100,
-      "ayah_key": "12:4-100",
+      "ayah_to": 6,
+      "ayah_key": "12:4-6",
       "relation_type": "main",
-      "note_ar": "القصة المتصلة"
+      "evidence_note_ar": "رؤيا يوسف للشمس والقمر",
+      "note_ar": "رؤيا يوسف للشمس والقمر"
     },
     {
       "event_id": "yusuf_well",
       "surah_id": 12,
-      "ayah_from": 90,
-      "ayah_to": 90,
-      "ayah_key": "12:90",
-      "relation_type": "supporting",
-      "note_ar": "قاعدة السورة المركزية"
+      "ayah_from": 7,
+      "ayah_to": 18,
+      "ayah_key": "12:7-18",
+      "relation_type": "main",
+      "evidence_note_ar": "الإلقاء في الجب والبيع",
+      "note_ar": "الإلقاء في الجب والبيع"
     },
     {
       "event_id": "yusuf_prison",
       "surah_id": 12,
-      "ayah_from": 4,
-      "ayah_to": 100,
-      "ayah_key": "12:4-100",
-      "relation_type": "supporting",
-      "note_ar": "القصة المتصلة"
-    },
-    {
-      "event_id": "yusuf_04__",
-      "surah_id": 12,
-      "ayah_from": 90,
-      "ayah_to": 90,
-      "ayah_key": "12:90",
-      "relation_type": "supporting",
-      "note_ar": "قاعدة السورة المركزية"
-    },
-    {
-      "event_id": "yusuf_05__",
-      "surah_id": 12,
-      "ayah_from": 4,
-      "ayah_to": 100,
-      "ayah_key": "12:4-100",
-      "relation_type": "supporting",
-      "note_ar": "القصة المتصلة"
-    },
-    {
-      "event_id": "yusuf_06__",
-      "surah_id": 12,
-      "ayah_from": 90,
-      "ayah_to": 90,
-      "ayah_key": "12:90",
-      "relation_type": "supporting",
-      "note_ar": "قاعدة السورة المركزية"
-    },
-    {
-      "event_id": "yusuf_07__",
-      "surah_id": 12,
-      "ayah_from": 4,
-      "ayah_to": 100,
-      "ayah_key": "12:4-100",
-      "relation_type": "supporting",
-      "note_ar": "القصة المتصلة"
-    },
-    {
-      "event_id": "yusuf_08__",
-      "surah_id": 12,
-      "ayah_from": 90,
-      "ayah_to": 90,
-      "ayah_key": "12:90",
-      "relation_type": "supporting",
-      "note_ar": "قاعدة السورة المركزية"
-    },
-    {
-      "event_id": "musa_birth",
-      "surah_id": 28,
-      "ayah_from": 7,
-      "ayah_to": 35,
-      "ayah_key": "28:7-35",
+      "ayah_from": 23,
+      "ayah_to": 57,
+      "ayah_key": "12:23-57",
       "relation_type": "main",
-      "note_ar": "التدبير الخفي"
-    },
-    {
-      "event_id": "musa_firawn",
-      "surah_id": 18,
-      "ayah_from": 60,
-      "ayah_to": 82,
-      "ayah_key": "18:60-82",
-      "relation_type": "supporting",
-      "note_ar": "حدود المعرفة"
-    },
-    {
-      "event_id": "musa_03__",
-      "surah_id": 28,
-      "ayah_from": 7,
-      "ayah_to": 35,
-      "ayah_key": "28:7-35",
-      "relation_type": "supporting",
-      "note_ar": "التدبير الخفي"
-    },
-    {
-      "event_id": "musa_04__",
-      "surah_id": 18,
-      "ayah_from": 60,
-      "ayah_to": 82,
-      "ayah_key": "18:60-82",
-      "relation_type": "supporting",
-      "note_ar": "حدود المعرفة"
-    },
-    {
-      "event_id": "musa_05__",
-      "surah_id": 28,
-      "ayah_from": 7,
-      "ayah_to": 35,
-      "ayah_key": "28:7-35",
-      "relation_type": "supporting",
-      "note_ar": "التدبير الخفي"
-    },
-    {
-      "event_id": "musa_06__",
-      "surah_id": 18,
-      "ayah_from": 60,
-      "ayah_to": 82,
-      "ayah_key": "18:60-82",
-      "relation_type": "supporting",
-      "note_ar": "حدود المعرفة"
-    },
-    {
-      "event_id": "musa_07__",
-      "surah_id": 28,
-      "ayah_from": 7,
-      "ayah_to": 35,
-      "ayah_key": "28:7-35",
-      "relation_type": "supporting",
-      "note_ar": "التدبير الخفي"
-    },
-    {
-      "event_id": "musa_08__",
-      "surah_id": 18,
-      "ayah_from": 60,
-      "ayah_to": 82,
-      "ayah_key": "18:60-82",
-      "relation_type": "supporting",
-      "note_ar": "حدود المعرفة"
-    },
-    {
-      "event_id": "musa_09__",
-      "surah_id": 28,
-      "ayah_from": 7,
-      "ayah_to": 35,
-      "ayah_key": "28:7-35",
-      "relation_type": "supporting",
-      "note_ar": "التدبير الخفي"
-    },
-    {
-      "event_id": "dawud_01__",
-      "surah_id": 38,
-      "ayah_from": 17,
-      "ayah_to": 26,
-      "ayah_key": "38:17-26",
-      "relation_type": "main",
-      "note_ar": "الملك مع العدل"
-    },
-    {
-      "event_id": "dawud_02__",
-      "surah_id": 38,
-      "ayah_from": 17,
-      "ayah_to": 26,
-      "ayah_key": "38:17-26",
-      "relation_type": "supporting",
-      "note_ar": "الملك مع العدل"
-    },
-    {
-      "event_id": "dawud_03__",
-      "surah_id": 38,
-      "ayah_from": 17,
-      "ayah_to": 26,
-      "ayah_key": "38:17-26",
-      "relation_type": "supporting",
-      "note_ar": "الملك مع العدل"
-    },
-    {
-      "event_id": "sulayman_01__",
-      "surah_id": 27,
-      "ayah_from": 15,
-      "ayah_to": 44,
-      "ayah_key": "27:15-44",
-      "relation_type": "main",
-      "note_ar": "سلطة شاكرة داعية"
-    },
-    {
-      "event_id": "sulayman_02__",
-      "surah_id": 27,
-      "ayah_from": 15,
-      "ayah_to": 44,
-      "ayah_key": "27:15-44",
-      "relation_type": "supporting",
-      "note_ar": "سلطة شاكرة داعية"
-    },
-    {
-      "event_id": "sulayman_03__",
-      "surah_id": 27,
-      "ayah_from": 15,
-      "ayah_to": 44,
-      "ayah_key": "27:15-44",
-      "relation_type": "supporting",
-      "note_ar": "سلطة شاكرة داعية"
-    },
-    {
-      "event_id": "ayyub_01__",
-      "surah_id": 21,
-      "ayah_from": 83,
-      "ayah_to": 84,
-      "ayah_key": "21:83-84",
-      "relation_type": "main",
-      "note_ar": "دعاء مختصر شديد العمق"
-    },
-    {
-      "event_id": "ayyub_02__",
-      "surah_id": 21,
-      "ayah_from": 83,
-      "ayah_to": 84,
-      "ayah_key": "21:83-84",
-      "relation_type": "supporting",
-      "note_ar": "دعاء مختصر شديد العمق"
-    },
-    {
-      "event_id": "ayyub_03__",
-      "surah_id": 21,
-      "ayah_from": 83,
-      "ayah_to": 84,
-      "ayah_key": "21:83-84",
-      "relation_type": "supporting",
-      "note_ar": "دعاء مختصر شديد العمق"
-    },
-    {
-      "event_id": "yunus_01__",
-      "surah_id": 21,
-      "ayah_from": 87,
-      "ayah_to": 88,
-      "ayah_key": "21:87-88",
-      "relation_type": "main",
-      "note_ar": "دعاء العودة"
-    },
-    {
-      "event_id": "yunus_02__",
-      "surah_id": 21,
-      "ayah_from": 87,
-      "ayah_to": 88,
-      "ayah_key": "21:87-88",
-      "relation_type": "supporting",
-      "note_ar": "دعاء العودة"
-    },
-    {
-      "event_id": "yunus_03__",
-      "surah_id": 21,
-      "ayah_from": 87,
-      "ayah_to": 88,
-      "ayah_key": "21:87-88",
-      "relation_type": "supporting",
-      "note_ar": "دعاء العودة"
-    },
-    {
-      "event_id": "yunus_04__",
-      "surah_id": 21,
-      "ayah_from": 87,
-      "ayah_to": 88,
-      "ayah_key": "21:87-88",
-      "relation_type": "supporting",
-      "note_ar": "دعاء العودة"
-    },
-    {
-      "event_id": "maryam_withdraw",
-      "surah_id": 3,
-      "ayah_from": 35,
-      "ayah_to": 37,
-      "ayah_key": "3:35-37",
-      "relation_type": "main",
-      "note_ar": "الاصطفاء"
-    },
-    {
-      "event_id": "maryam_02__",
-      "surah_id": 19,
-      "ayah_from": 16,
-      "ayah_to": 34,
-      "ayah_key": "19:16-34",
-      "relation_type": "supporting",
-      "note_ar": "التجربة النفسية"
-    },
-    {
-      "event_id": "maryam_03__",
-      "surah_id": 3,
-      "ayah_from": 35,
-      "ayah_to": 37,
-      "ayah_key": "3:35-37",
-      "relation_type": "supporting",
-      "note_ar": "الاصطفاء"
-    },
-    {
-      "event_id": "maryam_04__",
-      "surah_id": 19,
-      "ayah_from": 16,
-      "ayah_to": 34,
-      "ayah_key": "19:16-34",
-      "relation_type": "supporting",
-      "note_ar": "التجربة النفسية"
-    },
-    {
-      "event_id": "isa_birth",
-      "surah_id": 5,
-      "ayah_from": 116,
-      "ayah_to": 118,
-      "ayah_key": "5:116-118",
-      "relation_type": "main",
-      "note_ar": "براءة عيسى"
-    },
-    {
-      "event_id": "isa_02__",
-      "surah_id": 5,
-      "ayah_from": 116,
-      "ayah_to": 118,
-      "ayah_key": "5:116-118",
-      "relation_type": "supporting",
-      "note_ar": "براءة عيسى"
-    },
-    {
-      "event_id": "isa_03__",
-      "surah_id": 5,
-      "ayah_from": 116,
-      "ayah_to": 118,
-      "ayah_key": "5:116-118",
-      "relation_type": "supporting",
-      "note_ar": "براءة عيسى"
-    },
-    {
-      "event_id": "isa_04__",
-      "surah_id": 5,
-      "ayah_from": 116,
-      "ayah_to": 118,
-      "ayah_key": "5:116-118",
-      "relation_type": "supporting",
-      "note_ar": "براءة عيسى"
-    },
-    {
-      "event_id": "muhammad_revelation",
-      "surah_id": 33,
-      "ayah_from": 40,
-      "ayah_to": 40,
-      "ayah_key": "33:40",
-      "relation_type": "main",
-      "note_ar": "ختم النبوة"
-    },
-    {
-      "event_id": "muhammad_02__",
-      "surah_id": 48,
-      "ayah_from": 1,
-      "ayah_to": 3,
-      "ayah_key": "48:1-3",
-      "relation_type": "supporting",
-      "note_ar": "الفتح والتمكين"
-    },
-    {
-      "event_id": "muhammad_03__",
-      "surah_id": 33,
-      "ayah_from": 40,
-      "ayah_to": 40,
-      "ayah_key": "33:40",
-      "relation_type": "supporting",
-      "note_ar": "ختم النبوة"
-    },
-    {
-      "event_id": "muhammad_04__",
-      "surah_id": 48,
-      "ayah_from": 1,
-      "ayah_to": 3,
-      "ayah_key": "48:1-3",
-      "relation_type": "supporting",
-      "note_ar": "الفتح والتمكين"
-    },
-    {
-      "event_id": "muhammad_05__",
-      "surah_id": 33,
-      "ayah_from": 40,
-      "ayah_to": 40,
-      "ayah_key": "33:40",
-      "relation_type": "supporting",
-      "note_ar": "ختم النبوة"
-    },
-    {
-      "event_id": "dhulqarnayn_01__",
-      "surah_id": 18,
-      "ayah_from": 83,
-      "ayah_to": 98,
-      "ayah_key": "18:83-98",
-      "relation_type": "main",
-      "note_ar": "نموذج الحاكم العادل"
-    },
-    {
-      "event_id": "dhulqarnayn_02__",
-      "surah_id": 18,
-      "ayah_from": 83,
-      "ayah_to": 98,
-      "ayah_key": "18:83-98",
-      "relation_type": "supporting",
-      "note_ar": "نموذج الحاكم العادل"
-    },
-    {
-      "event_id": "dhulqarnayn_03__",
-      "surah_id": 18,
-      "ayah_from": 83,
-      "ayah_to": 98,
-      "ayah_key": "18:83-98",
-      "relation_type": "supporting",
-      "note_ar": "نموذج الحاكم العادل"
+      "evidence_note_ar": "الفتنة والسجن",
+      "note_ar": "الفتنة والسجن"
     }
   ],
   "node_links": [

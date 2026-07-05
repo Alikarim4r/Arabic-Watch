@@ -39,6 +39,8 @@ export function buildReviewQueue({ nodes, events, themes, eventAyahs, tafsirSour
       summary_ar: event.summary_ar || '',
       review_status: event.review_status || 'pending',
       source_status: event.source_status || 'pending',
+      evidence_status: event.evidence_status || 'needs_precise_mapping',
+      evidence_confidence: event.evidence_confidence || 'needs_review',
       node_id: event.node_id,
       source_ids: sourceIds,
       ayahs,
@@ -57,7 +59,7 @@ export function buildReviewQueue({ nodes, events, themes, eventAyahs, tafsirSour
       source_status: theme.source_status || 'none',
       source_ids: [],
       ayahs: [],
-      isFinal: theme.review_status === 'approved',
+      isFinal: isFinalContent(theme),
       raw: theme,
     });
   });
@@ -75,6 +77,8 @@ export function summarizeReviewStats(records) {
     pending: 0,
     needs_source: 0,
     notFinal: 0,
+    needs_precise_mapping: 0,
+    precise_evidence: 0,
     byType: { node: 0, event: 0, theme: 0 },
   };
 
@@ -85,6 +89,8 @@ export function summarizeReviewStats(records) {
     else stats.pending++;
 
     if (!r.isFinal) stats.notFinal++;
+    if (r.evidence_status === 'needs_precise_mapping') stats.needs_precise_mapping++;
+    if (r.evidence_status === 'precise_evidence') stats.precise_evidence++;
   });
 
   return stats;
@@ -101,6 +107,8 @@ export function filterReviewQueue(records, filters = {}) {
     if (filters.sourceStatus && r.source_status !== filters.sourceStatus) return false;
     if (filters.sourceId && !r.source_ids.includes(filters.sourceId)) return false;
     if (filters.nodeType && r.node_type !== filters.nodeType) return false;
+    if (filters.evidenceStatus && r.evidence_status !== filters.evidenceStatus) return false;
+    if (filters.evidenceConfidence && r.evidence_confidence !== filters.evidenceConfidence) return false;
     if (filters.onlyNotFinal && r.isFinal) return false;
     if (filters.q) {
       const q = filters.q.trim();

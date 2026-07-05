@@ -1,4 +1,4 @@
-import { getRepository, getDataMode, isFinalContent } from '../../lib/dataService.js';
+import { getRepository, getDataMode, isFinalContent, getEvidenceWarningAr } from '../../lib/dataService.js';
 import { getEnvConfig } from '../../config/env.js';
 import { escapeHtml, formatAyahRef } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
@@ -55,6 +55,8 @@ export async function renderAdminReview(container) {
       sourceStatus: '',
       sourceId: '',
       nodeType: '',
+      evidenceStatus: '',
+      evidenceConfidence: '',
       onlyNotFinal: false,
       q: '',
     },
@@ -96,8 +98,14 @@ function renderAdminPanel(root) {
           <div class="stat ok"><strong>${stats.approved}</strong><span>مراجَع</span></div>
           <div class="stat warn"><strong>${stats.pending}</strong><span>قيد المراجعة</span></div>
           <div class="stat rose"><strong>${stats.needs_source}</strong><span>يحتاج مصدر</span></div>
+          <div class="stat warn"><strong>${stats.needs_precise_mapping || 0}</strong><span>يحتاج ربط آيات</span></div>
         </div>
         ${warning}
+        ${
+          stats.needs_precise_mapping
+            ? `<div class="admin-warning">📍 ${stats.needs_precise_mapping} سجلًا بدون دليل قرآني دقيق — لا يُعرض كمحتوى نهائي.</div>`
+            : ''
+        }
         <p class="muted admin-meta">وضع البيانات: <strong>${escapeHtml(getDataMode())}</strong> · المزود: <strong>${escapeHtml(String(providerLabel()))}</strong></p>
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
 
@@ -134,6 +142,18 @@ function renderAdminPanel(root) {
             <option value="place">مكان</option>
             <option value="theme">محور</option>
             <option value="surah">سورة</option>
+          </select>
+          <select id="admin-evidence-status">
+            <option value="" ${state.filters.evidenceStatus === '' ? 'selected' : ''}>كل حالات الأدلة</option>
+            <option value="precise_evidence" ${state.filters.evidenceStatus === 'precise_evidence' ? 'selected' : ''}>precise_evidence</option>
+            <option value="needs_precise_mapping" ${state.filters.evidenceStatus === 'needs_precise_mapping' ? 'selected' : ''}>needs_precise_mapping</option>
+          </select>
+          <select id="admin-evidence-confidence">
+            <option value="" ${state.filters.evidenceConfidence === '' ? 'selected' : ''}>كل مستويات الثقة</option>
+            <option value="quran_explicit" ${state.filters.evidenceConfidence === 'quran_explicit' ? 'selected' : ''}>quran_explicit</option>
+            <option value="tafsir_based" ${state.filters.evidenceConfidence === 'tafsir_based' ? 'selected' : ''}>tafsir_based</option>
+            <option value="scholarly_inference" ${state.filters.evidenceConfidence === 'scholarly_inference' ? 'selected' : ''}>scholarly_inference</option>
+            <option value="needs_review" ${state.filters.evidenceConfidence === 'needs_review' ? 'selected' : ''}>needs_review</option>
           </select>
           <label class="admin-check"><input type="checkbox" id="admin-not-final" ${state.filters.onlyNotFinal ? 'checked' : ''} /> غير نهائي فقط</label>
         </div>
@@ -177,6 +197,7 @@ function queueItemHtml(record, selected) {
     <button type="button" class="admin-queue-item${active}" data-id="${record.id}" data-type="${record.recordType}">
       <span class="tag">${escapeHtml(record.recordType)}</span>
       ${reviewBadgeHtml(record.review_status)}
+      ${record.evidence_status === 'needs_precise_mapping' ? '<span class="tag rose">needs_precise_mapping</span>' : ''}
       <strong>${escapeHtml(record.title_ar)}</strong>
       <span class="muted">${escapeHtml(record.id)}</span>
     </button>`;
@@ -192,7 +213,21 @@ function detailHtml(record) {
               `<li>${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)} (${escapeHtml(a.relation_type)}) — ${escapeHtml(a.note_ar || '')}</li>`
           )
           .join('')
-      : '<li class="muted">لا توجد آيات مرتبطة</li>';
+      : '<li class="muted">لا توجد آيات مرتبطة — يحتاج needs_precise_mapping</li>';
+
+  const evidenceWarnings = [];
+  if (record.recordType === 'event' && record.evidence_status === 'needs_precise_mapping') {
+    evidenceWarnings.push('⚠️ لا يوجد ربط آيات دقيق — لا يُعرض كدليل نهائي.');
+  }
+  if (record.recordType === 'event' && !record.ayahs?.length) {
+    evidenceWarnings.push('⚠️ نطاق آيات مفقود.');
+  }
+  if (record.evidence_confidence === 'needs_review') {
+    evidenceWarnings.push('⚠️ الأدلة القرآنية مسودة وتحتاج مراجعة.');
+  }
+  const evidenceWarningHtml = evidenceWarnings.length
+    ? `<div class="admin-warning">${evidenceWarnings.map((w) => escapeHtml(w)).join('<br/>')}</div>`
+    : '';
 
   const sourceList =
     sources.length > 0
@@ -204,14 +239,15 @@ function detailHtml(record) {
           .join('')
       : '<li class="muted">لا مصادر مسجّلة — يحتاج needs_source أو pending</li>';
 
-  const finalLabel = isFinalContent({ review_status: record.review_status, source_status: record.source_status })
+  const finalLabel = isFinalContent(record.raw || record)
     ? '<span class="tag green">نهائي في الوضع العام</span>'
     : '<span class="tag rose">غير نهائي في الوضع العام</span>';
 
   return `
     <h3 class="gold">${escapeHtml(record.title_ar)}</h3>
     <p>${reviewBadgeHtml(record.review_status)} ${finalLabel}</p>
-    <p class="muted">المعرف: ${escapeHtml(record.id)} · النوع: ${escapeHtml(record.recordType)}${record.node_type ? ` · ${escapeHtml(record.node_type)}` : ''}</p>
+    <p class="muted">المعرف: ${escapeHtml(record.id)} · النوع: ${escapeHtml(record.recordType)}${record.node_type ? ` · ${escapeHtml(record.node_type)}` : ''}${record.evidence_status ? ` · ${escapeHtml(record.evidence_status)}` : ''}${record.evidence_confidence ? ` · ${escapeHtml(record.evidence_confidence)}` : ''}</p>
+    ${evidenceWarningHtml}
     <p style="margin-top:12px">${escapeHtml(record.summary_ar || '—')}</p>
 
     <h4 class="gold" style="margin-top:18px">مراجع الآيات</h4>
@@ -241,11 +277,13 @@ function bindAdminEvents(root, records) {
     state.filters.sourceStatus = root.querySelector('#admin-source-status')?.value || '';
     state.filters.sourceId = root.querySelector('#admin-source-id')?.value || '';
     state.filters.nodeType = root.querySelector('#admin-node-type')?.value || '';
+    state.filters.evidenceStatus = root.querySelector('#admin-evidence-status')?.value || '';
+    state.filters.evidenceConfidence = root.querySelector('#admin-evidence-confidence')?.value || '';
     state.filters.onlyNotFinal = root.querySelector('#admin-not-final')?.checked || false;
     renderAdminPanel(root);
   };
 
-  ['#admin-q', '#admin-type', '#admin-review-status', '#admin-source-status', '#admin-source-id', '#admin-node-type', '#admin-not-final'].forEach(
+  ['#admin-q', '#admin-type', '#admin-review-status', '#admin-source-status', '#admin-source-id', '#admin-node-type', '#admin-evidence-status', '#admin-evidence-confidence', '#admin-not-final'].forEach(
     (sel) => {
       const el = root.querySelector(sel);
       el?.addEventListener('input', applyFilters);

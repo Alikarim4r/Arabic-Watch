@@ -1,4 +1,4 @@
-import { getRepository, isFinalContent, getStoryBundle } from '../../lib/dataService.js';
+import { getRepository, isFinalContent, getStoryBundle, getEvidenceWarningAr } from '../../lib/dataService.js';
 import { escapeHtml, formatAyahRef, getNodesForSurah, nodeTypeLabel } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
@@ -102,20 +102,28 @@ async function renderRichNodeStudy(node, bundle, repo) {
     .join('');
 
   const eventSteps = events
-    .map(
-      (ev, i) => `
-    <div class="step"><b>${i + 1}.</b> ${escapeHtml(ev.title_ar)} ${reviewBadgeHtml(ev.review_status)}</div>`
-    )
+    .map((ev, i) => {
+      const warn = getEvidenceWarningAr(ev);
+      return `
+    <div class="step"><b>${i + 1}.</b> ${escapeHtml(ev.title_ar)} ${reviewBadgeHtml(ev.review_status)}${warn ? `<span class="tag rose">⚠</span>` : ''}</div>`;
+    })
     .join('');
 
   const ayahBlocks = events
     .flatMap((ev) => {
       const refs = eventAyahs.filter((a) => a.event_id === ev.id);
+      const evWarn = getEvidenceWarningAr(ev);
+      if (!refs.length) {
+        return [
+          `<div class="ayah draft-banner"><p>${escapeHtml(evWarn || 'لا يوجد ربط آيات دقيق لهذا الحدث.')}</p></div>`,
+        ];
+      }
       return refs.map(
         (a) => `
       <div class="ayah">
         <small>${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)} — ${escapeHtml(a.relation_type)}</small>
-        <p>${escapeHtml(a.note_ar || ev.summary_ar || '')}</p>
+        <p>${escapeHtml(a.evidence_note_ar || a.note_ar || ev.summary_ar || '')}</p>
+        ${evWarn ? `<p class="muted">${escapeHtml(evWarn)}</p>` : ''}
       </div>`
       );
     })
@@ -204,7 +212,7 @@ function networkConclusion(id) {
 function renderEventStudy(event, ayahs, sources) {
   if (!event) return `<div class="modal-body"><p>لا توجد مادة.</p>${closeBtn()}</div>`;
   const finalNote = !isFinalContent(event)
-    ? `<div class="draft-banner">محتوى غير نهائي — ${event.review_status === 'needs_source' ? 'يحتاج مصدر' : 'قيد المراجعة'}.</div>`
+    ? `<div class="draft-banner">${escapeHtml(getEvidenceWarningAr(event) || `محتوى غير نهائي — ${event.review_status === 'needs_source' ? 'يحتاج مصدر' : 'قيد المراجعة'}.`)}</div>`
     : '';
 
   const sourceRows = (event.sources || []).map((s) => {

@@ -293,27 +293,19 @@ for row in RAW:
             "certainty_level": "quran_explicit",
             "review_status": review,
             "source_status": source,
+            "evidence_status": "needs_precise_mapping",
+            "evidence_confidence": "needs_review",
             "theme_ids": ev_theme_ids,
             "lessons_ar": legacy.get("lessons_ar", []) if legacy else [],
             "sources": (
-                legacy.get("sources", [{"source_id": "quran_text", "note_ar": "مرجع قرآني — راجع event_ayahs"}])
+                legacy.get("sources", [{"source_id": "quran_text", "note_ar": "مرجع قرآني — يحتاج ربطًا دقيقًا"}])
                 if legacy
-                else ([{"source_id": "quran_text", "note_ar": "مرجع قرآني — راجع event_ayahs"}] if parsed_ayahs else [])
+                else []
             ),
         })
 
-        # Assign ayah to event (round-robin)
-        if parsed_ayahs:
-            ay = parsed_ayahs[(i - 1) % len(parsed_ayahs)]
-            event_ayahs.append({
-                "event_id": eid,
-                "surah_id": ay["surah_id"],
-                "ayah_from": ay["ayah_from"],
-                "ayah_to": ay["ayah_to"],
-                "ayah_key": ay["ayah_key"],
-                "relation_type": "main" if i == 1 else "supporting",
-                "note_ar": ay.get("note_ar") or ay.get("ref_label", ""),
-            })
+        # Do NOT auto-assign ayahs (round-robin removed in Phase 5).
+        # Run scripts/apply_precise_evidence.py to attach curated precise mappings only.
 
 # Deduplicate node_links
 seen_links = set()
