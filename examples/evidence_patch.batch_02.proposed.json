@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "status": "proposed",
+    "batch_id": "evidence_mapping_sprint_02",
+    "description_ar": "مسودة ربط أدلة — Sprint Batch 2 (yunus, ayyub, sulayman, dawud, dhulqarnayn, nuh). ليست محتوى معتمدًا. لا تُدمج دون مراجعة بشرية.",
+    "exported_at": "2026-07-05T00:00:00.000Z",
+    "disclaimer_ar": "هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة."
+  },
+  "mappings": [
+    {
+      "event_id": "yunus_02__",
+      "surah_id": 37,
+      "ayah_from": 139,
+      "ayah_to": 144,
+      "relation_type": "main",
+      "evidence_note_ar": "سرد يونس والحوت في سورة الصافات — مقترح لحدث «الحوت» (مسودة prototype تركز على 21:87-88 للدعاء).",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "تحقق من حدود النطاق مقابل أحداث يونس الأخرى (الدعاء والنجاة) — مسودة sprint فقط.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "yunus_03__",
+      "surah_id": 21,
+      "ayah_from": 87,
+      "ayah_to": 88,
+      "relation_type": "main",
+      "evidence_note_ar": "دعاء يونس في الظلمات — مسودة prototype: الأنبياء 21:87-88.",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "نص قرآني معروف لكن seed لا يحتوي مرجعًا صريحًا — لا approved حتى مراجعة عالم.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "ayyub_01__",
+      "surah_id": 21,
+      "ayah_from": 83,
+      "ayah_to": 83,
+      "relation_type": "main",
+      "evidence_note_ar": "ذكر ضر أيوب — آية 21:83 في سورة الأنبياء (ضمن كتلة prototype 21:83-84).",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "حدث «الضر» قد يحتاج نطاقًا أوسع أو supporting آيات — مراجعة عالم مطلوبة.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "ayyub_02__",
+      "surah_id": 21,
+      "ayah_from": 83,
+      "ayah_to": 84,
+      "relation_type": "main",
+      "evidence_note_ar": "دعاء أيوب وفرج الله — مسودة prototype: الأنبياء 21:83-84.",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "تداخل محتمل مع ayyub_01__ — تأكيد حدود الأحداث قبل الدمج.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "sulayman_01__",
+      "surah_id": 27,
+      "ayah_from": 20,
+      "ayah_to": 22,
+      "relation_type": "main",
+      "evidence_note_ar": "الهدهد وغيابه واكتشاف ملكة سبأ — بداية سرد النمل (ضمن prototype 27:15-44).",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "نطاق مقترح من سورة النمل — seed ملاحظة عامة فقط.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "sulayman_02__",
+      "surah_id": 27,
+      "ayah_from": 23,
+      "ayah_to": 31,
+      "relation_type": "main",
+      "evidence_note_ar": "رسالة سليمان إلى ملكة سبأ واستجابتها — ضمن سورة النمل (prototype 27:15-44).",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "تحقق من ayah_to وعلاقته بـ sulayman_03__ (العرش) قبل promote.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "dawud_01__",
+      "surah_id": 2,
+      "ayah_from": 251,
+      "ayah_to": 251,
+      "relation_type": "main",
+      "evidence_note_ar": "قتل داود لجالوت — آية مشهورة في سورة البقرة 2:251.",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "آية مباشرة لكن seed لم يُراجع بعد — مسودة sprint؛ لا approved تلقائيًا.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "dawud_02__",
+      "surah_id": 38,
+      "ayah_from": 21,
+      "ayah_to": 26,
+      "relation_type": "main",
+      "evidence_note_ar": "قصة الحكم بين الراعيين — مسودة prototype: ص 38:17-26 (مقترح 38:21-26 للحكم).",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "تقسيم كتلة prototype 38:17-26 — راجع بداية النطاق مع عالم.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "dhulqarnayn_03__",
+      "surah_id": 18,
+      "ayah_from": 94,
+      "ayah_to": 98,
+      "relation_type": "main",
+      "evidence_note_ar": "بناء السد بين الجبلين — ختام سرد ذي القرنين في الكهف (prototype 18:83-98).",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "نطاق مقترح لحدث «بناء السد» فقط — راجع dhulqarnayn_01__ و02__ في دفعة لاحقة.",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "nuh_04__",
+      "surah_id": 11,
+      "ayah_from": 42,
+      "ayah_to": 46,
+      "relation_type": "main",
+      "evidence_note_ar": "نداء نوح لابنه وغرق الكافرين — سورة هود (بعد صعود السفينة في 11:40-41).",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "تداخل محتمل مع أحداث نوح الأخرى (السفينة والطوفان) — مراجعة حدود الأحداث مطلوبة.",
+      "proposed_review_status": "pending"
+    }
+  ]
+}
