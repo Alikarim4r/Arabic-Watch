@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "status": "sample",
+    "description_ar": "مثال دفعة تغيير محتوى — proposed changes only. NOT applied to production tables automatically.",
+    "disclaimer_ar": "هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة.",
+    "source_evidence_patch": "examples/evidence_patch.sample.json"
+  },
+  "id": null,
+  "batch_type": "evidence_promotion",
+  "status": "draft",
+  "summary": "Proposed batch from evidence patch (2 item(s))",
+  "payload": {
+    "items": [
+      {
+        "change_type": "evidence_mapping",
+        "record_type": "event",
+        "event_id": "adam_01__",
+        "surah_id": 2,
+        "ayah_from": 30,
+        "ayah_to": 37,
+        "relation_type": "main",
+        "evidence_note_ar": "مثال: تعليم الأسماء — مسودة للمراجعة فقط",
+        "proposed_review_status": "pending",
+        "proposed_source_status": "pending",
+        "proposed_evidence_status": "needs_precise_mapping",
+        "proposed_evidence_confidence": "needs_review",
+        "source_id": null,
+        "reviewer_note": "مثال — يحتاج مراجعة عالم قبل الدمج",
+        "promote_as_final": false
+      },
+      {
+        "change_type": "evidence_mapping",
+        "record_type": "event",
+        "event_id": "musa_03__",
+        "surah_id": 28,
+        "ayah_from": 22,
+        "ayah_to": 28,
+        "relation_type": "main",
+        "evidence_note_ar": "مثال: مدين — مسودة",
+        "proposed_review_status": "pending",
+        "proposed_source_status": "cited",
+        "proposed_evidence_status": "needs_precise_mapping",
+        "proposed_evidence_confidence": "quran_explicit",
+        "source_id": "quran_text",
+        "reviewer_note": "مثال — proposed فقط",
+        "promote_as_final": false
+      }
+    ],
+    "generated_at": "2026-07-05T07:09:14.253Z"
+  },
+  "created_by": null,
+  "approved_by": null,
+  "applied_by": null
+}
