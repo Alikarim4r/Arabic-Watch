@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>الساعة العربية الزمنية — v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;500;600&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#030712;--gold:#f3d68a;--gold2:#d4af5a;--gold3:#8b6f2e;--ivory:#f6efdc;--dim:rgba(246,239,220,.48);--line:rgba(243,214,138,.18);--line2:rgba(243,214,138,.42);--moon:#c8d4ff;}
+*{box-sizing:border-box;margin:0;padding:0}html,body{min-height:100%}
+body{font-family:'Cormorant Garamond','Amiri',serif;background:radial-gradient(circle at 50% 18%, rgba(50,80,160,.38), transparent 34%),radial-gradient(circle at 12% 82%, rgba(18,120,150,.15), transparent 36%),radial-gradient(circle at 83% 78%, rgba(120,65,155,.17), transparent 38%),linear-gradient(180deg,#030712,#071126 58%,#020617);color:var(--ivory);overflow-x:hidden;display:flex;flex-direction:column;align-items:center;padding:22px 14px 42px;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(1px 1px at 8% 18%, rgba(255,255,255,.75), transparent 55%),radial-gradient(1px 1px at 80% 26%, rgba(255,255,255,.50), transparent 55%),radial-gradient(1px 1px at 31% 68%, rgba(255,255,255,.50), transparent 55%),radial-gradient(1px 1px at 61% 84%, rgba(255,255,255,.45), transparent 55%),radial-gradient(1px 1px at 91% 58%, rgba(255,255,255,.55), transparent 55%),radial-gradient(1px 1px at 46% 11%, rgba(255,255,255,.45), transparent 55%);background-size:620px 620px;opacity:.72;z-index:0;}
+.header{position:relative;z-index:2;text-align:center;margin-bottom:13px}.orn{color:var(--gold2);letter-spacing:12px;opacity:.72;font-size:13px;margin-bottom:7px}
+h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);font-weight:500;letter-spacing:2px;background:linear-gradient(180deg,#fff2bc,var(--gold2),#85672c);-webkit-background-clip:text;background-clip:text;color:transparent}.sub{margin-top:4px;color:var(--dim);letter-spacing:3.5px;text-transform:uppercase;font-style:italic;font-size:11px}
+.model-controls{display:none !important;position:relative;z-index:3;width:min(94vw,680px);grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 15px}.model-btn{border:1px solid var(--line);background:rgba(8,16,36,.58);color:var(--ivory);padding:11px 12px;border-radius:10px;cursor:pointer;font-family:'Reem Kufi','Amiri',sans-serif;font-size:13px;transition:.22s ease}.model-btn small{display:block;font-family:'Cormorant Garamond',serif;color:var(--dim);font-size:11px;letter-spacing:.7px;margin-top:3px}.model-btn.active{border-color:var(--gold2);color:var(--gold);background:rgba(243,214,138,.10);box-shadow:0 0 18px rgba(243,214,138,.14)}
+.stage{position:relative;z-index:2;width:min(92vw,520px);aspect-ratio:1;display:grid;place-items:center}.watch{position:relative;width:min(92vw,480px);height:min(92vw,480px);max-width:480px;max-height:480px;border-radius:50%;background:radial-gradient(circle at 50% 35%, #1a2855 0%, #0a1228 58%, #050912 100%);box-shadow:0 0 0 1px rgba(243,214,138,.13),0 0 0 8px rgba(10,16,36,.62),0 0 0 9px rgba(243,214,138,.18),0 0 0 16px rgba(10,16,36,.88),0 0 0 17px rgba(243,214,138,.08),0 30px 80px rgba(0,0,0,.72),inset 0 0 82px rgba(0,0,0,.62),inset 0 0 190px rgba(20,35,75,.36)}
+.watch::before{content:"";position:absolute;inset:6px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(243,214,138,.026) 0deg,transparent .50deg,transparent 2deg,rgba(243,214,138,.026) 2.55deg);pointer-events:none}.watch::after{content:"";position:absolute;top:50%;left:50%;width:79%;height:79%;transform:translate(-50%,-50%);border-radius:50%;border:1px solid var(--line);box-shadow:0 0 60px rgba(243,214,138,.06) inset;pointer-events:none}
+.ring{position:absolute;top:50%;left:50%;width:79%;height:79%;transform:translate(-50%,-50%);pointer-events:none;z-index:3}.ticks{position:absolute;top:50%;left:50%;width:79%;height:79%;transform:translate(-50%,-50%);pointer-events:none;z-index:2}.tick{position:absolute;top:50%;left:50%;width:1px;height:10px;background:var(--gold2);opacity:.30;transform-origin:0 0}.tick.major{height:15px;width:1.5px;opacity:.56}.segment-arc{position:absolute;top:50%;left:50%;width:2px;height:12px;background:rgba(243,214,138,.34);border-radius:2px;transform-origin:0 0;opacity:.6}
+.label{position:absolute;top:50%;left:50%;font-family:'Amiri','Reem Kufi',serif;font-weight:700;white-space:nowrap;pointer-events:none;will-change:transform,opacity,font-size,filter;color:var(--gold);text-shadow:0 0 10px rgba(243,214,138,.36),0 0 22px rgba(243,214,138,.18)}.label.night{color:var(--moon);text-shadow:0 0 10px rgba(126,166,255,.42),0 0 22px rgba(126,166,255,.20)}.label.current{color:#fff5cf;text-shadow:0 0 12px rgba(255,244,204,.92),0 0 30px rgba(243,214,138,.70),0 0 58px rgba(243,214,138,.38)}.label.current.night{color:#f0f5ff;text-shadow:0 0 13px rgba(220,232,255,.90),0 0 32px rgba(126,166,255,.62),0 0 56px rgba(126,166,255,.38)}
+.reader-line{position:absolute;top:50%;left:50%;width:2px;height:182px;transform-origin:50% 100%;margin-left:-1px;margin-top:-182px;background:linear-gradient(to top, transparent, rgba(255,255,255,.22), rgba(243,214,138,.88));border-radius:999px;z-index:4;pointer-events:none;opacity:.75}
+.clock{position:absolute;top:50%;left:50%;width:46%;height:46%;transform:translate(-50%,-50%);border-radius:50%;z-index:5;background:radial-gradient(circle at 35% 30%, #1f3266 0%, #0d1838 55%, #060c1f 100%);border:1px solid rgba(243,214,138,.25);box-shadow:inset 0 0 40px rgba(0,0,0,.75),inset 0 4px 12px rgba(243,214,138,.08),0 0 30px rgba(0,0,0,.6)}.hour-dot{position:absolute;top:50%;left:50%;width:4px;height:4px;background:var(--gold2);border-radius:50%;transform-origin:0 0;box-shadow:0 0 6px rgba(243,214,138,.55)}.hour-dot.major{width:6px;height:6px;background:var(--gold)}.hour-num{position:absolute;top:50%;left:50%;transform-origin:0 0;color:var(--gold);font-size:14px;opacity:.84;font-style:italic}.hand{position:absolute;top:50%;left:50%;transform-origin:50% 100%;border-radius:2px;z-index:8;background:linear-gradient(180deg,var(--gold),var(--gold3));box-shadow:0 0 8px rgba(243,214,138,.42)}.hand.hour{width:4px;height:60px;margin-left:-2px;margin-top:-60px}.hand.minute{width:2.5px;height:85px;margin-left:-1.25px;margin-top:-85px;background:linear-gradient(180deg,#fff4cc,var(--gold2))}.hand.second{width:1px;height:92px;margin-left:-.5px;margin-top:-92px;background:linear-gradient(180deg,#ffc2c2,#8b3a3a)}.cap{position:absolute;top:50%;left:50%;width:13px;height:13px;margin-left:-6.5px;margin-top:-6.5px;border-radius:50%;z-index:11;background:radial-gradient(circle at 30% 30%,var(--gold),var(--gold3) 68%,#2a1d05 100%);box-shadow:0 0 10px rgba(243,214,138,.64), inset 0 0 4px rgba(0,0,0,.65)}
+.info{position:relative;z-index:2;margin-top:24px;display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;width:min(92vw,650px)}.info-block{padding:12px 16px;border:1px solid var(--line);border-radius:5px;background:linear-gradient(180deg,rgba(20,30,60,.50),rgba(10,16,36,.52));backdrop-filter:blur(6px)}.info-block.center{text-align:center}.info-block.left{text-align:right}.k{color:var(--dim);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-style:italic;margin-bottom:4px}.v{font-family:'Amiri',serif;font-weight:700;color:var(--gold);font-size:20px;text-shadow:0 0 12px rgba(243,214,141,.28)}.lat{font-size:14px;color:var(--ivory);font-weight:400;font-family:'Cormorant Garamond',serif;font-style:italic;opacity:.9;text-shadow:none}.divider{width:2px;height:60px;background:linear-gradient(180deg,transparent,var(--gold2),transparent);opacity:.5}
+.progress-wrap{position:relative;z-index:2;width:min(92vw,650px);margin-top:13px}.progress-label{display:flex;justify-content:space-between;gap:10px;color:var(--dim);font-style:italic;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}.progress-track{height:2px;background:rgba(243,214,138,.12);overflow:hidden}.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold2));box-shadow:0 0 12px rgba(243,214,138,.56)}.controls{position:relative;z-index:2;margin-top:18px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}.lbl{color:var(--dim);letter-spacing:3px;text-transform:uppercase;font-style:italic;font-size:12px}.speed.active{background:rgba(243,214,138,.12);color:var(--gold);border-color:var(--gold2);box-shadow:0 0 13px rgba(243,214,138,.15)}button{border:1px solid var(--line);background:rgba(8,16,36,.48);color:var(--ivory);padding:7px 12px;border-radius:999px;cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:1px;transition:.22s ease}button:hover{border-color:var(--line2);color:var(--gold);background:rgba(243,214,138,.07)}.explain{position:relative;z-index:2;margin-top:14px;width:min(92vw,650px);color:var(--dim);font-size:13px;line-height:1.7;text-align:center}.explain strong{color:var(--gold)}@media(max-width:540px){body{padding-top:18px}.watch{width:340px;height:340px}.stage{width:360px}.label{font-size:12px}.info{gap:10px}.info-block{padding:9px 10px}.v{font-size:16px}.model-controls{grid-template-columns:1fr}.sub{letter-spacing:2px}}
+
+.label.prayer-related{
+  color:#7fffd4;
+  text-shadow:0 0 11px rgba(127,255,212,.7),0 0 26px rgba(127,255,212,.28);
+}
+.label.prayer-fajr{color:#c8d4ff;text-shadow:0 0 12px rgba(126,166,255,.85),0 0 30px rgba(126,166,255,.32)}
+.label.prayer-sunrise{color:#ffcf75;text-shadow:0 0 12px rgba(255,184,77,.85),0 0 30px rgba(255,184,77,.32)}
+.label.prayer-dhuhr{color:#fff0b8;text-shadow:0 0 12px rgba(243,214,138,.85),0 0 30px rgba(243,214,138,.32)}
+.label.prayer-asr{color:#d9e2ff;text-shadow:0 0 12px rgba(180,200,255,.75),0 0 30px rgba(180,200,255,.25)}
+.label.prayer-maghrib{color:#ffad82;text-shadow:0 0 12px rgba(255,123,84,.85),0 0 30px rgba(255,123,84,.32)}
+.label.current.prayer-current{
+  filter:drop-shadow(0 0 9px rgba(255,255,255,.85));
+  text-decoration:underline;
+  text-underline-offset:6px;
+}
+.isha-marker{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#bfc9ff;
+  box-shadow:0 0 11px rgba(120,145,255,.95),0 0 28px rgba(120,145,255,.45);
+  transform-origin:0 0;
+  pointer-events:none;
+  z-index:5;
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.isha-marker::after{
+  content:"العشاء";
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  white-space:nowrap;
+  font-family:'Reem Kufi','Amiri',sans-serif;
+  font-size:11px;
+  color:#bfc9ff;
+  text-shadow:0 0 10px rgba(120,145,255,.85);
+}
+.isha-marker.show{opacity:1}
+
+
+.label .prayer-badge{
+  display:block;
+  margin-top:2px;
+  font-family:'Reem Kufi','Amiri',sans-serif;
+  font-size:.58em;
+  font-weight:600;
+  line-height:1;
+  color:#ffffff;
+  text-shadow:0 0 10px rgba(255,255,255,.75),0 0 22px rgba(243,214,138,.45);
+}
+.label.prayer-active-label{
+  color:#fff7d7 !important;
+  text-shadow:0 0 13px rgba(255,247,215,.90),0 0 32px rgba(243,214,138,.65),0 0 58px rgba(243,214,138,.32) !important;
+}
+.prayer-ring-marker{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:10px;
+  height:10px;
+  border-radius:3px;
+  background:#fff7d7;
+  box-shadow:0 0 11px rgba(255,247,215,.95),0 0 28px rgba(243,214,138,.55);
+  transform-origin:0 0;
+  pointer-events:none;
+  z-index:6;
+  opacity:0;
+  transition:opacity .2s ease;
+}
+.prayer-ring-marker::after{
+  content:"";
+  display:none;
+}
+.prayer-ring-marker.fajr{background:#c8d4ff;box-shadow:0 0 11px rgba(126,166,255,.95),0 0 28px rgba(126,166,255,.45)}
+.prayer-ring-marker.sunrise{background:#ffcf75;box-shadow:0 0 11px rgba(255,184,77,.95),0 0 28px rgba(255,184,77,.45)}
+.prayer-ring-marker.dhuhr{background:#fff0b8;box-shadow:0 0 11px rgba(243,214,138,.95),0 0 28px rgba(243,214,138,.45)}
+.prayer-ring-marker.asr{background:#d9e2ff;box-shadow:0 0 11px rgba(180,200,255,.95),0 0 28px rgba(180,200,255,.40)}
+.prayer-ring-marker.maghrib{background:#ffad82;box-shadow:0 0 11px rgba(255,123,84,.95),0 0 28px rgba(255,123,84,.45)}
+.prayer-ring-marker.isha{background:#bfc9ff;box-shadow:0 0 11px rgba(120,145,255,.95),0 0 28px rgba(120,145,255,.45)}
+.prayer-ring-marker.show{opacity:1}
+
+
+.prayer-ring-marker::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:2px;
+  height:20px;
+  border-radius:999px;
+  background:currentColor;
+  transform:translate(-50%,-50%);
+  opacity:.95;
+}
+.prayer-ring-marker.show{
+  opacity:1;
+}
+
+
+.prayer-times-table{
+  position:relative;
+  z-index:2;
+  width:min(92vw,650px);
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:7px;
+  direction:rtl;
+}
+.prayer-time-card{
+  border:1px solid rgba(243,214,138,.22);
+  border-radius:10px;
+  background:linear-gradient(180deg,rgba(20,30,60,.58),rgba(8,16,36,.62));
+  padding:9px 7px;
+  text-align:center;
+  box-shadow:0 10px 24px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.prayer-time-card .pn{
+  font-family:'Reem Kufi','Amiri',sans-serif;
+  color:var(--dim);
+  font-size:11px;
+  margin-bottom:4px;
+}
+.prayer-time-card .pt{
+  color:var(--gold);
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+.prayer-time-card.next{
+  border-color:var(--gold2);
+  background:linear-gradient(180deg,rgba(243,214,138,.13),rgba(20,30,60,.62));
+  box-shadow:0 0 18px rgba(243,214,138,.16), inset 0 1px 0 rgba(255,255,255,.08);
+}
+@media(max-width:540px){
+  .prayer-times-table{grid-template-columns:repeat(3,1fr);gap:6px}
+  .prayer-time-card .pt{font-size:16px}
+}
+
+
+.timezone-card{
+  position:relative;
+  z-index:2;
+  width:min(92vw,650px);
+  margin-top:14px;
+  text-align:center;
+  border:1px solid rgba(243,214,138,.22);
+  border-radius:10px;
+  background:linear-gradient(180deg,rgba(20,30,60,.50),rgba(8,16,36,.58));
+  color:var(--gold);
+  padding:10px 12px;
+  font-family:'Reem Kufi','Amiri',sans-serif;
+  font-size:13px;
+  box-shadow:0 10px 24px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.prayer-time-card .pt .time12{
+  display:block;
+  color:var(--gold);
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+.prayer-time-card .pt .ampm{
+  display:block;
+  margin-top:1px;
+  color:var(--ivory);
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+.settings-panel{
+  position:relative;z-index:2;width:min(92vw,650px);margin-top:16px;
+  border:1px solid rgba(243,214,138,.20);border-radius:16px;
+  background:linear-gradient(180deg,rgba(20,30,60,.48),rgba(8,16,36,.62));
+  padding:14px 14px 12px;box-shadow:0 18px 42px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(8px);
+}
+.settings-title{font-family:'Reem Kufi','Amiri',sans-serif;color:var(--gold);font-size:14px;margin-bottom:6px;text-align:center}
+.settings-desc{color:var(--dim);font-size:12px;line-height:1.65;text-align:center;margin-bottom:12px}
+.settings-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:10px}
+.settings-row select{width:100%;border:1px solid rgba(243,214,138,.22);background:rgba(3,7,18,.62);color:var(--ivory);border-radius:10px;padding:8px 10px;font-family:'Reem Kufi','Amiri',sans-serif}
+.settings-row button{border-radius:10px;font-family:'Reem Kufi','Amiri',sans-serif}
+.ratio-sliders{display:grid;gap:8px}.ratio-line{display:grid;grid-template-columns:68px 1fr 78px 92px;gap:8px;align-items:center;color:var(--ivory);font-family:'Reem Kufi','Amiri',sans-serif;font-size:12px;direction:ltr}.ratio-line .hour-name{direction:rtl;text-align:right;color:var(--ivory)}.ratio-line .ratio-percent{direction:ltr;text-align:left;color:var(--gold);font-family:'Cormorant Garamond','Amiri',serif;font-size:15px}.ratio-line input[type=range]{width:100%;accent-color:#d4af5a}.ratio-line .minute-input{width:74px;border:1px solid rgba(243,214,138,.25);border-radius:8px;background:rgba(3,7,18,.55);color:var(--gold);padding:6px 7px;text-align:center;font-family:'Cormorant Garamond','Amiri',serif;font-size:15px;outline:none}.ratio-line .minute-input:focus{border-color:var(--gold2);box-shadow:0 0 12px rgba(243,214,138,.14)}.formula-card{position:relative;z-index:2;width:min(92vw,650px);margin-top:12px;border:1px solid rgba(243,214,138,.18);border-radius:12px;background:rgba(8,16,36,.40);padding:10px 12px;text-align:center;color:rgba(246,239,220,.70);font-size:13px;line-height:1.7}.formula-card strong{color:var(--gold)}
+@media(max-width:540px){.ratio-line{grid-template-columns:56px 1fr 68px 74px;gap:6px}.ratio-line .minute-input{width:64px}.settings-row{grid-template-columns:1fr}.settings-panel{padding:12px}}
+
+</style>
+</head>
+<body>
+<header class="header"><div class="orn">✦ &nbsp; ✧ &nbsp; ✦</div><h1>السَّاعَةُ العَرَبِيَّةُ الفَلَكِيَّة</h1><div class="sub">v6 · Prayer anchored · Ratio based</div></header>
+<div class="model-controls"><button class="model-btn active" id="modelFixed">النموذج A — أطوال ثابتة + سرعة متغيرة<small>الشكل متساوٍ، والفترة الطويلة تتحرك أبطأ</small></button><button class="model-btn" id="modelVariable">النموذج B — أطوال متغيرة + سرعة ثابتة<small>القطاع يكبر أو يصغر حسب مدة الفترة</small></button></div>
+<section class="stage"><div class="watch"><div class="ticks" id="ticks"></div><div class="ring" id="ring"></div><div class="reader-line" id="readerLine"></div><div class="clock"><div id="hourMarks"></div><div class="hand hour" id="handHour"></div><div class="hand minute" id="handMinute"></div><div class="hand second" id="handSecond"></div><div class="cap"></div></div></div></section>
+<section class="info"><div class="info-block left"><div class="k">previous · سابق</div><div class="v" id="prevName">—</div></div><div class="divider"></div><div class="info-block center"><div class="k">current period · حالياً</div><div class="v" id="curName">—</div><div class="lat" id="curLat">—</div></div></section>
+<div class="progress-wrap"><div class="progress-label"><span id="modelInfo">—</span><span id="progLabel">—</span></div><div class="progress-track"><div class="progress-fill" id="progFill"></div></div></div>
+<section class="settings-panel" id="settingsPanel">
+  <div class="settings-title">إعداد توزيع الساعات داخل الفترة</div>
+  <div class="settings-desc">مواقيت الصلاة ثابتة كحدود أصلية. التعديل هنا يغيّر النِّسَب داخل الفترة فقط، ثم تُطبّق النِّسَب يومياً حسب طول الفترة الحقيقي.</div>
+  <div class="settings-row">
+    <select id="groupSelect"></select>
+    <button id="resetRatiosBtn">إعادة الضبط</button>
+  </div>
+  <div class="ratio-sliders" id="ratioSliders"></div>
+</section>
+<div class="formula-card"><strong>القاعدة:</strong> طول الساعة العربية = مدة الفترة بين صلاتين × النسبة المحفوظة، ومجموع النِّسَب داخل كل فترة = 1.0 دائماً.</div>
+
+<div class="timezone-card" id="timezoneCard">المنطقة الزمنية: جاري التحديد...</div><div class="prayer-times-table" id="prayerTimesTable"></div><div class="controls"><span class="lbl">Tempo</span><button class="speed active" data-s="1">×1</button><button class="speed" data-s="60">×60</button><button class="speed" data-s="300">×300</button><button class="speed" data-s="1800">×1800</button><button id="pauseBtn">إيقاف</button><span class="lbl" id="clockReadout">00:00:00</span></div><div class="explain" id="explain"></div>
+<script>
+(() => {
+  "use strict";
+
+  /*
+    Arabic Temporal Watch v6
+    - Prayer times are the root anchors.
+    - Arabic-hour order fixed exactly as requested: 1 الفجر ... 24 السحر.
+    - Stored values are ratios, not fixed minutes.
+  */
+  const TEMPORAL_GROUPS=[
+    /*
+      الترتيب المعتمد يبدأ من الفجر وينتهي بالسحر:
+      1 الفجر، 2 الصبح، 3 الصباح، 4 الشروق ... 24 السحر.
+    */
+    {id:"fajr_sunrise", title:"الفجر → الشروق", from:"fajr", to:"sunrise", count:3, names:["الفجر","الصبح","الصباح"], night:true},
+    {id:"sunrise_dhuhr", title:"الشروق → الظهر", from:"sunrise", to:"dhuhr", count:5, names:["الشروق","البكور","الغدوة","الضحى","الهاجرة"], night:false},
+    {id:"dhuhr_asr", title:"الظهر → العصر", from:"dhuhr", to:"asr", count:2, names:["الظهيرة","الروَاح"], night:false},
+    {id:"asr_maghrib", title:"العصر → المغرب", from:"asr", to:"maghrib", count:4, names:["العصر","القصر","الأصيل","العشي"], night:false},
+    {id:"maghrib_isha", title:"المغرب → العشاء", from:"maghrib", to:"isha", count:2, names:["الغروب","الشفق"], night:true},
+    {id:"isha_fajr", title:"العشاء → الفجر", from:"isha", to:"fajr", count:8, names:["الغسق","العتمة","الصدفة","الفحمة","الزلة","الزلف","البهرة","السحر"], night:true, overnight:true}
+  ];
+
+  const MIN_RATIO=0.05;
+  const RATIO_STORAGE_KEY="arabicTemporalWatch.v7.namesOrder.ratios";
+  let customRatios=loadRatios();
+  let PERIODS=[];
+
+  const DOHA={lat:25.2854,lon:51.5310};
+  const API_METHOD=4;
+
+  const FALLBACK_TIMES={
+    Fajr:"03:22",
+    Sunrise:"04:50",
+    Dhuhr:"11:30",
+    Asr:"14:57",
+    Maghrib:"18:11",
+    Isha:"19:41"
+  };
+
+  let prayerTimes={...FALLBACK_TIMES};
+  let anchors=timesToAnchors(prayerTimes);
+  let sourceLabel="مواقيت احتياطية للدوحة";
+  let timezoneLabel="Asia/Qatar";
+  let timezoneOffsetText="GMT+3";
+  let locationLabel="الدوحة";
+
+  const ring=document.getElementById("ring");
+  const ticks=document.getElementById("ticks");
+  const hourMarks=document.getElementById("hourMarks");
+  const handHour=document.getElementById("handHour");
+  const handMinute=document.getElementById("handMinute");
+  const handSecond=document.getElementById("handSecond");
+  const readerLine=document.getElementById("readerLine");
+  const prevName=document.getElementById("prevName");
+  const curName=document.getElementById("curName");
+  const curLat=document.getElementById("curLat");
+  const progFill=document.getElementById("progFill");
+  const progLabel=document.getElementById("progLabel");
+  const modelInfo=document.getElementById("modelInfo");
+  const explain=document.getElementById("explain");
+  const clockReadout=document.getElementById("clockReadout");
+  const modelFixedBtn=document.getElementById("modelFixed");
+  const modelVariableBtn=document.getElementById("modelVariable");
+
+  const RADIUS=165;
+  const ARC_RADIUS=181;
+  const SLOT_ANGLE=30;
+  const VISIBLE_HALF=6;
+
+  let mode="fixed-speed-variable";
+  let speed=1;
+  let paused=false;
+  let pausedDate=null;
+  let simStart=Date.now();
+  let realStart=performance.now();
+
+  let timeline=[];
+  let totalDuration=1440;
+  let labels=[];
+  let arcTicks=[];
+  let prayerRingMarkers=[];
+  let currentDateKey="";
+  let currentRenderMinute=0;
+
+  function mod(n,m){return ((n%m)+m)%m;}
+
+  function point(angleDeg,radius){
+    const r=(angleDeg-90)*Math.PI/180;
+    return {x:Math.cos(r)*radius,y:Math.sin(r)*radius};
+  }
+
+  function signedDist(a,b){
+    let d=mod(a-b,24);
+    if(d>12)d-=24;
+    return d;
+  }
+
+  function toMin(t){
+    const clean=String(t).split(" ")[0];
+    const [h,m]=clean.split(":").map(Number);
+    return h*60+m;
+  }
+
+  function minToText(m){
+    m=mod(m,1440);
+    const h=Math.floor(m/60);
+    const mm=Math.floor(m%60);
+    return `${String(h).padStart(2,"0")}:${String(mm).padStart(2,"0")}`;
+  }
+
+  function format12(timeText){
+    const clean=String(timeText).split(" ")[0];
+    let [h,m]=clean.split(":").map(Number);
+    const suffix=h>=12 ? "PM" : "AM";
+    h=h%12;
+    if(h===0) h=12;
+    return {
+      time:`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`,
+      suffix
+    };
+  }
+
+  function formatClock12(d){
+    let h=d.getHours();
+    const m=d.getMinutes();
+    const s=d.getSeconds();
+    const suffix=h>=12 ? "PM" : "AM";
+    h=h%12;
+    if(h===0) h=12;
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} ${suffix}`;
+  }
+
+  function updateTimezoneCard(){
+    const card=document.getElementById("timezoneCard");
+    if(!card) return;
+    card.textContent=`المنطقة الزمنية: ${locationLabel} · ${timezoneLabel} (${timezoneOffsetText})`;
+  }
+
+  function todayKey(){
+    const d=new Date();
+    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  }
+
+  function timesToAnchors(t){
+    return {
+      fajr:toMin(t.Fajr),
+      sunrise:toMin(t.Sunrise),
+      dhuhr:toMin(t.Dhuhr),
+      asr:toMin(t.Asr),
+      maghrib:toMin(t.Maghrib),
+      isha:toMin(t.Isha)
+    };
+  }
+
+  function prayerLineText(){
+    const f=format12(prayerTimes.Fajr), sr=format12(prayerTimes.Sunrise), d=format12(prayerTimes.Dhuhr);
+    const a=format12(prayerTimes.Asr), m=format12(prayerTimes.Maghrib), i=format12(prayerTimes.Isha);
+    return `${sourceLabel} · ${locationLabel} (${timezoneOffsetText}) | الفجر ${f.time} ${f.suffix} | الشروق ${sr.time} ${sr.suffix} | الظهر ${d.time} ${d.suffix} | العصر ${a.time} ${a.suffix} | المغرب ${m.time} ${m.suffix} | العشاء ${i.time} ${i.suffix}`;
+  }
+
+  function renderPrayerTimesTable(nowMinute){
+    const table=document.getElementById("prayerTimesTable");
+    if(!table) return;
+
+    const rows=[
+      ["Fajr","الفجر"],
+      ["Sunrise","الشروق"],
+      ["Dhuhr","الظهر"],
+      ["Asr","العصر"],
+      ["Maghrib","المغرب"],
+      ["Isha","العشاء"]
+    ];
+
+    let nextKey=rows[0][0];
+    let bestDiff=1440;
+    for(const [key] of rows){
+      let diff=toMin(prayerTimes[key])-nowMinute;
+      if(diff<0) diff+=1440;
+      if(diff<bestDiff){
+        bestDiff=diff;
+        nextKey=key;
+      }
+    }
+
+    table.innerHTML=rows.map(([key,name])=>{
+      const f=format12(prayerTimes[key] || "00:00");
+      return `
+      <div class="prayer-time-card ${key===nextKey ? "next" : ""}">
+        <div class="pn">${name}</div>
+        <div class="pt"><span class="time12">${f.time}</span><span class="ampm">${f.suffix}</span></div>
+      </div>
+    `}).join("");
+  }
+
+  function ensurePrayerLine(){
+    let el=document.getElementById("realPrayerLine");
+    if(!el){
+      el=document.createElement("div");
+      el.id="realPrayerLine";
+      el.style.cssText="position:relative;z-index:2;margin-top:12px;width:min(92vw,650px);text-align:center;color:rgba(246,239,220,.72);font-size:13px;line-height:1.7;border:1px solid rgba(243,214,138,.18);background:rgba(8,16,36,.42);border-radius:7px;padding:10px 12px;backdrop-filter:blur(6px);";
+      const controls=document.querySelector(".controls");
+      controls.parentNode.insertBefore(el, controls);
+    }
+    updateTimezoneCard();
+    el.textContent=prayerLineText();
+    renderPrayerTimesTable(minuteOfDay(new Date()));
+  }
+
+  function defaultRatios(count){
+    return Array.from({length:count},()=>1/count);
+  }
+
+  function normalizeRatios(raw,count){
+    let arr=(Array.isArray(raw) && raw.length===count ? raw.map(Number) : defaultRatios(count));
+    arr=arr.map(v=>Number.isFinite(v) && v>0 ? v : 1/count);
+    const minTotal=MIN_RATIO*count;
+    if(minTotal>=1) return defaultRatios(count);
+    arr=arr.map(v=>Math.max(MIN_RATIO,v));
+    let sum=arr.reduce((a,b)=>a+b,0);
+    arr=arr.map(v=>v/sum);
+    for(let guard=0;guard<8;guard++){
+      const low=arr.filter(v=>v<MIN_RATIO);
+      if(!low.length) break;
+      const fixed=arr.map(v=>Math.max(MIN_RATIO,v));
+      const fixedSum=fixed.reduce((a,b)=>a+b,0);
+      arr=fixed.map(v=>v/fixedSum);
+    }
+    const finalSum=arr.reduce((a,b)=>a+b,0) || 1;
+    return arr.map(v=>v/finalSum);
+  }
+
+  function loadRatios(){
+    try{
+      const parsed=JSON.parse(localStorage.getItem(RATIO_STORAGE_KEY)||"{}");
+      const out={};
+      for(const g of TEMPORAL_GROUPS){
+        out[g.id]=normalizeRatios(parsed[g.id],g.count);
+      }
+      return out;
+    }catch(e){
+      const out={};
+      for(const g of TEMPORAL_GROUPS) out[g.id]=defaultRatios(g.count);
+      return out;
+    }
+  }
+
+  function saveRatios(){
+    try{ localStorage.setItem(RATIO_STORAGE_KEY,JSON.stringify(customRatios)); }catch(e){}
+  }
+
+  function resetRatios(groupId){
+    const g=TEMPORAL_GROUPS.find(x=>x.id===groupId);
+    if(!g) return;
+    customRatios[groupId]=defaultRatios(g.count);
+    saveRatios();
+    buildTimeline();
+    renderRatioControls();
+  }
+
+  function setRatio(groupId,index,value){
+    const g=TEMPORAL_GROUPS.find(x=>x.id===groupId);
+    if(!g) return;
+
+    /*
+      منطق التثبيت المتتابع:
+      - كل ساعة قبل الساعة المعدلة تبقى كما هي.
+      - الساعة الحالية تأخذ القيمة الجديدة.
+      - الفرق يُوزَّع فقط على الساعات التالية.
+      هذا يمنع رجوع النظام لتغيير ما ضبطه المستخدم سابقاً.
+    */
+    const old=normalizeRatios(customRatios[groupId],g.count);
+    const beforeSum=old.slice(0,index).reduce((a,b)=>a+b,0);
+    const afterCount=g.count-index-1;
+    const maxAllowed=1-beforeSum-(MIN_RATIO*afterCount);
+    const minAllowed=MIN_RATIO;
+    const target=Math.max(minAllowed,Math.min(maxAllowed,value));
+    const remaining=1-beforeSum-target;
+
+    const next=old.slice();
+    next[index]=target;
+
+    if(afterCount>0){
+      const after=old.slice(index+1);
+      const afterSum=after.reduce((a,b)=>a+b,0) || afterCount;
+      for(let j=index+1;j<g.count;j++){
+        next[j]=(old[j]/afterSum)*remaining;
+      }
+    }
+
+    customRatios[groupId]=normalizeRatios(next,g.count);
+    saveRatios();
+    buildTimeline();
+    renderRatioControls();
+  }
+
+  function setMinutes(groupId,index,minutes){
+    const g=TEMPORAL_GROUPS.find(x=>x.id===groupId);
+    if(!g) return;
+    const span=getGroupSpan(g).span || 1;
+    setRatio(groupId,index,Number(minutes)/span);
+  }
+
+  function getGroupSpan(g){
+    let from=anchors[g.from];
+    let to=anchors[g.to];
+    if(g.overnight && to<=from) to+=1440;
+    if(g.afterMidnight){
+      if(from<anchors.sunrise) from+=1440;
+      if(to<from) to+=1440;
+    }
+    return {from,to,span:to-from};
+  }
+
+  function buildTimeline(){
+    const res=[];
+
+    for(const g of TEMPORAL_GROUPS){
+      const ratios=normalizeRatios(customRatios[g.id],g.count);
+      customRatios[g.id]=ratios;
+      const {from,span}=getGroupSpan(g);
+      let cursor=from;
+      for(let i=0;i<g.count;i++){
+        const dur=span*ratios[i];
+        res.push({
+          ar:g.names[i],
+          lat:g.title,
+          night:g.night,
+          groupId:g.id,
+          groupTitle:g.title,
+          ratio:ratios[i],
+          start:cursor,
+          end:cursor+dur,
+          duration:dur
+        });
+        cursor+=dur;
+      }
+    }
+
+    timeline=res.map((p,i)=>({...p,idx:i}));
+    PERIODS=timeline.map(p=>({ar:p.ar,lat:p.lat,night:p.night}));
+    totalDuration=timeline.reduce((sum,p)=>sum+p.duration,0);
+
+    let acc=0;
+    for(const p of timeline){
+      p.angleStart=(acc/totalDuration)*360;
+      p.angleSize=(p.duration/totalDuration)*360;
+      p.angleEnd=p.angleStart+p.angleSize;
+      acc+=p.duration;
+    }
+
+    currentDateKey=todayKey();
+    renderRatioControls();
+  }
+
+  function setupRatioControls(){
+    const select=document.getElementById("groupSelect");
+    const reset=document.getElementById("resetRatiosBtn");
+    if(!select) return;
+    select.innerHTML=TEMPORAL_GROUPS.map(g=>`<option value="${g.id}">${g.title} · ${g.count} ساعة</option>`).join("");
+    select.addEventListener("change",renderRatioControls);
+    if(reset) reset.addEventListener("click",()=>resetRatios(select.value));
+  }
+
+  function renderRatioControls(){
+    const select=document.getElementById("groupSelect");
+    const box=document.getElementById("ratioSliders");
+    if(!select || !box || !timeline.length) return;
+    const g=TEMPORAL_GROUPS.find(x=>x.id===select.value) || TEMPORAL_GROUPS[0];
+    if(select.value!==g.id) select.value=g.id;
+    const ratios=normalizeRatios(customRatios[g.id],g.count);
+    const span=getGroupSpan(g).span;
+    box.innerHTML=g.names.map((name,i)=>{
+      const minutes=span*ratios[i];
+      const max=(1-MIN_RATIO*(g.count-1))*100;
+      return `<div class="ratio-line">
+        <span class="ratio-percent">${(ratios[i]*100).toFixed(1)}%</span>
+        <input class="ratio-range" type="range" min="${MIN_RATIO*100}" max="${max}" step="0.1" value="${(ratios[i]*100).toFixed(2)}" data-group="${g.id}" data-index="${i}">
+        <input class="minute-input" type="number" min="1" step="0.1" value="${minutes.toFixed(1)}" data-group="${g.id}" data-index="${i}" title="الدقائق">
+        <span class="hour-name">${i+1}. ${name}</span>
+      </div>`;
+    }).join("");
+
+    box.querySelectorAll(".ratio-range").forEach(input=>{
+      input.addEventListener("input",e=>{
+        setRatio(e.target.dataset.group,Number(e.target.dataset.index),Number(e.target.value)/100);
+      });
+    });
+
+    box.querySelectorAll(".minute-input").forEach(input=>{
+      input.addEventListener("change",e=>{
+        setMinutes(e.target.dataset.group,Number(e.target.dataset.index),Number(e.target.value));
+      });
+      input.addEventListener("keydown",e=>{
+        if(e.key==="Enter") e.target.blur();
+      });
+    });
+  }
+
+  function rebuildDynamicElements(){
+    ring.innerHTML="";
+    labels=[];
+    arcTicks=[];
+
+    for(let i=0;i<13;i++){
+      const el=document.createElement("div");
+      el.className="label";
+      ring.appendChild(el);
+      labels.push(el);
+    }
+
+    for(let i=0;i<72;i++){
+      const el=document.createElement("div");
+      el.className="segment-arc";
+      ring.appendChild(el);
+      arcTicks.push(el);
+    }
+
+    createPrayerRingMarkers();
+  }
+
+  function simDate(){
+    if(paused && pausedDate) return new Date(pausedDate.getTime());
+    return new Date(simStart+(performance.now()-realStart)*speed);
+  }
+
+  function fmtTime(d){
+    return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+  }
+
+  function minuteOfDay(d){
+    return d.getHours()*60+d.getMinutes()+(d.getSeconds()+d.getMilliseconds()/1000)/60;
+  }
+
+  function hourAngleFromDate(d){
+    return ((d.getHours()%12)+d.getMinutes()/60+d.getSeconds()/3600+d.getMilliseconds()/3600000)*30;
+  }
+
+  function currentPeriod(minute){
+    let t=minute;
+
+    if(t<timeline[0].start) t+=1440;
+
+    for(let i=0;i<timeline.length;i++){
+      const p=timeline[i];
+      let s=p.start;
+      let e=p.end;
+      if(e<=s)e+=1440;
+
+      if(t>=s && t<e){
+        return {
+          idx:i,
+          period:p,
+          progress:(t-s)/(e-s),
+          inside:t-s,
+          absoluteMinute:t
+        };
+      }
+    }
+
+    return {idx:0,period:timeline[0],progress:0,inside:0,absoluteMinute:t};
+  }
+
+  function arabicPointFixed(cur){
+    return cur.idx*SLOT_ANGLE + cur.progress*SLOT_ANGLE;
+  }
+
+  function arabicPointVariable(cur){
+    const elapsedFromCycleStart=cur.absoluteMinute-timeline[0].start;
+    return (elapsedFromCycleStart/totalDuration)*360;
+  }
+
+  function buildStaticMarks(){
+    ticks.innerHTML="";
+    hourMarks.innerHTML="";
+
+    for(let i=0;i<12;i++){
+      const t=document.createElement("div");
+      t.className="tick"+(i%3===0?" major":"");
+      t.style.transform=`rotate(${i*30}deg) translateY(-190px)`;
+      ticks.appendChild(t);
+    }
+
+    /*
+      أرقام الساعة الكلاسيكية بأرقام عربية عادية بدل الرومانية.
+      الترتيب يبدأ من ١٢ في الأعلى ثم ١، ٢، ٣...
+    */
+    const AR_NUM=["12","1","2","3","4","5","6","7","8","9","10","11"];
+
+    for(let h=0;h<12;h++){
+      const a=h*30-90;
+      const r=a*Math.PI/180;
+
+      const dot=document.createElement("div");
+      dot.className="hour-dot"+(h%3===0?" major":"");
+      dot.style.transform=`translate(${92*Math.cos(r)-2}px, ${92*Math.sin(r)-2}px)`;
+      hourMarks.appendChild(dot);
+
+      const num=document.createElement("div");
+      num.className="hour-num";
+      num.textContent=AR_NUM[h];
+      num.style.fontFamily="'Amiri','Reem Kufi',serif";
+      num.style.fontWeight="700";
+      num.style.fontStyle="normal";
+      num.style.transform=`translate(calc(${78*Math.cos(r)}px - 50%), calc(${78*Math.sin(r)}px - 50%))`;
+      hourMarks.appendChild(num);
+    }
+  }
+
+  function setMode(next){
+    mode="fixed-speed-variable";
+    if(modelFixedBtn) modelFixedBtn.classList.add("active");
+    if(modelVariableBtn) modelVariableBtn.classList.remove("active");
+  }
+
+  modelFixedBtn.addEventListener("click",()=>setMode("fixed-speed-variable"));
+  modelVariableBtn.addEventListener("click",()=>setMode("variable-length-fixed-speed"));
+
+  document.querySelectorAll(".speed").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const cur=simDate();
+      speed=Number(btn.dataset.s);
+      simStart=cur.getTime();
+      realStart=performance.now();
+
+      document.querySelectorAll(".speed").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  function exactRingRotation(hourAngle,arabicPoint){
+    return hourAngle-arabicPoint;
+  }
+
+
+  const PRAYER_LINKS=[
+    {key:"Fajr",prayer:"الفجر",period:"الفجر",cls:"fajr"},
+    {key:"Sunrise",prayer:"الشروق",period:"الشروق",cls:"sunrise"},
+    {key:"Dhuhr",prayer:"الظهر",period:"الظهيرة",cls:"dhuhr"},
+    {key:"Asr",prayer:"العصر",period:"العصر",cls:"asr"},
+    {key:"Maghrib",prayer:"المغرب",period:"الغروب",cls:"maghrib"},
+    {key:"Isha",prayer:"العشاء",period:"الغسق",cls:"isha"}
+  ];
+
+  function arabicPointAtMinute(minute){
+    const c=currentPeriod(minute);
+    if(mode==="fixed-speed-variable") return arabicPointFixed(c);
+    return arabicPointVariable(c);
+  }
+
+  function shortestMinuteDistance(a,b){
+    return Math.abs(mod(a-b+720,1440)-720);
+  }
+
+  function prayerForPeriodName(periodName){
+    for(const p of PRAYER_LINKS){
+      if(p.period && p.period===periodName) return p;
+    }
+    return null;
+  }
+
+  function labelClassForPeriod(p,idx,cur,nowMinute){
+    let cls="label"+(p.night?" night":"")+(idx===cur.idx?" current":"");
+    const linkedPrayer=prayerForPeriodName(p.ar);
+
+    /*
+      اسم الصلاة يظهر مع اسم الساعة العربية طوال فترة ظهور هذه الساعة في الواجهة،
+      وليس فقط عند حلول وقت الصلاة.
+    */
+    if(linkedPrayer) cls+=` prayer-active-label prayer-${linkedPrayer.cls}`;
+
+    return cls;
+  }
+
+  function labelContentForPeriod(p,nowMinute){
+    /*
+      اسم الساعة العربية يبقى كما هو في منتصف الفترة.
+      اسم الصلاة يظهر مستقلاً عند بداية وقت الساعة المرتبطة بها على المحيط.
+    */
+    return p.ar;
+  }
+
+  function createPrayerRingMarkers(){
+    prayerRingMarkers=[];
+
+    for(const p of PRAYER_LINKS){
+      const marker=document.createElement("div");
+      marker.className=`prayer-ring-marker ${p.cls}`;
+      marker.dataset.name=p.prayer;
+      ring.appendChild(marker);
+      prayerRingMarkers.push({data:p,el:marker});
+    }
+  }
+
+  function renderPrayerRingMarkers(ringRotation,nowMinute){
+    if(!prayerRingMarkers.length) return;
+
+    const cur=currentPeriod(nowMinute);
+
+    for(const item of prayerRingMarkers){
+      const linkedPeriod = item.data.period
+        ? timeline.find(x=>x.ar===item.data.period)
+        : null;
+
+      if(linkedPeriod){
+        /*
+          العلامات المرتبطة بأسماء ساعات عربية:
+          تظهر عند بداية الساعة المرتبطة بالصلاة، وتبقى ظاهرة طالما هذه الساعة ظاهرة على الشاشة.
+        */
+        const rel=signedDist(linkedPeriod.idx,cur.idx);
+        const isVisible=Math.abs(rel)<=VISIBLE_HALF;
+
+        if(isVisible){
+          const startPointOnRing = linkedPeriod.idx*SLOT_ANGLE;
+          const markerAngle=ringRotation+startPointOnRing;
+          const pos=point(markerAngle,188);
+
+          item.el.style.transform=
+            `translate(calc(${pos.x.toFixed(2)}px - 50%), calc(${pos.y.toFixed(2)}px - 50%)) rotate(${markerAngle}deg)`;
+          item.el.classList.add("show");
+        }else{
+          item.el.classList.remove("show");
+        }
+
+      }else{
+        /*
+          العشاء لا توجد له ساعة عربية بنفس الاسم.
+          لذلك نحدد الفترة التي يقع داخلها وقت العشاء الحقيقي،
+          ثم نظهر علامته طالما تلك الفترة ظاهرة في الشاشة.
+        */
+        const ishaMinute=toMin(prayerTimes.Isha);
+        const ishaPeriod=currentPeriod(ishaMinute);
+        const rel=signedDist(ishaPeriod.idx,cur.idx);
+        const isVisible=Math.abs(rel)<=VISIBLE_HALF;
+
+        if(isVisible){
+          const markerPointOnRing=arabicPointFixed(ishaPeriod);
+          const markerAngle=ringRotation+markerPointOnRing;
+          const pos=point(markerAngle,188);
+
+          item.el.style.transform=
+            `translate(calc(${pos.x.toFixed(2)}px - 50%), calc(${pos.y.toFixed(2)}px - 50%)) rotate(${markerAngle}deg)`;
+          item.el.classList.add("show");
+        }else{
+          item.el.classList.remove("show");
+        }
+      }
+    }
+  }
+
+  function renderFixed(cur,ringRotation){
+    for(let off=-VISIBLE_HALF;off<=VISIBLE_HALF;off++){
+      const label=labels[off+VISIBLE_HALF];
+      const idx=mod(cur.idx+off,24);
+      const p=timeline[idx];
+
+      const angle=ringRotation+idx*SLOT_ANGLE+SLOT_ANGLE/2;
+      const pos=point(angle,RADIUS);
+
+      const dist=Math.abs(off-cur.progress);
+      const norm=Math.max(0,1-dist/6.4);
+      const opacity=Math.pow(norm,1.35);
+      const size=12+norm*10;
+
+      label.innerHTML=labelContentForPeriod(p,currentRenderMinute);
+      label.className=labelClassForPeriod(p,idx,cur,currentRenderMinute);
+      label.style.transform=`translate(calc(${pos.x.toFixed(2)}px - 50%), calc(${pos.y.toFixed(2)}px - 50%))`;
+      label.style.opacity=opacity.toFixed(3);
+      label.style.fontSize=size.toFixed(2)+"px";
+    }
+
+    for(let i=0;i<arcTicks.length;i++){
+      const el=arcTicks[i];
+
+      if(i<24){
+        const angle=ringRotation+i*SLOT_ANGLE;
+        const pos=point(angle,ARC_RADIUS);
+        el.style.display="block";
+        el.style.height="13px";
+        el.style.opacity=".42";
+        el.style.transform=`translate(calc(${pos.x.toFixed(2)}px - 50%), calc(${pos.y.toFixed(2)}px - 50%)) rotate(${angle}deg)`;
+      }else{
+        el.style.display="none";
+      }
+    }
+
+    modelInfo.textContent="Adaptive v6: prayer anchors · ratio-based Arabic hours";
+    explain.innerHTML="<strong>النموذج التكيفي:</strong> الحلقة تُحسب من زاوية العقرب ناقص موضع الساعة العربية الحالية، لذلك يبقى العقرب متوافقاً مع بداية ونهاية كل قطاع حتى لو تغيّر طول الساعة.";
+  }
+
+  function renderVariable(cur,ringRotation){
+    /*
+      نموذج B محسّن:
+      - لا نغيّر الزوايا الحقيقية للقطاعات.
+      - نقلل عدد الأسماء الظاهرة لتجنب التكدس.
+      - نعرض القريبة من الفترة الحالية فقط بوضوح.
+      - نستخدم مستويين دائريين خفيفين بدل دفع الزوايا بشكل كبير.
+    */
+    const visibleOffsets=[-4,-3,-2,-1,0,1,2,3,4];
+
+    for(let i=0;i<labels.length;i++){
+      labels[i].style.opacity="0";
+    }
+
+    visibleOffsets.forEach((off,slot)=>{
+      const label=labels[slot];
+      const idx=mod(cur.idx+off,24);
+      const p=timeline[idx];
+
+      const rel=signedDist(idx,cur.idx);
+      const absRel=Math.abs(rel);
+      const norm=Math.max(0,1-absRel/5);
+
+      const realAngle=ringRotation+p.angleStart+p.angleSize/2;
+
+      let radius;
+      if(idx===cur.idx){
+        radius=RADIUS+2;
+      }else if(absRel<=2){
+        radius=RADIUS+18;
+      }else{
+        radius=RADIUS-14;
+      }
+
+      const pos=point(realAngle,radius);
+
+      const opacity=idx===cur.idx ? 1 : Math.max(.28,Math.pow(norm,1.15));
+      const size=idx===cur.idx ? 23 : Math.max(11,12+norm*6);
+
+      label.innerHTML=labelContentForPeriod(p,currentRenderMinute);
+      label.className=labelClassForPeriod(p,idx,cur,currentRenderMinute);
+      label.style.transform=`translate(calc(${pos.x.toFixed(2)}px - 50%), calc(${pos.y.toFixed(2)}px - 50%))`;
+      label.style.opacity=opacity.toFixed(3);
+      label.style.fontSize=size.toFixed(2)+"px";
+    });
+
+    for(let i=0;i<arcTicks.length;i++){
+      const el=arcTicks[i];
+
+      if(i<24){
+        const p=timeline[i];
+        const angle=ringRotation+p.angleStart;
+        const pos=point(angle,ARC_RADIUS);
+        el.style.display="block";
+        el.style.height=Math.max(8,Math.min(28,p.angleSize*.65))+"px";
+        el.style.opacity=".48";
+        el.style.transform=`translate(calc(${pos.x.toFixed(2)}px - 50%), calc(${pos.y.toFixed(2)}px - 50%)) rotate(${angle}deg)`;
+      }else{
+        el.style.display="none";
+      }
+    }
+
+    modelInfo.textContent="Model B: real prayer times · cleaner labels";
+    explain.innerHTML="<strong>النموذج B:</strong> القطاعات بأطوال حقيقية حسب مدة كل فترة، وتم تقليل الأسماء الظاهرة وتوزيعها على مستويين لتجنب التكدس مع بقاء تطابق عقرب الساعة.";
+  }
+
+  function render(){
+    const d=simDate();
+
+    const m=d.getMinutes();
+    const s=d.getSeconds();
+    const ms=d.getMilliseconds();
+
+    const secAngle=(s+ms/1000)*6;
+    const minAngle=(m+(s+ms/1000)/60)*6;
+    const hourAngle=hourAngleFromDate(d);
+
+    handSecond.style.transform=`rotate(${secAngle}deg)`;
+    handMinute.style.transform=`rotate(${minAngle}deg)`;
+    handHour.style.transform=`rotate(${hourAngle}deg)`;
+    readerLine.style.transform=`rotate(${hourAngle}deg)`;
+
+    clockReadout.textContent=formatClock12(d);
+
+    const minute=minuteOfDay(d);
+    currentRenderMinute=minute;
+    renderPrayerTimesTable(minute);
+    const cur=currentPeriod(minute);
+
+    const pointOnArabicRing = arabicPointFixed(cur);
+
+    const ringRotation=exactRingRotation(hourAngle,pointOnArabicRing);
+
+    renderPrayerRingMarkers(ringRotation,minute);
+
+    renderFixed(cur,ringRotation);
+
+    const prevIdx=mod(cur.idx-1,24);
+    prevName.textContent=timeline[prevIdx].ar;
+    curName.textContent=cur.period.ar;
+    curLat.textContent=`${cur.period.groupTitle} · ${cur.period.duration.toFixed(1)} دقيقة · نسبة ${(cur.period.ratio*100).toFixed(1)}%`;
+
+    const pct=Math.round(cur.progress*100);
+    progFill.style.width=`${(cur.progress*100).toFixed(2)}%`;
+    progLabel.textContent=`${cur.period.ar} — ${pct}%`;
+
+    if(todayKey()!==currentDateKey && speed===1){
+      loadPrayerTimes();
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  async function fetchPrayerTimes(lat,lon,label){
+    try{
+      const d=new Date();
+      const date=`${String(d.getDate()).padStart(2,"0")}-${String(d.getMonth()+1).padStart(2,"0")}-${d.getFullYear()}`;
+      const url=`https://api.aladhan.com/v1/timings/${date}?latitude=${lat}&longitude=${lon}&method=${API_METHOD}`;
+
+      const res=await fetch(url);
+      if(!res.ok) throw new Error("Prayer API failed");
+
+      const data=await res.json();
+      const t=data.data.timings;
+
+      prayerTimes={
+        Fajr:String(t.Fajr).split(" ")[0],
+        Sunrise:String(t.Sunrise).split(" ")[0],
+        Dhuhr:String(t.Dhuhr).split(" ")[0],
+        Asr:String(t.Asr).split(" ")[0],
+        Maghrib:String(t.Maghrib).split(" ")[0],
+        Isha:String(t.Isha).split(" ")[0]
+      };
+
+      sourceLabel=label;
+      if(data.data && data.data.meta){
+        timezoneLabel=data.data.meta.timezone || timezoneLabel;
+      }
+      const offsetMinutes = new Date().getTimezoneOffset();
+      const localHours = -offsetMinutes/60;
+      timezoneOffsetText = `GMT${localHours>=0 ? "+" : ""}${localHours}`;
+      locationLabel = label.includes("موقعك") ? "حسب موقعك" : "الدوحة";
+      anchors=timesToAnchors(prayerTimes);
+      buildTimeline();
+      rebuildDynamicElements();
+      ensurePrayerLine();
+
+    }catch(e){
+      prayerTimes={...FALLBACK_TIMES};
+      sourceLabel="تعذر جلب المواقيت الحقيقية، تم استخدام احتياطي الدوحة";
+      timezoneLabel="Asia/Qatar";
+      timezoneOffsetText="GMT+3";
+      locationLabel="الدوحة";
+      anchors=timesToAnchors(prayerTimes);
+      buildTimeline();
+      rebuildDynamicElements();
+      ensurePrayerLine();
+    }
+  }
+
+  function loadPrayerTimes(){
+    prayerTimes={...FALLBACK_TIMES};
+    sourceLabel="مواقيت احتياطية للدوحة";
+    timezoneLabel="Asia/Qatar";
+    timezoneOffsetText="GMT+3";
+    locationLabel="الدوحة";
+    anchors=timesToAnchors(prayerTimes);
+    buildTimeline();
+    rebuildDynamicElements();
+    ensurePrayerLine();
+
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos=>fetchPrayerTimes(pos.coords.latitude,pos.coords.longitude,"مواقيت حقيقية حسب موقعك"),
+        ()=>fetchPrayerTimes(DOHA.lat,DOHA.lon,"مواقيت حقيقية للدوحة"),
+        {enableHighAccuracy:true,timeout:9000,maximumAge:300000}
+      );
+    }else{
+      fetchPrayerTimes(DOHA.lat,DOHA.lon,"مواقيت حقيقية للدوحة");
+    }
+  }
+
+  const pauseBtn=document.getElementById("pauseBtn");
+  if(pauseBtn){
+    pauseBtn.addEventListener("click",()=>{
+      if(!paused){
+        pausedDate=simDate();
+        paused=true;
+        pauseBtn.textContent="تشغيل";
+      }else{
+        const cur=pausedDate || new Date();
+        simStart=cur.getTime();
+        realStart=performance.now();
+        paused=false;
+        pausedDate=null;
+        pauseBtn.textContent="إيقاف";
+      }
+    });
+  }
+
+  setupRatioControls();
+  buildStaticMarks();
+  loadPrayerTimes();
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
