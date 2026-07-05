@@ -17,6 +17,15 @@
       "is_approved": true
     },
     {
+      "id": "quran_direct_reference",
+      "name_ar": "القرآن الكريم — موضع الآيات",
+      "author_ar": "وحي من الله تعالى",
+      "type": "quran_reference",
+      "license_note": "هذا المصدر يعني أن الدليل هو نطاق الآيات المذكور دون ادعاء استيراد النص القرآني الكامل أو تفسير.",
+      "source_url": "",
+      "is_approved": true
+    },
+    {
       "id": "ibn_kathir_summary",
       "name_ar": "تفسير ابن كثير (ملخص تعليمي)",
       "author_ar": "ابن كثير",

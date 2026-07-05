@@ -45,8 +45,10 @@ const expectedCount = 48;
 const errors = [];
 const mappings = template.mappings || [];
 
-if (template.meta?.status !== 'owner_review_template') {
-  errors.push('meta.status يجب أن يكون owner_review_template');
+const OWNER_APPROVED_STATUSES = new Set(['owner_review_template', 'owner_review_approved_by_owner']);
+
+if (!OWNER_APPROVED_STATUSES.has(template.meta?.status)) {
+  errors.push('meta.status يجب أن يكون owner_review_template أو owner_review_approved_by_owner');
 }
 
 if (!Array.isArray(mappings) || mappings.length !== expectedCount) {
@@ -99,8 +101,19 @@ mappings.forEach((entry, i) => {
     errors.push(`${prefix}: final_recommended_status غير صالح (${finalStatus})`);
   }
 
-  if (entry.proposed_review_status === 'approved') {
+  const isOwnerApprovedPack = template.meta?.status === 'owner_review_approved_by_owner';
+
+  if (entry.proposed_review_status === 'approved' && !isOwnerApprovedPack) {
     errors.push(`${prefix}: proposed_review_status لا يجوز أن يكون approved في القالب`);
+  }
+
+  if (isOwnerApprovedPack && entry.proposed_review_status === 'approved') {
+    if (decision !== 'approve_after_source_check') {
+      errors.push(`${prefix}: owner approved pack requires owner_decision=approve_after_source_check`);
+    }
+    if (finalStatus !== 'approved') {
+      errors.push(`${prefix}: owner approved pack requires final_recommended_status=approved`);
+    }
   }
 
   if (finalStatus === 'approved') {
@@ -183,11 +196,18 @@ if (wronglyApproved.length) {
   errors.push(`seed contains approved batch events: ${wronglyApproved.map((e) => e.id).join(', ')}`);
 }
 
-const autoApproved = mappings.filter(
-  (m) =>
+const autoApproved = mappings.filter((m) => {
+  if (template.meta?.status === 'owner_review_approved_by_owner') {
+    return (
+      String(m.final_recommended_status || '').trim() === 'approved' &&
+      String(m.owner_decision || '').trim() !== 'approve_after_source_check'
+    );
+  }
+  return (
     m.proposed_review_status === 'approved' ||
     (String(m.final_recommended_status || '').trim() === 'approved' && !String(m.owner_decision || '').trim())
-);
+  );
+});
 if (autoApproved.length) {
   errors.push(`template must not auto-approve items: ${autoApproved.map((m) => m.event_id).join(', ')}`);
 }
@@ -203,7 +223,11 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('NOTE owner review template — owner fields blank; not production content');
+console.log(
+  template.meta?.status === 'owner_review_approved_by_owner'
+    ? 'NOTE owner approved pack — explicit owner decisions; not applied to seed'
+    : 'NOTE owner review template — owner fields blank; not production content'
+);
 console.log('PASS validate_owner_review_template', templatePath.replace(`${root}/`, ''));
 console.log('proposed:', proposedPath.replace(`${root}/`, ''));
 console.log('mappings:', mappings.length);

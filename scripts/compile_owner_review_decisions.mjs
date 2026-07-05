@@ -202,8 +202,10 @@ function compileEntry(entry) {
   return mapping;
 }
 
-if (template.meta?.status !== 'owner_review_template') {
-  errors.push('input meta.status يجب أن يكون owner_review_template');
+const OWNER_APPROVED_TEMPLATE_STATUSES = new Set(['owner_review_template', 'owner_review_approved_by_owner']);
+
+if (!OWNER_APPROVED_TEMPLATE_STATUSES.has(template.meta?.status)) {
+  errors.push('input meta.status يجب أن يكون owner_review_template أو owner_review_approved_by_owner');
 }
 
 const inputMappings = template.mappings || [];

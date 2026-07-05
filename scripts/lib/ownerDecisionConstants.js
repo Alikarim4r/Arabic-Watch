@@ -30,9 +30,9 @@ export function canProposeOwnerApproved(entry, mapping) {
   if (!ownerNote) return false;
   if (confidence === 'needs_review' || !confidence) return false;
 
-  const sid = Number(mapping.surah_id);
-  const aFrom = Number(mapping.ayah_from);
-  const aTo = Number(mapping.ayah_to ?? mapping.ayah_from);
+  const sid = Number(mapping.proposed_surah_id ?? mapping.surah_id);
+  const aFrom = Number(mapping.proposed_ayah_from ?? mapping.ayah_from);
+  const aTo = Number(mapping.proposed_ayah_to ?? mapping.ayah_to ?? aFrom);
   if (!Number.isInteger(sid) || sid < 1 || sid > 114) return false;
   if (!Number.isInteger(aFrom) || aFrom < 1) return false;
   if (!Number.isInteger(aTo) || aTo < aFrom) return false;

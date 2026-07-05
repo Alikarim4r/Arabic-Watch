@@ -812,6 +812,71 @@ if (readFileSync(desktopReviewPath, 'utf8').includes('Chrome') === false) {
   fail('run_desktop_review.md missing Chrome recommendation', '');
 } else pass('run_desktop_review.md recommends Chrome/Edge');
 
+// Phase 23 — owner final approval pack (files only; seed not applied)
+const ownerApprovedPath = join(root, 'examples/evidence_patch.all_batches.owner_review.approved_by_owner.json');
+const ownerApprovedRevisedPath = join(root, 'examples/evidence_patch.all_batches.owner_approved.revised.json');
+const ownerApprovedBatchPath = join(root, 'examples/content_change_batch.owner_approved_all_48.json');
+const ownerApplySqlPath = join(root, 'supabase/generated/apply_owner_approved_all_48.sql');
+const ownerRollbackSqlPath = join(root, 'supabase/generated/rollback_owner_approved_all_48.sql');
+const ownerApprovalReportPath = join(root, 'docs/owner_final_approval_all_48_report.md');
+
+const quranDirectRef = (seed.tafsir_sources || []).find((s) => s.id === 'quran_direct_reference');
+if (!quranDirectRef) fail('quran_direct_reference source missing from seed');
+else pass('quran_direct_reference source exists in seed');
+
+for (const p of [ownerApprovedPath, ownerApprovedRevisedPath, ownerApprovedBatchPath, ownerApplySqlPath, ownerRollbackSqlPath, ownerApprovalReportPath]) {
+  if (!existsSync(p)) fail('owner approval artifact missing', p);
+  else pass(`owner approval artifact exists: ${p.replace(`${root}/`, '')}`);
+}
+
+if (!runNodeScript(['scripts/validate_owner_review_template.mjs', '--input', ownerApprovedPath], true)) {
+  fail('validate_owner_review_template owner approved', ownerApprovedPath);
+} else pass('validate_owner_review_template on owner approved file');
+
+if (
+  !runNodeScript(
+    [
+      'scripts/compile_owner_review_decisions.mjs',
+      '--input',
+      ownerApprovedPath,
+      '--output',
+      ownerApprovedRevisedPath,
+    ],
+    true
+  )
+) {
+  fail('compile_owner_review_decisions owner approved', '');
+} else pass('compile_owner_review_decisions owner approved revised');
+
+if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', ownerApprovedRevisedPath], true)) {
+  fail('validate_revised_evidence_patch owner approved', ownerApprovedRevisedPath);
+} else pass('validate_revised_evidence_patch on owner approved revised');
+
+const ownerRevised = JSON.parse(readFileSync(ownerApprovedRevisedPath, 'utf8'));
+const ownerApprovedCount = (ownerRevised.mappings || []).filter((m) => m.proposed_review_status === 'approved').length;
+if (ownerApprovedCount !== 48) fail('owner approved revised must have 48 approved', ownerApprovedCount);
+else pass('owner approved revised has 48 approved mappings');
+
+if (!runNodeScript(['scripts/validate_content_change_batch.mjs', ownerApprovedBatchPath], true)) {
+  fail('validate_content_change_batch owner approved', ownerApprovedBatchPath);
+} else pass('validate_content_change_batch owner approved all 48');
+
+if (!runNodeScript(['scripts/verify_applied_batch.mjs', '--file', ownerApprovedBatchPath, '--sql', ownerApplySqlPath], true)) {
+  fail('verify_applied_batch owner approved SQL', ownerApplySqlPath);
+} else pass('verify_applied_batch on apply_owner_approved_all_48.sql');
+
+const applySqlText = readFileSync(ownerApplySqlPath, 'utf8');
+if (/text_uthmani/i.test(applySqlText)) fail('owner apply SQL must not touch Quran text fields');
+else pass('owner apply SQL has no Quran text mutation');
+if (/\bDROP\b/i.test(applySqlText) || /\bTRUNCATE\b/i.test(applySqlText)) {
+  fail('owner apply SQL contains dangerous statements');
+} else pass('owner apply SQL has no DROP/TRUNCATE');
+
+const needsStill = events.filter((e) => e.evidence_status === 'needs_precise_mapping');
+if (needsStill.length !== 48) {
+  fail('seed must still have 48 needs_precise_mapping before SQL apply', needsStill.length);
+} else pass('seed unchanged — 48 events still needs_precise_mapping before manual apply');
+
 if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
 else pass('public-final safe event count remains 6');
 
