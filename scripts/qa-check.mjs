@@ -417,4 +417,36 @@ try {
   fail('reviewer dashboard unit tests', err.message);
 }
 
+const batch01Path = join(root, 'examples/evidence_patch.batch_01.proposed.json');
+const batch01ReviewPath = join(root, 'examples/evidence_patch.batch_01.review_template.json');
+if (existsSync(batch01Path)) {
+  const batch01 = JSON.parse(readFileSync(batch01Path, 'utf8'));
+  const batch01Ids = new Set((batch01.mappings || []).map((m) => m.event_id));
+  const batch01Approved = (batch01.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch01Approved.length) fail('Batch 1 proposed patch has approved mappings', batch01Approved.map((m) => m.event_id));
+  else pass('Batch 1 proposed patch has no approved mappings');
+
+  const seedBatchEvents = events.filter((e) => batch01Ids.has(e.id));
+  const seedBatchApproved = seedBatchEvents.filter((e) => e.review_status === 'approved');
+  if (seedBatchApproved.length) fail('Batch 1 seed events must not be approved', seedBatchApproved.map((e) => e.id));
+  else pass('Batch 1 seed events remain not approved');
+
+  if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
+  else pass('public-final safe event count remains 6');
+}
+
+if (existsSync(batch01ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', batch01ReviewPath], true)) {
+    fail('validate_scholar_review_template', batch01ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 1 template');
+}
+
+const disclaimerPath = join(root, 'src/components/disclaimer.js');
+if (existsSync(disclaimerPath)) {
+  const disclaimerSrc = readFileSync(disclaimerPath, 'utf8');
+  if (!disclaimerSrc.includes('هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة')) {
+    fail('Arabic disclaimer text missing from disclaimer.js', '');
+  } else pass('Arabic disclaimer preserved in UI component');
+}
+
 process.exit(failed ? 1 : 0);

@@ -134,6 +134,8 @@ export const EVIDENCE_SPRINT_BATCHES = [
     id: 'evidence_mapping_sprint_01',
     label_ar: 'Sprint Batch 1',
     patchPath: 'examples/evidence_patch.batch_01.proposed.json',
+    reviewTemplatePath: 'examples/evidence_patch.batch_01.review_template.json',
+    scholarPackPath: 'docs/scholar_review_pack_batch_01.md',
     eventIds: [
       'adam_01__',
       'adam_04__',
