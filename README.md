@@ -11,6 +11,22 @@ npx --yes serve src -p 3000
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Android app
+
+The web app can be packaged as a native Android APK via **Capacitor**:
+
+```bash
+npm install
+npm run android:sync
+npm run android:build
+```
+
+APK output: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+Install on a connected phone: `npm run android:install` (requires `adb`).
+
+See [docs/android_app_guide.md](docs/android_app_guide.md) (Arabic guide).
+
 Alternative:
 
 ```bash

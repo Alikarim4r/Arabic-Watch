@@ -827,6 +827,10 @@ if (!runNodeScript(['scripts/test_quran_text_import.mjs'], true)) {
   fail('test_quran_text_import', '');
 } else pass('test_quran_text_import pipeline tests');
 
+if (!runNodeScript(['scripts/test_android_project.mjs'], true)) {
+  fail('test_android_project', '');
+} else pass('test_android_project scaffolding tests');
+
 if (!runNodeScript(['scripts/verify_quran_text_import.mjs'], true)) {
   fail('verify_quran_text_import', '');
 } else pass('verify_quran_text_import (placeholder or full import)');
