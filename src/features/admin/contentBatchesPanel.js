@@ -38,6 +38,20 @@ export async function renderContentBatchesPanel(root, ctx) {
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
       </div>
 
+      <div class="glass pad admin-guidance admin-apply-guidance">
+        <h3 class="gold">تطبيق الدفعات المعتمدة</h3>
+        <p class="muted">واجهة الإدارة <strong>لا تُعدِّل</strong> جداول الإنتاج (<code>story_*</code>) مباشرة.</p>
+        <ol class="admin-apply-steps">
+          <li>المراجع يُنشئ دفعة ويُرسلها (<span class="tag warn">submitted</span>).</li>
+          <li>المسؤول يعتمد الدفعة (<span class="tag green">approved</span>) — ما زال المحتوى غير مُطبَّق.</li>
+          <li>المهندس يشغّل <code>scripts/apply_content_change_batch.mjs</code> لتوليد SQL.</li>
+          <li>يُراجع SQL ثم يُشغَّل <code>scripts/verify_applied_batch.mjs</code> قبل التطبيق.</li>
+          <li>يُطبَّق SQL يدويًا في محرر Supabase SQL أو CI — ثم يُعلَّم <span class="tag green">applied</span>.</li>
+        </ol>
+        ${isLocalMode ? '<p class="muted admin-local-note">وضع محلي — هذا الشرح للتعليم والعرض فقط؛ لا يوجد اتصال بقاعدة الإنتاج.</p>' : ''}
+        ${selected ? renderApplyStatusPipeline(selected) : renderApplyStatusPipeline({ status: 'draft' })}
+      </div>
+
       <div class="admin-curation-grid">
         <div class="glass pad admin-main">
           <h3 class="gold">دفعات المحتوى (${batches.length})</h3>
@@ -102,9 +116,59 @@ export async function renderContentBatchesPanel(root, ctx) {
   bindBatchActions(root, selected, ctx);
 }
 
+const APPLY_PIPELINE_STEPS = [
+  { key: 'draft', label_ar: 'مسودة', label_en: 'draft' },
+  { key: 'submitted', label_ar: 'مُرسَل', label_en: 'submitted' },
+  { key: 'approved', label_ar: 'معتمد', label_en: 'approved' },
+  { key: 'sql_generated', label_ar: 'SQL مُولَّد', label_en: 'SQL generated' },
+  { key: 'applied', label_ar: 'مُطبَّق', label_en: 'applied' },
+  { key: 'rejected', label_ar: 'مرفوض', label_en: 'rejected' },
+];
+
+function pipelineStepIndex(status) {
+  const map = { draft: 0, submitted: 1, approved: 2, sql_generated: 3, applied: 4, rejected: 5 };
+  return map[status] ?? 0;
+}
+
+function renderApplyStatusPipeline(batch) {
+  if (batch.status === 'rejected') {
+    return `
+      <div class="admin-apply-pipeline rejected" aria-label="batch status pipeline">
+        <span class="tag rose">rejected</span>
+        <span class="muted">— الدفعة مرفوضة ولا تُطبَّق.</span>
+      </div>`;
+  }
+
+  const current = pipelineStepIndex(batch.status);
+  const steps = APPLY_PIPELINE_STEPS.filter((s) => s.key !== 'rejected');
+
+  return `
+    <div class="admin-apply-pipeline" aria-label="batch status pipeline">
+      ${steps
+        .map((step, idx) => {
+          const done = idx < current || (batch.status === 'applied' && step.key === 'applied');
+          const active = idx === current || (batch.status === 'approved' && step.key === 'approved');
+          const nextHint =
+            batch.status === 'approved' && step.key === 'sql_generated'
+              ? ' title="الخطوة التالية: تشغيل apply_content_change_batch.mjs"'
+              : '';
+          const cls = [
+            'admin-pipeline-step',
+            done ? 'done' : '',
+            active ? 'active' : '',
+            step.key === 'sql_generated' && batch.status === 'approved' ? 'next' : '',
+          ]
+            .filter(Boolean)
+            .join(' ');
+          return `<span class="${cls}"${nextHint}><span class="admin-pipeline-dot"></span>${escapeHtml(step.label_ar)}<small>${escapeHtml(step.label_en)}</small></span>`;
+        })
+        .join('')}
+    </div>`;
+}
+
 function batchQueueItem(batch, selected) {
   const active = selected?.id === batch.id ? ' active' : '';
-  const statusTag = `<span class="tag ${batch.status === 'applied' ? 'green' : batch.status === 'rejected' ? 'rose' : 'warn'}">${escapeHtml(batch.status)}</span>`;
+  const statusTag = `<span class="tag ${batchStatusClass(batch.status)}">${escapeHtml(batch.status)}</span>`;
   return `
     <button type="button" class="admin-queue-item batch-queue-item${active}" data-id="${escapeHtml(batch.id)}">
       ${statusTag}
@@ -131,8 +195,16 @@ function batchDetailHtml(batch, validation, { isLocalMode, isAdmin, canSubmitBat
       ${isAdmin && batch.status === 'submitted' ? '<button type="button" class="btn sm primary" data-batch-action="approve">approve</button><button type="button" class="btn sm" data-batch-action="reject">reject</button>' : ''}
       ${isAdmin && batch.status === 'approved' ? '<button type="button" class="btn sm" data-batch-action="applied">mark applied</button>' : ''}
     </div>
-    <p class="muted" style="margin-top:10px;font-size:13px">${isLocalMode ? 'جلسة محلية — لا تُحدَّث جداول الإنتاج.' : 'الأزرار تسجّل الحالة فقط — التطبيق الفعلي يتطلب job مُتحكَّمًا.'}</p>
+    <p class="muted" style="margin-top:10px;font-size:13px">${isLocalMode ? 'جلسة محلية — لا تُحدَّث جداول الإنتاج. استخدم scripts/apply_content_change_batch.mjs خارج الواجهة.' : 'الأزرار تسجّل الحالة فقط — التطبيق الفعلي عبر SQL مُراجع يدويًا.'}</p>
+    <div style="margin-top:12px">${renderApplyStatusPipeline(batch)}</div>
   `;
+}
+
+function batchStatusClass(status) {
+  if (status === 'applied') return 'green';
+  if (status === 'rejected') return 'rose';
+  if (status === 'approved') return 'green';
+  return 'warn';
 }
 
 function bindBatchActions(root, selected, ctx) {

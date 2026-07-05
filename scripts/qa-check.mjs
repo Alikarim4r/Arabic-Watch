@@ -1,7 +1,8 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync, unlinkSync } from 'fs';
 import { pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { spawnSync } from 'child_process';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const seed = JSON.parse(readFileSync(join(root, 'src/data/seed_content.json'), 'utf8'));
@@ -235,5 +236,94 @@ try {
 } catch (err) {
   fail('content batch local tests', err.message);
 }
+
+function runNodeScript(scriptArgs, expectOk = true) {
+  const result = spawnSync(process.execPath, scriptArgs, {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  const output = `${result.stdout || ''}${result.stderr || ''}`;
+  const ok = result.status === 0;
+  const met = expectOk ? ok : !ok;
+  if (!met) {
+    fail(
+      `script ${scriptArgs[1]}`,
+      expectOk ? output || `exit ${result.status}` : `expected failure but exited 0: ${output}`
+    );
+  }
+  return met;
+}
+
+const draftBatch = join(root, 'examples/content_change_batch.sample.json');
+const approvedBatch = join(root, 'examples/content_change_batch.approved.sample.json');
+const sampleSql = join(root, 'examples/apply_batch.sample.sql');
+
+if (runNodeScript(['scripts/apply_content_change_batch.mjs', '--file', draftBatch], false)) {
+  pass('apply_content_change_batch rejects non-approved batch');
+} else fail('apply rejects non-approved batch', 'draft batch should fail');
+
+if (
+  runNodeScript([
+    'scripts/apply_content_change_batch.mjs',
+    '--file',
+    approvedBatch,
+    '--dry-run',
+  ])
+) {
+  pass('apply_content_change_batch accepts approved sample in dry-run');
+} else fail('apply dry-run approved sample', '');
+
+if (
+  runNodeScript([
+    'scripts/apply_content_change_batch.mjs',
+    '--file',
+    approvedBatch,
+    '--generate-sql',
+    '--output',
+    sampleSql,
+  ])
+) {
+  pass('apply_content_change_batch generates SQL');
+} else fail('apply generate SQL', '');
+
+if (
+  runNodeScript([
+    'scripts/verify_applied_batch.mjs',
+    '--file',
+    approvedBatch,
+    '--sql',
+    sampleSql,
+  ])
+) {
+  pass('verify_applied_batch passes on generated safe SQL');
+} else fail('verify safe SQL', '');
+
+const badSqlPath = join(root, 'supabase/generated/qa_bad_uthmani.sql');
+writeFileSync(
+  badSqlPath,
+  `-- batch id: example-approved-batch-001
+BEGIN;
+UPDATE public.ayahs SET text_uthmani = 'bad' WHERE id = 1;
+COMMIT;
+`,
+  'utf8'
+);
+if (runNodeScript(['scripts/verify_applied_batch.mjs', '--file', approvedBatch, '--sql', badSqlPath], false)) {
+  pass('verify_applied_batch rejects SQL touching ayahs.text_uthmani');
+} else fail('verify should reject text_uthmani SQL', '');
+try {
+  unlinkSync(badSqlPath);
+} catch {
+  /* ignore */
+}
+
+if (
+  runNodeScript([
+    'scripts/validate_content_change_batch.mjs',
+    'examples/content_change_batch.sample.json',
+  ])
+) {
+  pass('validate_content_change_batch still passes on draft sample');
+} else fail('validate_content_change_batch', '');
 
 process.exit(failed ? 1 : 0);

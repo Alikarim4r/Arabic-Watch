@@ -118,9 +118,17 @@ for (const { name, context } of contexts) {
   await page.locator('[data-tab="batches"]').click();
   await page.waitForTimeout(400);
   await page.waitForSelector('.admin-batches', { timeout: 10000 });
-  const batchesTab = await page.locator('.admin-batches h3.gold').first().innerText();
+  const batchesTab = await page.locator('.admin-main h3.gold').first().innerText();
   if (!batchesTab.includes('دفعات المحتوى')) {
     errors.push(`[${name}] content batches tab missing heading`);
+  }
+  const applyGuidance = await page.locator('.admin-apply-guidance h3.gold').innerText();
+  if (!applyGuidance.includes('تطبيق الدفعات المعتمدة')) {
+    errors.push(`[${name}] content batches missing controlled apply guidance panel`);
+  }
+  const pipelineSteps = await page.locator('.admin-apply-pipeline .admin-pipeline-step').count();
+  if (pipelineSteps < 5) {
+    errors.push(`[${name}] content batches missing apply status pipeline`);
   }
   await page.click('#batch-create-sample');
   await page.waitForTimeout(600);
