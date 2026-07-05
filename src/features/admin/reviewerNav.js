@@ -1,6 +1,6 @@
 import { escapeHtml } from '../../lib/utils.js';
 
-/** @typedef {'dashboard'|'review'|'curation'|'batches'|'history'|'profile'} ReviewerTab */
+/** @typedef {'dashboard'|'review'|'curation'|'owner_review'|'batches'|'history'|'profile'} ReviewerTab */
 
 /**
  * @param {ReviewerTab} activeTab
@@ -11,6 +11,7 @@ export function renderReviewerNav(activeTab, options = {}) {
     { id: 'dashboard', label: 'Dashboard', label_ar: 'لوحة التحكم' },
     { id: 'review', label: 'Review Queue', label_ar: 'قائمة المراجعة' },
     { id: 'curation', label: 'Evidence Curation', label_ar: 'ربط الآيات' },
+    { id: 'owner_review', label: 'Owner Review', label_ar: 'مراجعة المالك' },
     { id: 'batches', label: 'Content Batches', label_ar: 'دفعات المحتوى' },
     { id: 'history', label: 'Review History', label_ar: 'سجل المراجعات' },
     { id: 'profile', label: 'Profile', label_ar: 'إعدادات الحساب' },
@@ -44,6 +45,7 @@ export function renderQuickActionCards() {
   const cards = [
     { tab: 'review', title: 'مراجعة الأحداث', desc: 'قائمة المراجعة والتصفية' },
     { tab: 'curation', title: 'ربط الآيات', desc: 'Evidence Curation Workbench' },
+    { tab: 'owner_review', title: 'مراجعة المالك', desc: 'مراجعة 48 مقترحًا — قرارات محلية فقط' },
     { tab: 'review', title: 'مراجعة المصادر', desc: 'سجلات needs_source' },
     { tab: 'batches', title: 'دفعات المحتوى', desc: 'ترويج مُتحكَّم به' },
     { tab: 'history', title: 'سجل المراجعات', desc: 'آخر الإجراءات المسجّلة' },

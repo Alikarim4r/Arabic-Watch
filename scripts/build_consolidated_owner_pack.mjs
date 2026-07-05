@@ -3,7 +3,7 @@
  * Build consolidated owner review pack from Batches 1–5 proposed patches.
  * Outputs: proposed JSON, owner template, CSV, and optional markdown docs.
  */
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { getRiskMeta } from './lib/consolidatedRiskMeta.mjs';
@@ -185,6 +185,13 @@ writeFileSync(
   `${JSON.stringify(templateOut, null, 2)}\n`
 );
 writeFileSync(join(root, 'examples/evidence_patch.all_batches.owner_review.csv'), csvOut);
+
+const browserTemplateDir = join(root, 'src/data/owner_review');
+mkdirSync(browserTemplateDir, { recursive: true });
+writeFileSync(
+  join(browserTemplateDir, 'all_batches.owner_review_template.json'),
+  `${JSON.stringify(templateOut, null, 2)}\n`
+);
 
 console.log('PASS build_consolidated_owner_pack');
 console.log(' mappings:', consolidatedMappings.length);

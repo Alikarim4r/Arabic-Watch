@@ -463,3 +463,98 @@
   border: 1px solid rgba(52, 211, 153, 0.35);
   color: #a7f3d0;
 }
+
+.admin-owner-review {
+  margin-top: 8px;
+}
+
+.admin-owner-header h3 {
+  margin: 0 0 8px;
+}
+
+.admin-stats-owner {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .admin-stats-owner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.admin-owner-compile-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.admin-owner-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 16px;
+}
+
+.admin-owner-toolbar label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  min-width: 120px;
+}
+
+.admin-owner-toolbar input,
+.admin-owner-toolbar select {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: inherit;
+  padding: 8px;
+  font-family: inherit;
+}
+
+.owner-search-label {
+  flex: 1;
+  min-width: 200px;
+}
+
+.admin-owner-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.1fr);
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .admin-owner-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.owner-queue {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.owner-queue-item {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+}
+
+.owner-detail-panel.collapsed {
+  display: none;
+}
+
+.owner-readonly-meta {
+  font-size: 14px;
+  margin: 12px 0;
+}
+
+.owner-export-bar {
+  margin-top: 16px;
+}

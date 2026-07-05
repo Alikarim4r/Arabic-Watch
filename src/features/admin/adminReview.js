@@ -43,6 +43,7 @@ import {
   submitReviewAction,
 } from './reviewActions.js';
 import { renderEvidenceCurationPanel } from './evidenceCurationPanel.js';
+import { renderOwnerReviewWorkspacePanel } from './ownerReviewWorkspacePanel.js';
 import { renderContentBatchesPanel } from './contentBatchesPanel.js';
 import { renderReviewerDashboard } from './reviewerDashboard.js';
 import { renderReviewHistoryPanel } from './reviewHistoryPanel.js';
@@ -108,6 +109,8 @@ export async function renderAdminReview(container) {
       activeTab: 'dashboard',
       curationSelectedId: null,
       curationBatchFilterId: null,
+      ownerReviewSelectedId: null,
+      ownerReviewFilters: {},
       batchSelectedId: null,
       historyFilters: {},
       authLoading: false,
@@ -219,6 +222,9 @@ async function renderAdminPanel(root) {
     case 'curation':
       await renderEvidenceCurationPanel(panel, await buildSubCtx());
       break;
+    case 'owner_review':
+      await renderOwnerReviewWorkspacePanel(panel, await buildSubCtx());
+      break;
     case 'batches':
       await renderContentBatchesPanel(panel, await buildSubCtx());
       break;
@@ -256,6 +262,8 @@ async function buildSubCtx() {
     surahs: state.surahs,
     curationSelectedId: state.curationSelectedId,
     curationBatchFilterId: state.curationBatchFilterId,
+    ownerReviewSelectedId: state.ownerReviewSelectedId,
+    ownerReviewFilters: state.ownerReviewFilters,
     batchSelectedId: state.batchSelectedId,
     onTabChange: (tab) => {
       state.activeTab = tab;
@@ -268,6 +276,14 @@ async function buildSubCtx() {
     onBatchFilterChange: (batchId) => {
       state.curationBatchFilterId = batchId || null;
       state.curationSelectedId = null;
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+    onSelectOwnerItem: (id) => {
+      state.ownerReviewSelectedId = id;
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+    onOwnerFiltersChange: (filters) => {
+      state.ownerReviewFilters = filters;
       renderAdminPanel(document.querySelector('#admin-review-root'));
     },
     onSelectBatch: (id) => {

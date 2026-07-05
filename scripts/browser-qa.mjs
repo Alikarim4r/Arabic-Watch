@@ -130,6 +130,56 @@ for (const { name, context } of contexts) {
     errors.push(`[${name}] admin curation missing النص غير مستورد badge`);
   }
 
+  // Owner Review Workspace
+  await page.locator('[data-reviewer-tab="owner_review"]').click();
+  await page.waitForTimeout(500);
+  await page.waitForSelector('#owner-review-workspace', { timeout: 10000 });
+  const ownerHeading = await page.locator('.admin-owner-header h3').innerText();
+  if (!ownerHeading.includes('مراجعة المالك')) {
+    errors.push(`[${name}] owner review workspace missing heading`);
+  }
+  const ownerQueueCount = await page.locator('.owner-queue-item').count();
+  if (ownerQueueCount !== 48) {
+    errors.push(`[${name}] owner review workspace expected 48 items, got ${ownerQueueCount}`);
+  }
+  const ownerWarning = await page.locator('.admin-owner-header .admin-warning').innerText();
+  if (!ownerWarning.includes('بانتظار مراجعة المالك')) {
+    errors.push(`[${name}] owner review missing owner warning`);
+  }
+  const ownerDisclaimer = await page.locator('#owner-review-workspace .admin-disclaimer').innerText();
+  if (!ownerDisclaimer.includes('هذا ملخص تعليمي')) {
+    errors.push(`[${name}] owner review missing Arabic disclaimer`);
+  }
+  await page.selectOption('#owner-filter-batch', 'evidence_mapping_sprint_01');
+  await page.waitForTimeout(400);
+  const filteredOwnerCount = await page.locator('.owner-queue-item').count();
+  if (filteredOwnerCount !== 10) {
+    errors.push(`[${name}] owner review batch filter expected 10, got ${filteredOwnerCount}`);
+  }
+  await page.selectOption('#owner-filter-batch', '');
+  await page.waitForTimeout(300);
+  await page.locator('.owner-queue-item').first().click();
+  await page.waitForTimeout(200);
+  await page.selectOption('#owner-decision-select', 'needs_source');
+  await page.fill('textarea[name="owner_note"]', 'qa owner note');
+  await page.click('#owner-save-local');
+  await page.waitForTimeout(400);
+  const savedStatus = await page.locator('#owner-save-status').innerText();
+  if (!savedStatus.includes('حفظ')) {
+    errors.push(`[${name}] owner review local save status missing: ${savedStatus}`);
+  }
+  const stored = await page.evaluate(() => localStorage.getItem('qsu_owner_review_decisions'));
+  if (!stored || !stored.includes('needs_source')) {
+    errors.push(`[${name}] owner review localStorage autosave missing`);
+  }
+  await page.click('#owner-compile-revised');
+  await page.waitForTimeout(400);
+  const compilePreview = await page.locator('#owner-compile-preview').innerText();
+  if (!compilePreview.includes('approved_proposed: 0')) {
+    errors.push(`[${name}] owner compile should have 0 approved with undecided decisions: ${compilePreview}`);
+  }
+  await page.evaluate(() => localStorage.removeItem('qsu_owner_review_decisions'));
+
   // Content Batches tab
   await page.locator('[data-reviewer-tab="batches"]').click();
   await page.waitForTimeout(400);

@@ -787,6 +787,21 @@ for (const docPath of [coverageReportPath, ownerReviewMdPath, riskReportPath]) {
   else pass(`consolidated doc exists: ${docPath.replace(`${root}/`, '')}`);
 }
 
+const ownerWorkspaceGuidePath = join(root, 'docs/owner_review_workspace_guide.md');
+const browserOwnerTemplatePath = join(root, 'src/data/owner_review/all_batches.owner_review_template.json');
+if (!existsSync(ownerWorkspaceGuidePath)) fail('owner workspace guide missing', ownerWorkspaceGuidePath);
+else pass('owner_review_workspace_guide.md exists');
+if (!existsSync(browserOwnerTemplatePath)) fail('browser owner template missing', browserOwnerTemplatePath);
+else {
+  const browserTpl = JSON.parse(readFileSync(browserOwnerTemplatePath, 'utf8'));
+  if ((browserTpl.mappings || []).length !== 48) fail('browser owner template must have 48 mappings', browserTpl.mappings?.length);
+  else pass('browser owner template has 48 mappings');
+}
+
+if (!runNodeScript(['scripts/test_owner_review_workspace.mjs'], true)) {
+  fail('test_owner_review_workspace', '');
+} else pass('test_owner_review_workspace logic tests');
+
 if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
 else pass('public-final safe event count remains 6');
 

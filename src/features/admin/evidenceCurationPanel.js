@@ -29,7 +29,7 @@ const APPROX_MAPPING_WARNING =
  * @param {Object} ctx
  */
 export async function renderEvidenceCurationPanel(root, ctx) {
-  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo, isLocalMode, canSubmitPatches, showConfirmDialog } = ctx;
+  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo, isLocalMode, canSubmitPatches, showConfirmDialog, onTabChange } = ctx;
   const stats = summarizeEvidenceStats(events, eventAyahs);
   const fullQueue = buildMappingQueue(events, nodes, themes, eventAyahs);
   const batchFilterId = ctx.curationBatchFilterId || null;
@@ -74,7 +74,7 @@ export async function renderEvidenceCurationPanel(root, ctx) {
           حالة النص القرآني: ${quranImported ? '<span class="tag green">النص متوفر</span>' : '<span class="tag rose">النص غير مستورد</span>'}
         </p>
         <div class="admin-warning">${escapeHtml(APPROX_MAPPING_WARNING)}</div>
-        ${activeBatch ? `<div class="admin-warning warn">${escapeHtml(activeBatch.ownerWarning_ar || `مسودة Sprint فقط — ${activeBatch.label_ar}`)} · <code>${escapeHtml(activeBatch.patchPath)}</code>${activeBatch.reviewTemplatePath ? ` · review: <code>${escapeHtml(activeBatch.reviewTemplatePath)}</code>` : ''}${activeBatch.csvPath ? ` · csv: <code>${escapeHtml(activeBatch.csvPath)}</code>` : ''}${activeBatch.riskReportPath ? ` · risk: <code>${escapeHtml(activeBatch.riskReportPath)}</code>` : ''}${activeBatch.ownerReviewDocPath ? ` · doc: <code>${escapeHtml(activeBatch.ownerReviewDocPath)}</code>` : ''}${activeBatch.scholarPackPath ? ` · pack: <code>${escapeHtml(activeBatch.scholarPackPath)}</code>` : ''} · proposed-only · لا يُدمج تلقائيًا</div>` : ''}
+        ${activeBatch ? `<div class="admin-warning warn">${escapeHtml(activeBatch.ownerWarning_ar || `مسودة Sprint فقط — ${activeBatch.label_ar}`)} · <code>${escapeHtml(activeBatch.patchPath)}</code>${activeBatch.reviewTemplatePath ? ` · review: <code>${escapeHtml(activeBatch.reviewTemplatePath)}</code>` : ''}${activeBatch.csvPath ? ` · csv: <code>${escapeHtml(activeBatch.csvPath)}</code>` : ''}${activeBatch.riskReportPath ? ` · risk: <code>${escapeHtml(activeBatch.riskReportPath)}</code>` : ''}${activeBatch.ownerReviewDocPath ? ` · doc: <code>${escapeHtml(activeBatch.ownerReviewDocPath)}</code>` : ''}${activeBatch.ownerWorkspaceGuidePath ? ` · workspace: <code>${escapeHtml(activeBatch.ownerWorkspaceGuidePath)}</code>` : ''}${activeBatch.scholarPackPath ? ` · pack: <code>${escapeHtml(activeBatch.scholarPackPath)}</code>` : ''}${activeBatch.id === 'evidence_all_batches' ? ' · <button type="button" class="btn sm" id="goto-owner-review">فتح مراجعة المالك</button>' : ''} · proposed-only · لا يُدمج تلقائيًا</div>` : ''}
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
       </div>
 
@@ -130,6 +130,10 @@ export async function renderEvidenceCurationPanel(root, ctx) {
       const batchId = btn.dataset.batch || null;
       ctx.onBatchFilterChange?.(batchId);
     });
+  });
+
+  root.querySelector('#goto-owner-review')?.addEventListener('click', () => {
+    onTabChange?.('owner_review');
   });
 
   const autosave = debounce(() => {

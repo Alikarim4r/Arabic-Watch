@@ -228,6 +228,7 @@ export const EVIDENCE_SPRINT_BATCHES = [
     csvPath: 'examples/evidence_patch.all_batches.owner_review.csv',
     riskReportPath: 'docs/evidence_mapping_consolidated_risk_report.md',
     ownerReviewDocPath: 'docs/owner_review_all_batches.md',
+    ownerWorkspaceGuidePath: 'docs/owner_review_workspace_guide.md',
     ownerWarning_ar: 'كل هذه المقترحات بانتظار مراجعة المالك، وليست معتمدة.',
     eventIds: [
       'adam_01__',
