@@ -5,7 +5,7 @@
     "batch_id": "evidence_mapping_sprint_03",
     "description_ar": "مسودة مُجمّعة من قرارات العالم — ليست محتوى معتمدًا. لا تُطبّق تلقائيًا على seed أو Supabase.",
     "source_review_template": "examples/evidence_patch.batch_03.review_template.json",
-    "compiled_at": "2026-07-05T08:15:00.718Z",
+    "compiled_at": "2026-07-05T08:22:12.323Z",
     "compiler_version": "1.0.0",
     "summary": {
       "total_input": 10,

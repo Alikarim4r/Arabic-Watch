@@ -30,6 +30,10 @@ if (patch.meta?.status === 'revised_proposed') {
   console.log('NOTE patch status=revised_proposed — compiled from scholar review; not applied');
 }
 
+if (patch.meta?.status === 'consolidated_proposed') {
+  console.log('NOTE patch status=consolidated_proposed — not production content; owner review required');
+}
+
 if (result.valid) {
   console.log('PASS validate_evidence_patch', patchPath);
   console.log('mappings:', patch.mappings.length);

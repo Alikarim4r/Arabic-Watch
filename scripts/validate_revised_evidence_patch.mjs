@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { pathToFileURL } from 'url';
 import { containsQuranTextPayload, canProposeApproved } from './lib/scholarDecisionConstants.js';
+import { canProposeOwnerApproved } from './lib/ownerDecisionConstants.js';
 import { parseBatchCliArgs } from './lib/batchCli.mjs';
 
 const { root, input: patchPath } = parseBatchCliArgs(process.argv, {
@@ -66,22 +67,23 @@ mappings.forEach((entry, i) => {
   }
 
   if (entry.proposed_review_status === 'approved') {
-    if (
-      !canProposeApproved(
-        {
-          scholar_decision: entry.scholar_decision,
-          final_recommended_status: 'approved',
-          source_id: entry.source_id,
-          scholar_note: entry.scholar_note,
-          evidence_confidence: entry.evidence_confidence,
-        },
-        entry
-      )
-    ) {
-      errors.push(`${prefix}: auto-approved item missing required scholar gates`);
+    const approvalEntry = {
+      scholar_decision: entry.scholar_decision,
+      owner_decision: entry.owner_decision,
+      final_recommended_status: 'approved',
+      source_id: entry.source_id,
+      scholar_note: entry.scholar_note,
+      owner_note: entry.owner_note,
+      evidence_confidence: entry.evidence_confidence,
+    };
+    const scholarOk = canProposeApproved(approvalEntry, entry);
+    const ownerOk = canProposeOwnerApproved(approvalEntry, entry);
+    if (!scholarOk && !ownerOk) {
+      errors.push(`${prefix}: auto-approved item missing required review gates`);
     }
-    if (!String(entry.scholar_note || '').trim()) {
-      errors.push(`${prefix}: approved item requires scholar_note`);
+    const note = String(entry.scholar_note || entry.owner_note || '').trim();
+    if (!note) {
+      errors.push(`${prefix}: approved item requires scholar_note or owner_note`);
     }
     if (!String(entry.source_id || '').trim()) {
       errors.push(`${prefix}: approved item requires source_id`);
@@ -116,11 +118,12 @@ if (wronglyApprovedInSeed.length) {
 const autoApprovedWithoutScholar = mappings.filter(
   (m) =>
     m.proposed_review_status === 'approved' &&
-    (m.scholar_decision === 'undecided' || !String(m.scholar_decision || '').trim())
+    (m.scholar_decision === 'undecided' || !String(m.scholar_decision || '').trim()) &&
+    (m.owner_decision === 'undecided' || !String(m.owner_decision || '').trim())
 );
 if (autoApprovedWithoutScholar.length) {
   errors.push(
-    `inferred approval without scholar decision: ${autoApprovedWithoutScholar.map((m) => m.event_id).join(', ')}`
+    `inferred approval without review decision: ${autoApprovedWithoutScholar.map((m) => m.event_id).join(', ')}`
   );
 }
 

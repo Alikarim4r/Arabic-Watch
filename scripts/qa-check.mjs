@@ -711,6 +711,82 @@ if (allBatchPaths.length === 5) {
   else pass(`sprint batch coverage complete (${proposedSet.size}/48 proposed)`);
 }
 
+const allBatchesPath = join(root, 'examples/evidence_patch.all_batches.proposed.json');
+const allBatchesTemplatePath = join(root, 'examples/evidence_patch.all_batches.owner_review_template.json');
+const allBatchesCsvPath = join(root, 'examples/evidence_patch.all_batches.owner_review.csv');
+const allBatchesRevisedPath = join(root, 'examples/evidence_patch.all_batches.revised.proposed.json');
+const coverageReportPath = join(root, 'docs/evidence_mapping_all_batches_coverage_report.md');
+const ownerReviewMdPath = join(root, 'docs/owner_review_all_batches.md');
+const riskReportPath = join(root, 'docs/evidence_mapping_consolidated_risk_report.md');
+
+if (existsSync(allBatchesPath)) {
+  const allBatches = JSON.parse(readFileSync(allBatchesPath, 'utf8'));
+  const allIds = (allBatches.mappings || []).map((m) => m.event_id);
+  const allApproved = (allBatches.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (allBatches.meta?.status !== 'consolidated_proposed') {
+    fail('consolidated proposed meta.status must be consolidated_proposed', allBatches.meta?.status);
+  } else pass('consolidated proposed meta.status is consolidated_proposed');
+  if (allBatches.meta?.total_mappings !== 48) fail('consolidated proposed total_mappings must be 48', allBatches.meta?.total_mappings);
+  else pass('consolidated proposed has total_mappings=48');
+  if (allIds.length !== 48) fail('consolidated proposed must have 48 mappings', allIds.length);
+  else pass('consolidated proposed file has 48 mappings');
+  const allDupes = allIds.filter((id, i) => allIds.indexOf(id) !== i);
+  if (allDupes.length) fail('consolidated proposed duplicate event_ids', [...new Set(allDupes)]);
+  else pass('consolidated proposed has no duplicate event_ids');
+  if (allApproved.length) fail('consolidated proposed has approved mappings', allApproved.map((m) => m.event_id));
+  else pass('consolidated proposed has no approved mappings');
+
+  if (!runNodeScript(['scripts/validate_evidence_patch.mjs', allBatchesPath], true)) {
+    fail('validate_evidence_patch consolidated', allBatchesPath);
+  } else pass('validate_evidence_patch on consolidated proposed');
+}
+
+if (existsSync(allBatchesTemplatePath)) {
+  if (!runNodeScript(['scripts/validate_owner_review_template.mjs', '--input', allBatchesTemplatePath], true)) {
+    fail('validate_owner_review_template', allBatchesTemplatePath);
+  } else pass('validate_owner_review_template on consolidated template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_owner_review_decisions.mjs',
+        '--input',
+        allBatchesTemplatePath,
+        '--output',
+        allBatchesRevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_owner_review_decisions', '');
+  } else pass('compile_owner_review_decisions produces consolidated revised patch');
+}
+
+if (existsSync(allBatchesCsvPath)) {
+  const csvLines = readFileSync(allBatchesCsvPath, 'utf8').trim().split('\n');
+  const csvDataRows = csvLines.length > 1 ? csvLines.length - 1 : 0;
+  if (csvDataRows !== 48) fail('owner review CSV must have 48 data rows', csvDataRows);
+  else pass('owner review CSV has 48 rows');
+} else {
+  fail('owner review CSV missing', allBatchesCsvPath);
+}
+
+if (existsSync(allBatchesRevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', allBatchesRevisedPath], true)) {
+    fail('validate_revised_evidence_patch consolidated', allBatchesRevisedPath);
+  } else pass('validate_revised_evidence_patch on consolidated revised patch');
+
+  const revisedAll = JSON.parse(readFileSync(allBatchesRevisedPath, 'utf8'));
+  const revisedAllApproved = (revisedAll.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revisedAllApproved.length) fail('consolidated revised must have 0 approved', revisedAllApproved.length);
+  else pass('consolidated revised patch has 0 approved mappings');
+}
+
+for (const docPath of [coverageReportPath, ownerReviewMdPath, riskReportPath]) {
+  if (!existsSync(docPath)) fail('consolidated doc missing', docPath);
+  else pass(`consolidated doc exists: ${docPath.replace(`${root}/`, '')}`);
+}
+
 if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
 else pass('public-final safe event count remains 6');
 

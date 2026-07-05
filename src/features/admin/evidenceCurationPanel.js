@@ -74,7 +74,7 @@ export async function renderEvidenceCurationPanel(root, ctx) {
           حالة النص القرآني: ${quranImported ? '<span class="tag green">النص متوفر</span>' : '<span class="tag rose">النص غير مستورد</span>'}
         </p>
         <div class="admin-warning">${escapeHtml(APPROX_MAPPING_WARNING)}</div>
-        ${activeBatch ? `<div class="admin-warning warn">مسودة Sprint فقط — ${escapeHtml(activeBatch.label_ar)} · <code>${escapeHtml(activeBatch.patchPath)}</code>${activeBatch.reviewTemplatePath ? ` · review: <code>${escapeHtml(activeBatch.reviewTemplatePath)}</code>` : ''}${activeBatch.scholarPackPath ? ` · pack: <code>${escapeHtml(activeBatch.scholarPackPath)}</code>` : ''} · proposed-only · لا يُدمج تلقائيًا</div>` : ''}
+        ${activeBatch ? `<div class="admin-warning warn">${escapeHtml(activeBatch.ownerWarning_ar || `مسودة Sprint فقط — ${activeBatch.label_ar}`)} · <code>${escapeHtml(activeBatch.patchPath)}</code>${activeBatch.reviewTemplatePath ? ` · review: <code>${escapeHtml(activeBatch.reviewTemplatePath)}</code>` : ''}${activeBatch.csvPath ? ` · csv: <code>${escapeHtml(activeBatch.csvPath)}</code>` : ''}${activeBatch.riskReportPath ? ` · risk: <code>${escapeHtml(activeBatch.riskReportPath)}</code>` : ''}${activeBatch.ownerReviewDocPath ? ` · doc: <code>${escapeHtml(activeBatch.ownerReviewDocPath)}</code>` : ''}${activeBatch.scholarPackPath ? ` · pack: <code>${escapeHtml(activeBatch.scholarPackPath)}</code>` : ''} · proposed-only · لا يُدمج تلقائيًا</div>` : ''}
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
       </div>
 
