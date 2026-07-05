@@ -1,0 +1,802 @@
+{
+  "surahs": [
+    {
+      "id": 1,
+      "name_ar": "الفاتحة",
+      "revelation_type": "makkah",
+      "ayah_count": 7,
+      "featured": false
+    },
+    {
+      "id": 2,
+      "name_ar": "البقرة",
+      "revelation_type": "madinah",
+      "ayah_count": 286,
+      "featured": false
+    },
+    {
+      "id": 3,
+      "name_ar": "آل عمران",
+      "revelation_type": "madinah",
+      "ayah_count": 200,
+      "featured": false
+    },
+    {
+      "id": 4,
+      "name_ar": "النساء",
+      "revelation_type": "madinah",
+      "ayah_count": 176,
+      "featured": false
+    },
+    {
+      "id": 5,
+      "name_ar": "المائدة",
+      "revelation_type": "madinah",
+      "ayah_count": 120,
+      "featured": false
+    },
+    {
+      "id": 6,
+      "name_ar": "الأنعام",
+      "revelation_type": "makkah",
+      "ayah_count": 165,
+      "featured": false
+    },
+    {
+      "id": 7,
+      "name_ar": "الأعراف",
+      "revelation_type": "makkah",
+      "ayah_count": 206,
+      "featured": false
+    },
+    {
+      "id": 8,
+      "name_ar": "الأنفال",
+      "revelation_type": "madinah",
+      "ayah_count": 75,
+      "featured": false
+    },
+    {
+      "id": 9,
+      "name_ar": "التوبة",
+      "revelation_type": "madinah",
+      "ayah_count": 129,
+      "featured": false
+    },
+    {
+      "id": 10,
+      "name_ar": "يونس",
+      "revelation_type": "makkah",
+      "ayah_count": 109,
+      "featured": false
+    },
+    {
+      "id": 11,
+      "name_ar": "هود",
+      "revelation_type": "makkah",
+      "ayah_count": 123,
+      "featured": false
+    },
+    {
+      "id": 12,
+      "name_ar": "يوسف",
+      "revelation_type": "makkah",
+      "ayah_count": 111,
+      "featured": true
+    },
+    {
+      "id": 13,
+      "name_ar": "الرعد",
+      "revelation_type": "makkah",
+      "ayah_count": 43,
+      "featured": false
+    },
+    {
+      "id": 14,
+      "name_ar": "إبراهيم",
+      "revelation_type": "makkah",
+      "ayah_count": 52,
+      "featured": false
+    },
+    {
+      "id": 15,
+      "name_ar": "الحجر",
+      "revelation_type": "makkah",
+      "ayah_count": 99,
+      "featured": false
+    },
+    {
+      "id": 16,
+      "name_ar": "النحل",
+      "revelation_type": "makkah",
+      "ayah_count": 128,
+      "featured": false
+    },
+    {
+      "id": 17,
+      "name_ar": "الإسراء",
+      "revelation_type": "makkah",
+      "ayah_count": 111,
+      "featured": false
+    },
+    {
+      "id": 18,
+      "name_ar": "الكهف",
+      "revelation_type": "makkah",
+      "ayah_count": 110,
+      "featured": false
+    },
+    {
+      "id": 19,
+      "name_ar": "مريم",
+      "revelation_type": "makkah",
+      "ayah_count": 98,
+      "featured": true
+    },
+    {
+      "id": 20,
+      "name_ar": "طه",
+      "revelation_type": "makkah",
+      "ayah_count": 135,
+      "featured": false
+    },
+    {
+      "id": 21,
+      "name_ar": "الأنبياء",
+      "revelation_type": "makkah",
+      "ayah_count": 112,
+      "featured": false
+    },
+    {
+      "id": 22,
+      "name_ar": "الحج",
+      "revelation_type": "madinah",
+      "ayah_count": 78,
+      "featured": false
+    },
+    {
+      "id": 23,
+      "name_ar": "المؤمنون",
+      "revelation_type": "makkah",
+      "ayah_count": 118,
+      "featured": false
+    },
+    {
+      "id": 24,
+      "name_ar": "النور",
+      "revelation_type": "madinah",
+      "ayah_count": 64,
+      "featured": false
+    },
+    {
+      "id": 25,
+      "name_ar": "الفرقان",
+      "revelation_type": "makkah",
+      "ayah_count": 77,
+      "featured": false
+    },
+    {
+      "id": 26,
+      "name_ar": "الشعراء",
+      "revelation_type": "makkah",
+      "ayah_count": 227,
+      "featured": false
+    },
+    {
+      "id": 27,
+      "name_ar": "النمل",
+      "revelation_type": "makkah",
+      "ayah_count": 93,
+      "featured": false
+    },
+    {
+      "id": 28,
+      "name_ar": "القصص",
+      "revelation_type": "makkah",
+      "ayah_count": 88,
+      "featured": true
+    },
+    {
+      "id": 29,
+      "name_ar": "العنكبوت",
+      "revelation_type": "makkah",
+      "ayah_count": 69,
+      "featured": false
+    },
+    {
+      "id": 30,
+      "name_ar": "الروم",
+      "revelation_type": "makkah",
+      "ayah_count": 60,
+      "featured": false
+    },
+    {
+      "id": 31,
+      "name_ar": "لقمان",
+      "revelation_type": "makkah",
+      "ayah_count": 34,
+      "featured": false
+    },
+    {
+      "id": 32,
+      "name_ar": "السجدة",
+      "revelation_type": "makkah",
+      "ayah_count": 30,
+      "featured": false
+    },
+    {
+      "id": 33,
+      "name_ar": "الأحزاب",
+      "revelation_type": "madinah",
+      "ayah_count": 73,
+      "featured": false
+    },
+    {
+      "id": 34,
+      "name_ar": "سبأ",
+      "revelation_type": "madinah",
+      "ayah_count": 54,
+      "featured": false
+    },
+    {
+      "id": 35,
+      "name_ar": "فاطر",
+      "revelation_type": "madinah",
+      "ayah_count": 45,
+      "featured": false
+    },
+    {
+      "id": 36,
+      "name_ar": "يس",
+      "revelation_type": "makkah",
+      "ayah_count": 83,
+      "featured": false
+    },
+    {
+      "id": 37,
+      "name_ar": "الصافات",
+      "revelation_type": "makkah",
+      "ayah_count": 182,
+      "featured": false
+    },
+    {
+      "id": 38,
+      "name_ar": "ص",
+      "revelation_type": "makkah",
+      "ayah_count": 88,
+      "featured": false
+    },
+    {
+      "id": 39,
+      "name_ar": "الزمر",
+      "revelation_type": "makkah",
+      "ayah_count": 75,
+      "featured": false
+    },
+    {
+      "id": 40,
+      "name_ar": "غافر",
+      "revelation_type": "makkah",
+      "ayah_count": 85,
+      "featured": false
+    },
+    {
+      "id": 41,
+      "name_ar": "فصلت",
+      "revelation_type": "makkah",
+      "ayah_count": 54,
+      "featured": false
+    },
+    {
+      "id": 42,
+      "name_ar": "الشورى",
+      "revelation_type": "makkah",
+      "ayah_count": 53,
+      "featured": false
+    },
+    {
+      "id": 43,
+      "name_ar": "الزخرف",
+      "revelation_type": "makkah",
+      "ayah_count": 89,
+      "featured": false
+    },
+    {
+      "id": 44,
+      "name_ar": "الدخان",
+      "revelation_type": "makkah",
+      "ayah_count": 37,
+      "featured": false
+    },
+    {
+      "id": 45,
+      "name_ar": "الجاثية",
+      "revelation_type": "makkah",
+      "ayah_count": 35,
+      "featured": false
+    },
+    {
+      "id": 46,
+      "name_ar": "الأحقاف",
+      "revelation_type": "makkah",
+      "ayah_count": 38,
+      "featured": false
+    },
+    {
+      "id": 47,
+      "name_ar": "محمد",
+      "revelation_type": "madinah",
+      "ayah_count": 29,
+      "featured": false
+    },
+    {
+      "id": 48,
+      "name_ar": "الفتح",
+      "revelation_type": "madinah",
+      "ayah_count": 18,
+      "featured": false
+    },
+    {
+      "id": 49,
+      "name_ar": "الحجرات",
+      "revelation_type": "madinah",
+      "ayah_count": 45,
+      "featured": false
+    },
+    {
+      "id": 50,
+      "name_ar": "ق",
+      "revelation_type": "makkah",
+      "ayah_count": 59,
+      "featured": false
+    },
+    {
+      "id": 51,
+      "name_ar": "الذاريات",
+      "revelation_type": "makkah",
+      "ayah_count": 49,
+      "featured": false
+    },
+    {
+      "id": 52,
+      "name_ar": "الطور",
+      "revelation_type": "makkah",
+      "ayah_count": 62,
+      "featured": false
+    },
+    {
+      "id": 53,
+      "name_ar": "النجم",
+      "revelation_type": "makkah",
+      "ayah_count": 55,
+      "featured": false
+    },
+    {
+      "id": 54,
+      "name_ar": "القمر",
+      "revelation_type": "makkah",
+      "ayah_count": 78,
+      "featured": false
+    },
+    {
+      "id": 55,
+      "name_ar": "الرحمن",
+      "revelation_type": "makkah",
+      "ayah_count": 96,
+      "featured": false
+    },
+    {
+      "id": 56,
+      "name_ar": "الواقعة",
+      "revelation_type": "makkah",
+      "ayah_count": 29,
+      "featured": false
+    },
+    {
+      "id": 57,
+      "name_ar": "الحديد",
+      "revelation_type": "madinah",
+      "ayah_count": 22,
+      "featured": false
+    },
+    {
+      "id": 58,
+      "name_ar": "المجادلة",
+      "revelation_type": "madinah",
+      "ayah_count": 24,
+      "featured": false
+    },
+    {
+      "id": 59,
+      "name_ar": "الحشر",
+      "revelation_type": "madinah",
+      "ayah_count": 13,
+      "featured": false
+    },
+    {
+      "id": 60,
+      "name_ar": "الممتحنة",
+      "revelation_type": "madinah",
+      "ayah_count": 14,
+      "featured": false
+    },
+    {
+      "id": 61,
+      "name_ar": "الصف",
+      "revelation_type": "madinah",
+      "ayah_count": 11,
+      "featured": false
+    },
+    {
+      "id": 62,
+      "name_ar": "الجمعة",
+      "revelation_type": "madinah",
+      "ayah_count": 11,
+      "featured": false
+    },
+    {
+      "id": 63,
+      "name_ar": "المنافقون",
+      "revelation_type": "madinah",
+      "ayah_count": 18,
+      "featured": false
+    },
+    {
+      "id": 64,
+      "name_ar": "التغابن",
+      "revelation_type": "madinah",
+      "ayah_count": 12,
+      "featured": false
+    },
+    {
+      "id": 65,
+      "name_ar": "الطلاق",
+      "revelation_type": "madinah",
+      "ayah_count": 12,
+      "featured": false
+    },
+    {
+      "id": 66,
+      "name_ar": "التحريم",
+      "revelation_type": "madinah",
+      "ayah_count": 30,
+      "featured": false
+    },
+    {
+      "id": 67,
+      "name_ar": "الملك",
+      "revelation_type": "makkah",
+      "ayah_count": 52,
+      "featured": false
+    },
+    {
+      "id": 68,
+      "name_ar": "القلم",
+      "revelation_type": "makkah",
+      "ayah_count": 52,
+      "featured": false
+    },
+    {
+      "id": 69,
+      "name_ar": "الحاقة",
+      "revelation_type": "makkah",
+      "ayah_count": 44,
+      "featured": false
+    },
+    {
+      "id": 70,
+      "name_ar": "المعارج",
+      "revelation_type": "makkah",
+      "ayah_count": 28,
+      "featured": false
+    },
+    {
+      "id": 71,
+      "name_ar": "نوح",
+      "revelation_type": "makkah",
+      "ayah_count": 20,
+      "featured": true
+    },
+    {
+      "id": 72,
+      "name_ar": "الجن",
+      "revelation_type": "makkah",
+      "ayah_count": 56,
+      "featured": false
+    },
+    {
+      "id": 73,
+      "name_ar": "المزمل",
+      "revelation_type": "makkah",
+      "ayah_count": 40,
+      "featured": false
+    },
+    {
+      "id": 74,
+      "name_ar": "المدثر",
+      "revelation_type": "makkah",
+      "ayah_count": 31,
+      "featured": false
+    },
+    {
+      "id": 75,
+      "name_ar": "القيامة",
+      "revelation_type": "makkah",
+      "ayah_count": 50,
+      "featured": false
+    },
+    {
+      "id": 76,
+      "name_ar": "الإنسان",
+      "revelation_type": "makkah",
+      "ayah_count": 40,
+      "featured": false
+    },
+    {
+      "id": 77,
+      "name_ar": "المرسلات",
+      "revelation_type": "makkah",
+      "ayah_count": 46,
+      "featured": false
+    },
+    {
+      "id": 78,
+      "name_ar": "النبأ",
+      "revelation_type": "makkah",
+      "ayah_count": 42,
+      "featured": false
+    },
+    {
+      "id": 79,
+      "name_ar": "النازعات",
+      "revelation_type": "makkah",
+      "ayah_count": 29,
+      "featured": false
+    },
+    {
+      "id": 80,
+      "name_ar": "عبس",
+      "revelation_type": "makkah",
+      "ayah_count": 19,
+      "featured": false
+    },
+    {
+      "id": 81,
+      "name_ar": "التكوير",
+      "revelation_type": "makkah",
+      "ayah_count": 36,
+      "featured": false
+    },
+    {
+      "id": 82,
+      "name_ar": "الانفطار",
+      "revelation_type": "makkah",
+      "ayah_count": 25,
+      "featured": false
+    },
+    {
+      "id": 83,
+      "name_ar": "المطففين",
+      "revelation_type": "makkah",
+      "ayah_count": 22,
+      "featured": false
+    },
+    {
+      "id": 84,
+      "name_ar": "الانشقاق",
+      "revelation_type": "makkah",
+      "ayah_count": 17,
+      "featured": false
+    },
+    {
+      "id": 85,
+      "name_ar": "البروج",
+      "revelation_type": "makkah",
+      "ayah_count": 19,
+      "featured": false
+    },
+    {
+      "id": 86,
+      "name_ar": "الطارق",
+      "revelation_type": "makkah",
+      "ayah_count": 26,
+      "featured": false
+    },
+    {
+      "id": 87,
+      "name_ar": "الأعلى",
+      "revelation_type": "makkah",
+      "ayah_count": 30,
+      "featured": false
+    },
+    {
+      "id": 88,
+      "name_ar": "الغاشية",
+      "revelation_type": "makkah",
+      "ayah_count": 20,
+      "featured": false
+    },
+    {
+      "id": 89,
+      "name_ar": "الفجر",
+      "revelation_type": "makkah",
+      "ayah_count": 15,
+      "featured": false
+    },
+    {
+      "id": 90,
+      "name_ar": "البلد",
+      "revelation_type": "makkah",
+      "ayah_count": 21,
+      "featured": false
+    },
+    {
+      "id": 91,
+      "name_ar": "الشمس",
+      "revelation_type": "makkah",
+      "ayah_count": 11,
+      "featured": false
+    },
+    {
+      "id": 92,
+      "name_ar": "الليل",
+      "revelation_type": "makkah",
+      "ayah_count": 8,
+      "featured": false
+    },
+    {
+      "id": 93,
+      "name_ar": "الضحى",
+      "revelation_type": "makkah",
+      "ayah_count": 8,
+      "featured": false
+    },
+    {
+      "id": 94,
+      "name_ar": "الشرح",
+      "revelation_type": "makkah",
+      "ayah_count": 19,
+      "featured": false
+    },
+    {
+      "id": 95,
+      "name_ar": "التين",
+      "revelation_type": "makkah",
+      "ayah_count": 5,
+      "featured": false
+    },
+    {
+      "id": 96,
+      "name_ar": "العلق",
+      "revelation_type": "makkah",
+      "ayah_count": 8,
+      "featured": true
+    },
+    {
+      "id": 97,
+      "name_ar": "القدر",
+      "revelation_type": "makkah",
+      "ayah_count": 8,
+      "featured": false
+    },
+    {
+      "id": 98,
+      "name_ar": "البينة",
+      "revelation_type": "makkah",
+      "ayah_count": 11,
+      "featured": false
+    },
+    {
+      "id": 99,
+      "name_ar": "الزلزلة",
+      "revelation_type": "makkah",
+      "ayah_count": 11,
+      "featured": false
+    },
+    {
+      "id": 100,
+      "name_ar": "العاديات",
+      "revelation_type": "makkah",
+      "ayah_count": 8,
+      "featured": false
+    },
+    {
+      "id": 101,
+      "name_ar": "القارعة",
+      "revelation_type": "makkah",
+      "ayah_count": 3,
+      "featured": false
+    },
+    {
+      "id": 102,
+      "name_ar": "التكاثر",
+      "revelation_type": "makkah",
+      "ayah_count": 9,
+      "featured": false
+    },
+    {
+      "id": 103,
+      "name_ar": "العصر",
+      "revelation_type": "makkah",
+      "ayah_count": 5,
+      "featured": false
+    },
+    {
+      "id": 104,
+      "name_ar": "الهمزة",
+      "revelation_type": "makkah",
+      "ayah_count": 4,
+      "featured": false
+    },
+    {
+      "id": 105,
+      "name_ar": "الفيل",
+      "revelation_type": "makkah",
+      "ayah_count": 7,
+      "featured": false
+    },
+    {
+      "id": 106,
+      "name_ar": "قريش",
+      "revelation_type": "makkah",
+      "ayah_count": 3,
+      "featured": false
+    },
+    {
+      "id": 107,
+      "name_ar": "الماعون",
+      "revelation_type": "makkah",
+      "ayah_count": 6,
+      "featured": false
+    },
+    {
+      "id": 108,
+      "name_ar": "الكوثر",
+      "revelation_type": "makkah",
+      "ayah_count": 3,
+      "featured": false
+    },
+    {
+      "id": 109,
+      "name_ar": "الكافرون",
+      "revelation_type": "makkah",
+      "ayah_count": 5,
+      "featured": false
+    },
+    {
+      "id": 110,
+      "name_ar": "النصر",
+      "revelation_type": "makkah",
+      "ayah_count": 4,
+      "featured": false
+    },
+    {
+      "id": 111,
+      "name_ar": "المسد",
+      "revelation_type": "makkah",
+      "ayah_count": 5,
+      "featured": false
+    },
+    {
+      "id": 112,
+      "name_ar": "الإخلاص",
+      "revelation_type": "makkah",
+      "ayah_count": 6,
+      "featured": false
+    },
+    {
+      "id": 113,
+      "name_ar": "الفلق",
+      "revelation_type": "makkah",
+      "ayah_count": 0,
+      "featured": false
+    },
+    {
+      "id": 114,
+      "name_ar": "الناس",
+      "revelation_type": "makkah",
+      "ayah_count": 0,
+      "featured": false
+    }
+  ]
+}
