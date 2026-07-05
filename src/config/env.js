@@ -4,9 +4,10 @@
  */
 
 /** @typedef {'local'|'supabase'} DataMode */
+/** @typedef {'staging'|'production'} SupabaseEnvTier */
 
 /**
- * @returns {{ dataMode: DataMode, effectiveDataMode: DataMode, supabaseUrl: string, supabaseAnonKey: string, isSupabaseConfigured: boolean, supabaseFallbackReason: string|null }}
+ * @returns {{ dataMode: DataMode, effectiveDataMode: DataMode, supabaseUrl: string, supabaseAnonKey: string, isSupabaseConfigured: boolean, supabaseFallbackReason: string|null, supabaseEnv: SupabaseEnvTier }}
  */
 export function getEnvConfig() {
   const viteEnv = typeof import.meta !== 'undefined' ? import.meta.env || {} : {};
@@ -24,6 +25,11 @@ export function getEnvConfig() {
     injected.VITE_SUPABASE_ANON_KEY || viteEnv.VITE_SUPABASE_ANON_KEY || ''
   ).trim();
 
+  const supabaseEnvRaw = String(
+    injected.VITE_SUPABASE_ENV || viteEnv.VITE_SUPABASE_ENV || 'staging'
+  ).trim().toLowerCase();
+  const supabaseEnv = supabaseEnvRaw === 'production' ? 'production' : 'staging';
+
   const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
   let effectiveDataMode = dataMode;
   let supabaseFallbackReason = null;
@@ -40,6 +46,7 @@ export function getEnvConfig() {
     supabaseAnonKey,
     isSupabaseConfigured,
     supabaseFallbackReason,
+    supabaseEnv,
   };
 }
 

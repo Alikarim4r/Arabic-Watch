@@ -2,6 +2,7 @@ import { getRepository, getDataMode, isFinalContent } from '../../lib/dataServic
 import { getEnvConfig, isLocalRuntime, isSupabaseRuntime } from '../../config/env.js';
 import {
   canAccessAdminReview,
+  canManageReviewers,
   formatAuthError,
   getAuthModeLabelAr,
   getAuthState,
@@ -139,7 +140,7 @@ function renderSignInShell(auth, { accessDenied = false } = {}) {
   return `
     ${renderAuthStatusPanel({ auth, error: state?.authError })}
     ${renderSignInView({ auth, loading: state?.authLoading, error: state?.authError })}
-    ${accessDenied ? renderAccessDeniedView({ user: auth.user, role: auth.role }) : ''}
+    ${accessDenied ? renderAccessDeniedView({ user: auth.user, role: auth.role, profileStatus: auth.profileStatus }) : ''}
   `;
 }
 
@@ -215,10 +216,10 @@ async function renderAdminPanel(root) {
       await renderDashboardPanel(panel);
       break;
     case 'curation':
-      await renderEvidenceCurationPanel(panel, buildSubCtx());
+      await renderEvidenceCurationPanel(panel, await buildSubCtx());
       break;
     case 'batches':
-      await renderContentBatchesPanel(panel, buildSubCtx());
+      await renderContentBatchesPanel(panel, await buildSubCtx());
       break;
     case 'history':
       await renderHistoryPanel(panel);
@@ -233,15 +234,19 @@ async function renderAdminPanel(root) {
   }
 }
 
-function buildSubCtx() {
+async function buildSubCtx() {
+  const reviewer = await isReviewer();
+  const admin = await isAdmin();
+  const manage = await canManageReviewers();
   return {
     repo: state.repo,
     auth: state.auth,
     isLocalMode: isLocalRuntime(),
     isSupabaseMode: isSupabaseRuntime(),
-    canSubmitPatches: isLocalRuntime() || state.auth.role === 'reviewer' || state.auth.role === 'admin',
-    canSubmitBatches: isLocalRuntime() || state.auth.role === 'reviewer' || state.auth.role === 'admin',
-    isAdmin: state.auth.role === 'admin',
+    canSubmitPatches: isLocalRuntime() || reviewer,
+    canSubmitBatches: isLocalRuntime() || reviewer,
+    isAdmin: admin,
+    canManageReviewers: manage,
     events: state.events,
     nodes: state.nodes,
     themes: state.themes,
@@ -317,7 +322,7 @@ async function renderProfilePanel(panel) {
     auth: state.auth,
     profile,
     stats,
-    isAdmin: await isAdmin(),
+    canManageReviewers: await canManageReviewers(),
     reviewerList: (await state.repo.getReviewerProfiles?.()) || [],
     loading: false,
     onRetry: () => renderProfilePanel(panel),

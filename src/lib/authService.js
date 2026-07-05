@@ -5,11 +5,11 @@ import { getSupabaseClient } from './supabaseClient.js';
 
 const LOCAL_MOCK_ROLE_KEY = 'qsu_local_mock_role';
 
-/** @type {{ user: Object|null, role: ReviewerRole, source: 'local_mock'|'supabase'|'anonymous' }|null} */
+/** @type {{ user: Object|null, role: ReviewerRole, source: 'local_mock'|'supabase'|'anonymous', isMock: boolean, profileStatus?: string|null }|null} */
 let cachedAuth = null;
 
 /**
- * @returns {Promise<{ user: Object|null, role: ReviewerRole, source: 'local_mock'|'supabase'|'anonymous', isMock: boolean }>}
+ * @returns {Promise<{ user: Object|null, role: ReviewerRole, source: 'local_mock'|'supabase'|'anonymous', isMock: boolean, profileStatus?: string|null }>}
  */
 export async function getAuthState() {
   if (cachedAuth) return cachedAuth;
@@ -27,13 +27,14 @@ export async function getAuthState() {
       role: mockRole || 'viewer',
       source: 'local_mock',
       isMock: true,
+      profileStatus: mockRole ? 'local_mock' : null,
     };
     return cachedAuth;
   }
 
   const client = await getSupabaseClient();
   if (!client) {
-    cachedAuth = { user: null, role: 'viewer', source: 'anonymous', isMock: false };
+    cachedAuth = { user: null, role: 'viewer', source: 'anonymous', isMock: false, profileStatus: null };
     return cachedAuth;
   }
 
@@ -41,25 +42,27 @@ export async function getAuthState() {
     const { data: sessionData } = await client.auth.getSession();
     const user = sessionData?.session?.user || null;
     if (!user) {
-      cachedAuth = { user: null, role: 'viewer', source: 'anonymous', isMock: false };
+      cachedAuth = { user: null, role: 'viewer', source: 'anonymous', isMock: false, profileStatus: null };
       return cachedAuth;
     }
 
-    const role = await fetchReviewerRole(user.id);
+    const profile = await fetchReviewerProfile(user.id);
+    const role = resolveRoleFromProfile(profile);
     cachedAuth = {
       user: {
         id: user.id,
         email: user.email,
-        displayName: user.user_metadata?.display_name || user.email || user.id,
+        displayName: user.display_name || user.user_metadata?.display_name || user.email || user.id,
       },
       role,
       source: 'supabase',
       isMock: false,
+      profileStatus: profile?.is_active === false ? 'inactive' : profile ? 'active' : 'missing',
     };
     return cachedAuth;
   } catch (err) {
     console.warn('[QSU] Auth state unavailable — treating as viewer.', err);
-    cachedAuth = { user: null, role: 'viewer', source: 'anonymous', isMock: false };
+    cachedAuth = { user: null, role: 'viewer', source: 'anonymous', isMock: false, profileStatus: null };
     return cachedAuth;
   }
 }
@@ -96,11 +99,27 @@ export async function isAdmin() {
 }
 
 /**
+ * Reviewer tools — not available to viewer in Supabase mode.
+ * Local demo mode is instructional only (always accessible with banner).
  * @returns {Promise<boolean>}
  */
 export async function canAccessAdminReview() {
   if (isLocalRuntime()) return true;
+  const state = await getAuthState();
+  if (!state.user) return false;
+  if (state.profileStatus === 'inactive') return false;
   return isReviewer();
+}
+
+/**
+ * Admin-only reviewer management UI — never granted to reviewer role.
+ * @returns {Promise<boolean>}
+ */
+export async function canManageReviewers() {
+  if (isLocalRuntime()) {
+    return (await getReviewerRole()) === 'admin';
+  }
+  return isAdmin();
 }
 
 /**
@@ -139,14 +158,45 @@ export async function signIn(email, password) {
   if (!client) {
     return {
       ok: false,
-      error: 'Supabase not configured — local demo mode does not support production sign-in.',
+      error: formatAuthError('Supabase not configured — local demo mode does not support production sign-in.'),
     };
   }
 
   const { data, error } = await client.auth.signInWithPassword({ email, password });
   if (error) return { ok: false, error: formatAuthError(error.message) };
+
   invalidateAuthCache();
-  return { ok: true, user: data.user };
+  const profile = await fetchReviewerProfile(data.user.id);
+  const role = resolveRoleFromProfile(profile);
+
+  if (!profile) {
+    await client.auth.signOut();
+    invalidateAuthCache();
+    return {
+      ok: false,
+      error: getNoRoleMessage(),
+    };
+  }
+
+  if (profile.is_active === false) {
+    await client.auth.signOut();
+    invalidateAuthCache();
+    return {
+      ok: false,
+      error: getInactiveReviewerMessage(),
+    };
+  }
+
+  if (role === 'viewer') {
+    return {
+      ok: true,
+      user: data.user,
+      role,
+      warning: 'تم تسجيل الدخول بدور viewer — لا يمكن الوصول إلى أدوات المراجعة.',
+    };
+  }
+
+  return { ok: true, user: data.user, role };
 }
 
 export async function signOut() {
@@ -158,28 +208,36 @@ export async function signOut() {
   const client = await getSupabaseClient();
   if (!client) return { ok: true };
   const { error } = await client.auth.signOut();
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: formatAuthError(error.message) };
   invalidateAuthCache();
   return { ok: true };
 }
 
 /**
  * @param {string} userId
- * @returns {Promise<ReviewerRole>}
  */
-async function fetchReviewerRole(userId) {
+async function fetchReviewerProfile(userId) {
   const client = await getSupabaseClient();
-  if (!client) return 'viewer';
+  if (!client) return null;
 
   const { data, error } = await client
     .from('reviewer_profiles')
-    .select('role, is_active')
+    .select('role, is_active, display_name')
     .eq('user_id', userId)
     .maybeSingle();
 
-  if (error || !data || data.is_active === false) return 'viewer';
-  if (data.role === 'admin' || data.role === 'reviewer' || data.role === 'viewer') {
-    return data.role;
+  if (error || !data) return null;
+  return data;
+}
+
+/**
+ * @param {{ role?: string, is_active?: boolean }|null} profile
+ * @returns {ReviewerRole}
+ */
+function resolveRoleFromProfile(profile) {
+  if (!profile || profile.is_active === false) return 'viewer';
+  if (profile.role === 'admin' || profile.role === 'reviewer' || profile.role === 'viewer') {
+    return profile.role;
   }
   return 'viewer';
 }
@@ -195,6 +253,56 @@ export function formatAuthError(error) {
   return 'تعذّر تسجيل الدخول. تحقق من البيانات وحاول مجددًا.';
 }
 
+export function getNoRoleMessage() {
+  return 'لا يوجد ملف reviewer_profiles لهذا الحساب — تواصل مع المسؤول لتفعيل دور المراجع.';
+}
+
+export function getInactiveReviewerMessage() {
+  return 'حساب المراجع غير نشط — تواصل مع المسؤول.';
+}
+
+/**
+ * @returns {{ key: string, label: string, labelAr: string, className: string }}
+ */
+export function getAuthModeBadge() {
+  const env = getEnvConfig();
+  if (env.effectiveDataMode === 'local') {
+    if (env.dataMode === 'supabase' && env.supabaseFallbackReason) {
+      return {
+        key: 'local-fallback',
+        label: 'Local Demo (fallback)',
+        labelAr: 'تجريبي محلي (fallback)',
+        className: 'warn',
+      };
+    }
+    return {
+      key: 'local-demo',
+      label: 'Local Demo',
+      labelAr: 'وضع تجريبي محلي',
+      className: 'warn',
+    };
+  }
+  if (env.supabaseEnv === 'production') {
+    return {
+      key: 'supabase-production',
+      label: 'Supabase Production',
+      labelAr: 'Supabase إنتاج',
+      className: 'rose',
+    };
+  }
+  return {
+    key: 'supabase-staging',
+    label: 'Supabase Staging',
+    labelAr: 'Supabase Staging',
+    className: 'green',
+  };
+}
+
+export function getSupabaseSignInInstructionsAr() {
+  const badge = getAuthModeBadge();
+  return `وضع ${badge.labelAr} — سجّل الدخول بحساب مُصرّح في reviewer_profiles. لا تُعدّل الأدوار من الواجهة.`;
+}
+
 export function invalidateAuthCache() {
   cachedAuth = null;
 }
@@ -204,11 +312,22 @@ export function invalidateAuthCache() {
  */
 export function getAuthModeLabelAr() {
   const env = getEnvConfig();
+  const badge = getAuthModeBadge();
   if (env.effectiveDataMode === 'local') {
-    return 'وضع تجريبي محلي — لا توجد صلاحيات إنتاجية';
+    return `${badge.labelAr} — لا توجد صلاحيات إنتاجية`;
   }
   if (env.dataMode === 'supabase' && env.supabaseFallbackReason) {
     return env.supabaseFallbackReason;
   }
-  return 'وضع Supabase — تتطلب المراجعة صلاحية reviewer/admin';
+  return `${badge.labelAr} — تتطلب المراجعة صلاحية reviewer/admin`;
+}
+
+/**
+ * @param {{ role?: string, user?: Object|null, profileStatus?: string }} auth
+ */
+export function getAccessDeniedMessageAr(auth = {}) {
+  if (!auth.user) return 'سجّل الدخول بحساب reviewer أو admin للوصول إلى لوحة المراجعة.';
+  if (auth.profileStatus === 'inactive') return getInactiveReviewerMessage();
+  if (auth.profileStatus === 'missing') return getNoRoleMessage();
+  return 'صلاحية المراجعة مطلوبة — دور viewer لا يمكنه الوصول إلى أدوات المراجعة.';
 }

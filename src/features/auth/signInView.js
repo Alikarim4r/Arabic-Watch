@@ -1,17 +1,25 @@
 import { escapeHtml } from '../../lib/utils.js';
-import { getAuthModeLabelAr } from '../../lib/authService.js';
+import {
+  getAuthModeBadge,
+  getAuthModeLabelAr,
+  getSupabaseSignInInstructionsAr,
+} from '../../lib/authService.js';
 import { isLocalRuntime } from '../../config/env.js';
 
 /**
- * @param {{ loading?: boolean, error?: string, auth?: Object }} [ctx]
+ * @param {{ loading?: boolean, error?: string, warning?: string, auth?: Object }} [ctx]
  */
 export function renderSignInView(ctx = {}) {
   const local = isLocalRuntime();
-  const { loading, error, auth } = ctx;
+  const { loading, error, warning, auth } = ctx;
+  const badge = getAuthModeBadge();
 
   if (local) {
     return `
       <div class="glass pad sign-in-view" id="sign-in-view">
+        <div class="auth-mode-badge-row">
+          <span class="tag warn auth-mode-badge">Local Demo</span>
+        </div>
         <h3 class="gold">تسجيل الدخول (وضع تجريبي)</h3>
         <div class="draft-banner admin-demo-banner">${escapeHtml(getAuthModeLabelAr())}</div>
         <p class="muted">في الوضع المحلي لا توجد صلاحيات إنتاجية. اختر دورًا تجريبيًا للاختبار:</p>
@@ -27,12 +35,17 @@ export function renderSignInView(ctx = {}) {
 
   return `
     <div class="glass pad sign-in-view" id="sign-in-view">
+      <div class="auth-mode-badge-row">
+        <span class="tag ${badge.className} auth-mode-badge">${escapeHtml(badge.labelAr)}</span>
+      </div>
       <h3 class="gold">تسجيل الدخول</h3>
-      <p class="muted">${escapeHtml(getAuthModeLabelAr())}</p>
+      <p class="muted">${escapeHtml(getSupabaseSignInInstructionsAr())}</p>
+      <p class="muted" style="font-size:13px">راجع docs/staging_supabase_setup.md لإنشاء reviewer_profiles في Staging.</p>
       <form class="sign-in-form" id="sign-in-form">
         <label>البريد الإلكتروني<input type="email" name="email" required autocomplete="username" ${loading ? 'disabled' : ''} /></label>
         <label>كلمة المرور<input type="password" name="password" required autocomplete="current-password" ${loading ? 'disabled' : ''} /></label>
         ${error ? `<div class="admin-warning auth-error-msg">${escapeHtml(error)}</div>` : ''}
+        ${warning ? `<div class="admin-warning">${escapeHtml(warning)}</div>` : ''}
         <div class="admin-actions">
           <button type="submit" class="btn sm primary" ${loading ? 'disabled' : ''}>${loading ? 'جاري الدخول…' : 'دخول'}</button>
           ${auth?.user ? '<button type="button" class="btn sm" id="sign-out-btn">خروج</button>' : ''}

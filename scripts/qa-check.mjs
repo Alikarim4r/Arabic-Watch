@@ -385,6 +385,34 @@ try {
   const viewerAccess = await canAccessAdminReview();
   if (!viewerAccess && isLocalRuntime()) fail('local demo admin access', '');
   else pass('local demo reviewer access works');
+
+  const { getAuthModeBadge, canManageReviewers, setLocalMockRole } = await import(
+    pathToFileURL(join(root, 'src/lib/authService.js')).href
+  );
+  const badge = getAuthModeBadge();
+  if (!badge.labelAr || !badge.key) fail('auth mode badge', badge.key);
+  else pass('auth mode badge renders');
+
+  setLocalMockRole('reviewer');
+  invalidateAuthCache();
+  const reviewerManage = await canManageReviewers();
+  setLocalMockRole('admin');
+  invalidateAuthCache();
+  const adminManage = await canManageReviewers();
+  setLocalMockRole(null);
+  invalidateAuthCache();
+  if (reviewerManage) fail('reviewer cannot manage reviewers', '');
+  else pass('reviewer management placeholder is admin-only');
+  if (!adminManage) fail('admin can see reviewer management in local demo', '');
+  else pass('admin reviewer management allowed in local demo');
+
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  if (!pkg.scripts['qa:staging']) fail('qa:staging script missing', '');
+  else pass('qa:staging command exists');
+
+  if (!runNodeScript(['scripts/supabase_staging_smoke.mjs'], true)) {
+    fail('staging smoke exits cleanly when env missing', '');
+  } else pass('staging smoke script exits cleanly when env missing');
 } catch (err) {
   fail('reviewer dashboard unit tests', err.message);
 }

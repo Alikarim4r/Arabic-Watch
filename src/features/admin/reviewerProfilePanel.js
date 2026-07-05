@@ -11,7 +11,7 @@ export async function renderReviewerProfilePanel(root, ctx) {
     auth,
     profile,
     stats = {},
-    isAdmin,
+    canManageReviewers = false,
     loading,
     error,
     onRetry,
@@ -62,11 +62,11 @@ export async function renderReviewerProfilePanel(root, ctx) {
 
       <p class="muted" style="margin-top:12px">لا يمكن تعديل دور الإنتاج من الواجهة إلا بواسطة مسؤول النظام وRLS.</p>
 
-      ${isAdmin ? '<div id="reviewer-management-mount" style="margin-top:20px"></div>' : ''}
+      ${canManageReviewers ? '<div id="reviewer-management-mount" style="margin-top:20px"></div>' : '<p class="muted">إدارة المراجعين — للمسؤول admin فقط.</p>'}
     </div>
   `;
 
-  if (isAdmin) {
+  if (canManageReviewers) {
     const mount = root.querySelector('#reviewer-management-mount');
     if (mount) await renderReviewerManagementPanel(mount, ctx);
   }
