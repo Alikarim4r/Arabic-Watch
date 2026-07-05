@@ -204,6 +204,22 @@ export const EVIDENCE_SPRINT_BATCHES = [
       'yunus_04__',
     ],
   },
+  {
+    id: 'evidence_mapping_sprint_05',
+    label_ar: 'Sprint Batch 5',
+    patchPath: 'examples/evidence_patch.batch_05.proposed.json',
+    reviewTemplatePath: 'examples/evidence_patch.batch_05.review_template.json',
+    eventIds: [
+      'ayyub_03__',
+      'dawud_03__',
+      'dhulqarnayn_01__',
+      'dhulqarnayn_02__',
+      'isa_02__',
+      'isa_03__',
+      'maryam_02__',
+      'sulayman_03__',
+    ],
+  },
 ];
 
 /**

@@ -630,6 +630,87 @@ if (existsSync(batch04RevisedPath)) {
   else pass('Batch 4 revised patch has no auto-approved mappings');
 }
 
+const batch05Path = join(root, 'examples/evidence_patch.batch_05.proposed.json');
+const batch05ReviewPath = join(root, 'examples/evidence_patch.batch_05.review_template.json');
+const batch05RevisedPath = join(root, 'examples/evidence_patch.batch_05.revised.proposed.json');
+
+if (existsSync(batch05Path)) {
+  const batch05 = JSON.parse(readFileSync(batch05Path, 'utf8'));
+  const batch05Ids = new Set((batch05.mappings || []).map((m) => m.event_id));
+  const batch05Approved = (batch05.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch05Approved.length) fail('Batch 5 proposed patch has approved mappings', batch05Approved.map((m) => m.event_id));
+  else pass('Batch 5 proposed patch has no approved mappings');
+
+  const priorBatchIds05 = new Set();
+  for (const p of [batch01Path, batch02Path, batch03Path, batch04Path]) {
+    if (existsSync(p)) {
+      JSON.parse(readFileSync(p, 'utf8')).mappings.forEach((m) => priorBatchIds05.add(m.event_id));
+    }
+  }
+  const overlap05 = [...batch05Ids].filter((id) => priorBatchIds05.has(id));
+  if (overlap05.length) fail('Batch 5 must not overlap Batches 1–4 event_ids', overlap05);
+  else pass('Batch 5 event_ids do not overlap Batches 1–4');
+
+  const seedBatch05 = events.filter((e) => batch05Ids.has(e.id));
+  if (seedBatch05.some((e) => e.review_status === 'approved')) {
+    fail('Batch 5 seed events must not be approved', seedBatch05.filter((e) => e.review_status === 'approved').map((e) => e.id));
+  } else pass('Batch 5 seed events remain not approved');
+}
+
+if (existsSync(batch05ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', '--input', batch05ReviewPath], true)) {
+    fail('validate_scholar_review_template Batch 5', batch05ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 5 template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_scholar_review_decisions.mjs',
+        '--input',
+        batch05ReviewPath,
+        '--output',
+        batch05RevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_scholar_review_decisions Batch 5', '');
+  } else pass('compile_scholar_review_decisions produces Batch 5 revised patch');
+}
+
+if (existsSync(batch05RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', batch05RevisedPath], true)) {
+    fail('validate_revised_evidence_patch Batch 5', batch05RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 5 revised patch');
+
+  const revised05 = JSON.parse(readFileSync(batch05RevisedPath, 'utf8'));
+  const revised05Approved = (revised05.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revised05Approved.length) fail('Batch 5 revised patch must not auto-approve', revised05Approved.map((m) => m.event_id));
+  else pass('Batch 5 revised patch has no auto-approved mappings');
+}
+
+const allBatchPaths = [batch01Path, batch02Path, batch03Path, batch04Path, batch05Path].filter((p) => existsSync(p));
+if (allBatchPaths.length === 5) {
+  const proposedIds = [];
+  for (const p of allBatchPaths) {
+    proposedIds.push(...JSON.parse(readFileSync(p, 'utf8')).mappings.map((m) => m.event_id));
+  }
+  const proposedSet = new Set(proposedIds);
+  const needsMapping = events.filter((e) => e.evidence_status === 'needs_precise_mapping').map((e) => e.id);
+  const needsSet = new Set(needsMapping);
+  const missing = needsMapping.filter((id) => !proposedSet.has(id));
+  const extra = proposedIds.filter((id) => !needsSet.has(id));
+  const dupes = proposedIds.filter((id, i) => proposedIds.indexOf(id) !== i);
+  if (dupes.length) fail('duplicate event_ids across sprint batches', [...new Set(dupes)]);
+  else pass('no duplicate event_ids across Batches 1–5');
+  if (missing.length) fail('needs_precise_mapping events missing batch proposal', missing);
+  else pass('all needs_precise_mapping events have a batch proposal');
+  if (extra.length) fail('batch proposals reference non-needs_precise_mapping events', extra);
+  else pass('batch proposals only target needs_precise_mapping events');
+  if (proposedSet.size !== needsSet.size) fail('proposed count must equal needs_precise_mapping count', `${proposedSet.size} vs ${needsSet.size}`);
+  else pass(`sprint batch coverage complete (${proposedSet.size}/48 proposed)`);
+}
+
 if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
 else pass('public-final safe event count remains 6');
 
