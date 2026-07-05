@@ -212,6 +212,11 @@ section {
   color: var(--gold2);
   margin: 12px auto;
   max-width: 1400px;
+  padding-inline: max(16px, 4vw);
+}
+
+.review-badge {
+  font-family: var(--font);
 }
 
 .badge {

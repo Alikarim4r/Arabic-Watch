@@ -1,5 +1,6 @@
 import { getStoryBundle, isFinalContent } from '../../lib/dataService.js';
-import { escapeHtml, formatAyahRef, reviewBadgeHtml, getReviewBadge } from '../../lib/utils.js';
+import { escapeHtml, formatAyahRef, getReviewBadge } from '../../lib/utils.js';
+import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { openStudyModal } from '../study/studyModal.js';
 
@@ -7,8 +8,9 @@ const STORY_ICONS = ['🌙', '🕳️', '🏛️', '🔥', '🌊', '👑', '🕯
 
 /**
  * @param {HTMLElement} container
+ * @param {(rerender: (nodeId?: string) => Promise<void>) => void} [onReady]
  */
-export async function renderStoryMode(container) {
+export async function renderStoryMode(container, onReady) {
   container.innerHTML = `
     <section id="story">
       <div class="wrap">
@@ -33,7 +35,12 @@ export async function renderStoryMode(container) {
   let selectedNodeId = prophets.find((p) => p.id === 'yusuf')?.id || prophets[0]?.id;
   let storyIndex = 0;
 
-  async function renderStory() {
+  async function renderStory(forceNodeId) {
+    if (forceNodeId) {
+      selectedNodeId = forceNodeId;
+      storyIndex = 0;
+    }
+
     const bundle = await getStoryBundle(selectedNodeId);
     if (!bundle?.node) {
       renderStateBox(root, 'empty');
@@ -118,5 +125,6 @@ export async function renderStoryMode(container) {
     });
   }
 
+  onReady?.((nodeId) => renderStory(nodeId));
   await renderStory();
 }

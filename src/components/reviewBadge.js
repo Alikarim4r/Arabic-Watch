@@ -5,7 +5,7 @@ import { getReviewBadge } from '../lib/utils.js';
  */
 export function reviewBadgeHtml(status) {
   const { label, className } = getReviewBadge(status);
-  return `<span class="badge ${className}">${label}</span>`;
+  return `<span class="badge review-badge ${className}">${label}</span>`;
 }
 
 /**

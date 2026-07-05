@@ -10,11 +10,19 @@ import { renderEraTimeline, renderStudyCards } from './features/home/eraTimeline
 
 configure({ provider: 'local', publicMode: true });
 
-let cleanupStars = null;
+/** @type {null | (() => Promise<void>)} */
+let rerenderStory = null;
+
+document.addEventListener('qsu:select-story', (e) => {
+  rerenderStory?.(e.detail?.nodeId);
+});
 
 async function bootstrap() {
   const main = document.querySelector('#app-main');
-  main.innerHTML = '<div class="wrap"><div class="state-box">جاري تحميل الأطلس…</div></div>';
+  const loading = document.createElement('div');
+  loading.className = 'wrap';
+  loading.innerHTML = '<div class="state-box">جاري تحميل الأطلس…</div>';
+  main.prepend(loading);
 
   try {
     const repo = await getRepository();
@@ -25,8 +33,10 @@ async function bootstrap() {
       repo.getThemes(),
     ]);
 
+    loading.remove();
+
     renderDisclaimer(document.querySelector('#disclaimer-mount'));
-    cleanupStars = renderHero(document.querySelector('#hero-mount'), {
+    renderHero(document.querySelector('#hero-mount'), {
       prophetCount: nodes.filter((n) => ['prophet', 'person'].includes(n.node_type)).length,
       themeCount: themes.length,
       ayahRefCount: eventAyahs.length,
@@ -34,31 +44,21 @@ async function bootstrap() {
     renderStickyNav(document.querySelector('#nav-mount'));
     renderMethodology(document.querySelector('#method-mount'));
 
-    main.innerHTML = '';
-    const mounts = {
-      universe: document.createElement('div'),
-      story: document.createElement('div'),
-      timeline: document.createElement('div'),
-      search: document.createElement('div'),
-      surahs: document.createElement('div'),
-      study: document.createElement('div'),
-    };
-
-    Object.values(mounts).forEach((el) => main.appendChild(el));
-
     await Promise.all([
-      renderGraphView(mounts.universe),
-      renderStoryMode(mounts.story),
-      renderSearchView(mounts.search),
-      renderSurahGrid(mounts.surahs),
+      renderGraphView(document.querySelector('#universe-mount')),
+      renderStoryMode(document.querySelector('#story-mount'), (fn) => {
+        rerenderStory = fn;
+      }),
+      renderSearchView(document.querySelector('#search-mount')),
+      renderSurahGrid(document.querySelector('#surahs-mount')),
     ]);
 
-    renderEraTimeline(mounts.timeline, nodes);
-    renderStudyCards(mounts.study, nodes);
+    renderEraTimeline(document.querySelector('#timeline-mount'), nodes);
+    renderStudyCards(document.querySelector('#study-mount'), nodes);
     renderFooter(document.querySelector('#footer-mount'));
   } catch (err) {
     console.error(err);
-    main.innerHTML = '';
+    loading.remove();
     renderStateBox(main, 'error', err.message);
   }
 }

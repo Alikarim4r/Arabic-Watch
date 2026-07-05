@@ -22,6 +22,21 @@ const TYPE_LABEL = {
   surah: 'سورة',
 };
 
+/** @type {null | (() => Promise<void>)} */
+let runSearchRef = null;
+
+/**
+ * Trigger search from another feature (e.g. graph theme click).
+ * @param {string} query
+ */
+export function triggerSearch(query) {
+  const input = document.getElementById('q');
+  if (input) {
+    input.value = query;
+    runSearchRef?.();
+  }
+}
+
 /**
  * @param {HTMLElement} container
  */
@@ -96,17 +111,25 @@ export async function renderSearchView(container) {
 
       resultsEl.querySelectorAll('.result').forEach((el) => {
         el.addEventListener('click', () => {
-          openStudyModal({
-            type: el.dataset.type === 'event' ? 'event' : el.dataset.type === 'surah' ? 'surah' : 'node',
-            id: el.dataset.id,
-            nodeId: el.dataset.node,
-          });
+          const type = el.dataset.type;
+          const id = el.dataset.id;
+          if (type === 'event') {
+            openStudyModal({ type: 'event', id, nodeId: el.dataset.node });
+          } else if (type === 'surah') {
+            openStudyModal({ type: 'surah', id });
+          } else if (type === 'theme') {
+            openStudyModal({ type: 'theme', id });
+          } else {
+            openStudyModal({ type: 'node', id });
+          }
         });
       });
     } catch (err) {
       renderStateBox(resultsEl, 'error', err.message);
     }
   };
+
+  runSearchRef = runSearch;
 
   container.querySelector('#q').addEventListener('input', debounce(runSearch, 200));
   container.querySelector('#type').addEventListener('change', runSearch);

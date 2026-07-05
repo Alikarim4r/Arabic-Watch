@@ -1,5 +1,6 @@
 import { getRepository, isFinalContent, getStoryBundle } from '../../lib/dataService.js';
-import { escapeHtml, formatAyahRef, reviewBadgeHtml, nodeTypeLabel } from '../../lib/utils.js';
+import { escapeHtml, formatAyahRef, nodeTypeLabel } from '../../lib/utils.js';
+import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
 
 /** @type {HTMLElement|null} */
@@ -37,13 +38,20 @@ export async function openStudyModal(target) {
       const surahs = await repo.getSurahs();
       const surah = surahs.find((s) => String(s.id) === String(target.id));
       body.innerHTML = renderSurahStudy(surah, await repo.getNodes());
+    } else if (target.type === 'theme') {
+      const themes = await repo.getThemes();
+      const theme = themes.find((t) => t.id === target.id);
+      const node = await repo.getNodeById(target.id);
+      body.innerHTML = renderThemeStudy(theme || node);
     } else {
       body.innerHTML = `<div class="modal-body"><p class="muted">لا توجد مادة مراجعة كافية لهذا السؤال بعد.</p>${closeBtn()}</div>`;
     }
 
     overlay.querySelector('.close')?.addEventListener('click', closeStudyModal);
     overlay.querySelector('[data-goto-story]')?.addEventListener('click', () => {
+      const nodeId = target.id;
       closeStudyModal();
+      document.dispatchEvent(new CustomEvent('qsu:select-story', { detail: { nodeId } }));
       document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' });
     });
   } catch (err) {
@@ -173,7 +181,7 @@ function renderEventStudy(event, ayahs, sources) {
   `;
 }
 
-function renderSurahStudy(surah, nodes) {
+function renderSurahStudy(surah) {
   if (!surah) return `<div class="modal-body"><p>لا توجد مادة.</p>${closeBtn()}</div>`;
   return `
     <div class="modal-head">
@@ -183,6 +191,25 @@ function renderSurahStudy(surah, nodes) {
     <div class="modal-body">
       <p>${surah.ayah_count} آية — ${surah.revelation_type === 'makkah' ? 'مكية' : 'مدنية'}</p>
       <p class="disclaimer-banner" style="font-size:14px">${DISCLAIMER_AR}</p>
+    </div>
+  `;
+}
+
+function renderThemeStudy(theme) {
+  if (!theme) return `<div class="modal-body"><p>لا توجد مادة.</p>${closeBtn()}</div>`;
+  const draft = theme.review_status && theme.review_status !== 'approved'
+    ? `<div class="draft-banner">${reviewBadgeHtml(theme.review_status)} — محتوى تعليمي غير نهائي.</div>`
+    : '';
+  return `
+    <div class="modal-head">
+      <h2>${escapeHtml(theme.name_ar)}</h2>
+      ${closeBtn()}
+    </div>
+    <div class="modal-body">
+      ${draft}
+      ${reviewBadgeHtml(theme.review_status || 'pending')}
+      <p style="margin-top:12px">${escapeHtml(theme.description_ar || theme.summary_ar || '')}</p>
+      <p class="disclaimer-banner" style="margin-top:16px;font-size:14px">${DISCLAIMER_AR}</p>
     </div>
   `;
 }

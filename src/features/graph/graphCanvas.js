@@ -36,6 +36,9 @@ export function createGraphCanvas(canvas, options) {
   let oy = 0;
   let drag = null;
   let pan = null;
+  let pointerDown = null;
+  let clickedNode = null;
+  let didDrag = false;
 
   const simNodes = options.nodes.map((n) => ({
     ...n,
@@ -50,6 +53,36 @@ export function createGraphCanvas(canvas, options) {
   const simLinks = options.links
     .map((l) => [l.source_node_id, l.target_node_id])
     .filter(([a, b]) => simNodes.find((n) => n.id === a) && simNodes.find((n) => n.id === b));
+
+  const onMove = (e) => {
+    const p = pointer(e);
+    if (pointerDown && clickedNode && !didDrag) {
+      const moved = Math.hypot(p.x - pointerDown.x, p.y - pointerDown.y);
+      if (moved > 8) didDrag = true;
+    }
+    if (drag) {
+      const w = world(p.x, p.y);
+      drag.x = w.x;
+      drag.y = w.y;
+      drag.vx = 0;
+      drag.vy = 0;
+    } else if (pan) {
+      ox = pan.ox + (e.clientX - pan.x) / scale;
+      oy = pan.oy + (e.clientY - pan.y) / scale;
+    }
+  };
+
+  const onUp = (e) => {
+    const p = pointer(e);
+    if (pointerDown && clickedNode && !didDrag && !pan) {
+      options.onNodeClick?.(clickedNode);
+    }
+    drag = null;
+    pan = null;
+    pointerDown = null;
+    clickedNode = null;
+    didDrag = false;
+  };
 
   function resize() {
     const rect = canvas.parentElement.getBoundingClientRect();
@@ -111,6 +144,8 @@ export function createGraphCanvas(canvas, options) {
         const sid = String(filters.surahId);
         if (node.node_type === 'surah') {
           visible = node.id.includes(sid) || node.name_ar.includes(sid);
+        } else if (!['prophet', 'person'].includes(node.node_type)) {
+          visible = false;
         }
       }
       if (q) {
@@ -216,38 +251,32 @@ export function createGraphCanvas(canvas, options) {
 
   function pointer(e) {
     const r = canvas.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
+    const x = (e.clientX ?? e.touches?.[0]?.clientX) - r.left;
+    const y = (e.clientY ?? e.touches?.[0]?.clientY) - r.top;
+    return { x, y };
   }
 
-  canvas.addEventListener('mousedown', (e) => {
+  const onDown = (e) => {
+    if (e.target !== canvas) return;
+    e.preventDefault();
     const p = pointer(e);
+    pointerDown = p;
+    didDrag = false;
     const n = hit(p.x, p.y);
     if (n) {
+      clickedNode = n;
       drag = n;
-      options.onNodeClick?.(n);
     } else {
       pan = { x: e.clientX, y: e.clientY, ox, oy };
     }
-  });
+  };
 
-  window.addEventListener('mousemove', (e) => {
-    const p = pointer(e);
-    if (drag) {
-      const w = world(p.x, p.y);
-      drag.x = w.x;
-      drag.y = w.y;
-      drag.vx = 0;
-      drag.vy = 0;
-    } else if (pan) {
-      ox = pan.ox + (e.clientX - pan.x) / scale;
-      oy = pan.oy + (e.clientY - pan.y) / scale;
-    }
-  });
-
-  window.addEventListener('mouseup', () => {
-    drag = null;
-    pan = null;
-  });
+  canvas.addEventListener('mousedown', onDown);
+  canvas.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', onUp);
+  window.addEventListener('touchend', onUp);
 
   canvas.addEventListener(
     'wheel',
@@ -291,6 +320,12 @@ export function createGraphCanvas(canvas, options) {
     destroy() {
       cancelAnimationFrame(animId);
       ro.disconnect();
+      canvas.removeEventListener('mousedown', onDown);
+      canvas.removeEventListener('touchstart', onDown);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchend', onUp);
     },
   };
 }

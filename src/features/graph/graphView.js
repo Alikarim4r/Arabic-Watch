@@ -3,6 +3,7 @@ import { escapeHtml, nodeTypeLabel } from '../../lib/utils.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { createGraphCanvas } from './graphCanvas.js';
 import { openStudyModal } from '../study/studyModal.js';
+import { triggerSearch } from '../search/searchUI.js';
 import { setState, getState } from '../../lib/state.js';
 
 /** @type {ReturnType<createGraphCanvas>|null} */
@@ -71,18 +72,18 @@ export async function renderGraphView(container) {
       links,
       paused: state.graphPaused,
       onNodeClick: (node) => {
-        if (['prophet', 'person'].includes(node.node_type)) {
-          openStudyModal({ type: 'node', id: node.id });
-        } else if (node.node_type === 'theme') {
-          document.getElementById('q')?.focus();
-          setState({ searchFilters: { ...getState().searchFilters, query: node.name_ar } });
-        } else {
+        if (node.node_type === 'theme') {
+          triggerSearch(node.name_ar);
+          document.getElementById('search')?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+        if (['prophet', 'person', 'place', 'surah'].includes(node.node_type)) {
           openStudyModal({ type: 'node', id: node.id });
         }
       },
     });
 
-    bindControls(container, nodes);
+    bindControls(container);
   } catch (err) {
     renderStateBox(container.querySelector('#universeWrap'), 'error', err.message);
   }
