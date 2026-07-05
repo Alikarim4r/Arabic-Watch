@@ -60,8 +60,15 @@ for (const { name, context } of contexts) {
   await page.click('.close');
   await page.waitForTimeout(200);
 
-  // Graph controls
-  await page.click('#graph-zoom-in');
+  // Surah grid — linked nodes for سورة يوسف
+  await page.locator('.surah[data-surah="12"]').click();
+  await page.waitForTimeout(300);
+  const surahDetail = await page.locator('#surahDetail').innerText();
+  if (!surahDetail.includes('يوسف')) errors.push(`[${name}] surah grid missing linked node for surah 12`);
+
+  // Graph surah filter
+  await page.selectOption('#graph-surah', '12');
+  await page.waitForTimeout(300);
   await page.click('#graph-reset');
 
   // RTL

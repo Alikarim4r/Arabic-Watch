@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "npx --yes serve src -p 3000",
     "start": "npm run dev",
-    "qa": "node scripts/qa-check.mjs && node scripts/browser-qa.mjs"
+    "qa": "node scripts/data-integrity-check.mjs && node scripts/qa-check.mjs && node scripts/browser-qa.mjs"
   },
   "devDependencies": {
     "playwright": "^1.52.0"
