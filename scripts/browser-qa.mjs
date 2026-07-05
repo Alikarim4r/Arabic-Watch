@@ -71,6 +71,26 @@ for (const { name, context } of contexts) {
   await page.waitForTimeout(300);
   await page.click('#graph-reset');
 
+  // Admin review screen
+  await page.goto('http://127.0.0.1:3456/#admin-review', { waitUntil: 'networkidle' });
+  await page.waitForSelector('#admin-review .admin-grid', { timeout: 15000 });
+  const queueCount = await page.locator('.admin-queue-item').count();
+  if (queueCount === 0) errors.push(`[${name}] admin review queue empty`);
+  const disclaimer = await page.locator('#admin-review .admin-disclaimer').innerText();
+  if (!disclaimer.includes('هذا ملخص تعليمي')) {
+    errors.push(`[${name}] admin review missing Arabic disclaimer`);
+  }
+
+  // Public mode: pending story shows draft banner (select adam if available)
+  await page.goto('http://127.0.0.1:3456/#story', { waitUntil: 'networkidle' });
+  await page.waitForSelector('#storySelect', { timeout: 10000 });
+  if (await page.locator('#storySelect option[value="adam"]').count()) {
+    await page.selectOption('#storySelect', 'adam');
+    await page.waitForTimeout(400);
+    const draft = await page.locator('#story-root .draft-banner').count();
+    if (draft === 0) errors.push(`[${name}] pending story missing draft banner`);
+  }
+
   // RTL
   const dir = await page.evaluate(() => document.documentElement.dir);
   if (dir !== 'rtl') errors.push(`[${name}] dir not rtl`);

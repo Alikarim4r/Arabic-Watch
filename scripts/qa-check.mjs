@@ -5,17 +5,25 @@ import { fileURLToPath } from 'url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const seed = JSON.parse(readFileSync(join(root, 'src/data/seed_content.json'), 'utf8'));
+const surahsPayload = JSON.parse(readFileSync(join(root, 'src/data/surahs.json'), 'utf8'));
 
 const { configure, isFinalContent } = await import(pathToFileURL(join(root, 'src/lib/dataService.js')).href);
 const { searchIndex } = await import(pathToFileURL(join(root, 'src/features/search/searchEngine.js')).href);
 const { matchesAllTokens } = await import(pathToFileURL(join(root, 'src/lib/arabicNormalize.js')).href);
+const { getEnvConfig } = await import(pathToFileURL(join(root, 'src/config/env.js')).href);
+const { createRepository } = await import(
+  pathToFileURL(join(root, 'src/data/repositories/repositoryFactory.js')).href
+);
+const { buildReviewQueue, summarizeReviewStats } = await import(
+  pathToFileURL(join(root, 'src/features/admin/reviewQueue.js')).href
+);
 
-configure({ publicMode: true });
+configure({ publicMode: true, dataMode: 'local' });
 
 const nodes = seed.story_nodes || [];
 const events = seed.story_events || [];
 const themes = seed.themes || [];
-const surahs = JSON.parse(readFileSync(join(root, 'src/data/surahs.json'), 'utf8')).surahs;
+const surahs = surahsPayload.surahs;
 
 let failed = 0;
 const pass = (name) => console.log('PASS', name);
@@ -31,6 +39,12 @@ else pass('isFinalContent requires approved review_status');
 const noneFinal = [...nodes, ...events].filter((x) => isFinalContent(x) && x.source_status === 'none');
 if (noneFinal.length) fail('isFinalContent source none', noneFinal.map((x) => x.id));
 else pass('isFinalContent rejects source_status none');
+
+const unreviewedFinal = [...nodes, ...events, ...themes].filter(
+  (x) => ['pending', 'needs_source'].includes(x.review_status) && isFinalContent(x)
+);
+if (unreviewedFinal.length) fail('pending not shown as final', unreviewedFinal.map((x) => x.id));
+else pass('public mode excludes pending/needs_source from final content');
 
 if (!matchesAllTokens('صبر', 'الصبر عند المكروه')) fail('arabic normalization', '');
 else pass('arabic normalization');
@@ -51,5 +65,52 @@ pass('all events have ayah links');
 
 if (surahs.length !== 114) fail('surah count', surahs.length);
 else pass('114 surahs in data');
+
+const env = getEnvConfig();
+if (env.dataMode !== 'local') fail('env default data mode', env.dataMode);
+else pass('env defaults to local data mode');
+
+// Mock fetch for repository factory tests in Node
+globalThis.fetch = async (url) => {
+  const rel = String(url).replace(/^\.\//, '');
+  const file = join(root, 'src', rel);
+  return {
+    ok: true,
+    async json() {
+      return JSON.parse(readFileSync(file, 'utf8'));
+    },
+  };
+};
+
+try {
+  const localRepo = await createRepository({ dataMode: 'local' });
+  const localNodes = await localRepo.getNodes();
+  if (!localNodes.length) fail('local repository load', 'empty nodes');
+  else pass('local repository loads seed JSON');
+
+  const supaRepo = await createRepository({
+    dataMode: 'supabase',
+    supabaseUrl: '',
+    supabaseAnonKey: '',
+  });
+  const supaNodes = await supaRepo.getNodes();
+  if (!supaNodes.length) fail('supabase fallback repository', 'empty nodes');
+  else pass('missing Supabase env falls back to local demo');
+} catch (err) {
+  fail('repository factory', err.message);
+}
+
+const queue = buildReviewQueue({
+  nodes,
+  events,
+  themes,
+  eventAyahs: seed.event_ayahs || [],
+  tafsirSources: seed.tafsir_sources || [],
+});
+const stats = summarizeReviewStats(queue);
+if (!queue.length || stats.total !== queue.length) fail('admin review queue build', '');
+else pass('admin review queue builds records');
+if (stats.pending + stats.needs_source < 1) fail('admin pending records exist', '');
+else pass('admin queue includes pending/needs_source records');
 
 process.exit(failed ? 1 : 0);

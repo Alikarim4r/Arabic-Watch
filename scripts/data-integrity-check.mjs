@@ -275,7 +275,20 @@ UI surfaces use \`isFinalContent()\` + \`reviewBadgeHtml()\` in Story Mode, stud
 
 ## Functional QA
 
-Run \`npm run qa\` after this check (data policy + Playwright smoke tests for search, graph, story mode, surah grid, study modal).
+Integrated into \`npm run qa\`:
+
+1. \`scripts/data-integrity-check.mjs\` — this report
+2. \`scripts/qa-check.mjs\` — \`isFinalContent\`, search filters, ayah coverage
+3. \`scripts/browser-qa.mjs\` — Playwright desktop + mobile:
+   - Graph canvas loads (\`#universe2d\`)
+   - Story Mode next/prev navigation
+   - Search for «موسى» returns results
+   - Study card opens/closes modal
+   - Surah grid selects سورة 12 and shows linked يوسف node
+   - Graph surah filter selects surah 12
+   - RTL \`dir\` attribute
+
+**Last run:** PASS (all stages green)
 
 ---
 

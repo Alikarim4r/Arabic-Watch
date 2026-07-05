@@ -42,6 +42,8 @@
  * @property {() => Promise<Object[]>} getSurahs
  * @property {() => Promise<Object[]>} getTafsirSources
  * @property {() => Promise<Object[]>} getEras
+ * @property {() => Promise<'local'|'supabase'>} [getProvider]
+ * @property {(payload: { contentType: string, contentId: string, action: string, note?: string, reviewerName?: string }) => Promise<Object>} [submitReviewAction]
  */
 
 export {};

@@ -2,14 +2,23 @@ import { renderDisclaimer, DISCLAIMER_AR } from './components/disclaimer.js';
 import { renderHero, renderStickyNav, renderFooter, renderMethodology } from './components/homeChrome.js';
 import { renderStateBox } from './components/loadingState.js';
 import { configure, getRepository } from './lib/dataService.js';
+import { getEnvConfig } from './config/env.js';
 import { isMainStoryNode } from './lib/utils.js';
+import { renderAdminReview } from './features/admin/adminReview.js';
 import { renderGraphView } from './features/graph/graphView.js';
 import { renderStoryMode } from './features/story/storyMode.js';
 import { renderSearchView } from './features/search/searchUI.js';
 import { renderSurahGrid } from './features/surahs/surahGrid.js';
 import { renderEraTimeline, renderStudyCards } from './features/home/eraTimeline.js';
 
-configure({ provider: 'local', publicMode: true });
+const env = getEnvConfig();
+configure({
+  dataMode: env.dataMode,
+  provider: env.dataMode,
+  publicMode: true,
+  supabaseUrl: env.supabaseUrl,
+  supabaseAnonKey: env.supabaseAnonKey,
+});
 
 /** @type {null | (() => Promise<void>)} */
 let rerenderStory = null;
@@ -57,6 +66,7 @@ async function bootstrap() {
 
     renderEraTimeline(document.querySelector('#timeline-mount'), nodes, eras);
     renderStudyCards(document.querySelector('#study-mount'), nodes);
+    await renderAdminReview(document.querySelector('#admin-review-mount'));
     renderFooter(document.querySelector('#footer-mount'));
   } catch (err) {
     console.error(err);

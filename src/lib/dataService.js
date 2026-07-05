@@ -1,6 +1,8 @@
 /** @typedef {import('./repository.js').Repository} Repository */
 
-/** @type {'local'|'supabase'} */
+/** @typedef {'local'|'supabase'} ProviderMode */
+
+/** @type {ProviderMode} */
 let provider = 'local';
 
 /** @type {Repository|null} */
@@ -12,21 +14,31 @@ let publicMode = true;
 const config = {
   supabaseUrl: '',
   supabaseKey: '',
+  dataMode: 'local',
 };
 
 /**
- * @param {{ provider?: 'local'|'supabase', publicMode?: boolean, supabaseUrl?: string, supabaseKey?: string }} options
+ * @param {{ provider?: ProviderMode, dataMode?: ProviderMode, publicMode?: boolean, supabaseUrl?: string, supabaseKey?: string, supabaseAnonKey?: string }} options
  */
 export function configure(options = {}) {
   if (options.provider) provider = options.provider;
+  if (options.dataMode) {
+    config.dataMode = options.dataMode;
+    provider = options.dataMode;
+  }
   if (typeof options.publicMode === 'boolean') publicMode = options.publicMode;
   if (options.supabaseUrl) config.supabaseUrl = options.supabaseUrl;
   if (options.supabaseKey) config.supabaseKey = options.supabaseKey;
+  if (options.supabaseAnonKey) config.supabaseKey = options.supabaseAnonKey;
   repository = null;
 }
 
 export function isPublicMode() {
   return publicMode;
+}
+
+export function getDataMode() {
+  return config.dataMode || provider;
 }
 
 /**
@@ -35,19 +47,16 @@ export function isPublicMode() {
 export async function getRepository() {
   if (repository) return repository;
 
-  if (provider === 'supabase') {
-    throw new Error(
-      'Supabase provider is not wired yet. Set provider to "local" or implement supabaseRepository.js.'
-    );
-  }
-
-  const { loadLocalRepository } = await import('./localJsonRepository.js');
-  repository = await loadLocalRepository();
+  const { createRepository } = await import('../data/repositories/repositoryFactory.js');
+  repository = await createRepository({
+    dataMode: config.dataMode || provider,
+    supabaseUrl: config.supabaseUrl,
+    supabaseAnonKey: config.supabaseKey,
+  });
   return repository;
 }
 
 /**
- * Filter content for public display — unapproved items remain visible but flagged.
  * @param {{ review_status?: string }} item
  */
 export function isApprovedForPublic(item) {
@@ -55,7 +64,6 @@ export function isApprovedForPublic(item) {
 }
 
 /**
- * Whether summary text should be shown as final verified content.
  * @param {{ review_status?: string, source_status?: string }} item
  */
 export function isFinalContent(item) {

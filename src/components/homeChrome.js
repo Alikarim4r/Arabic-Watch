@@ -95,6 +95,7 @@ export function renderStickyNav(container) {
           <a href="#search">البحث</a>
           <a href="#surahs">السور</a>
           <a href="#study">الدراسة</a>
+          <a href="#admin-review">المراجعة</a>
         </div>
       </div>
     </nav>
