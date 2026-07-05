@@ -1,0 +1,36 @@
+:root {
+  --bg: #02040a;
+  --panel: rgba(12, 18, 32, 0.84);
+  --card: rgba(255, 255, 255, 0.04);
+  --gold: #c5a059;
+  --gold2: #f3d77c;
+  --blue: #38bdf8;
+  --green: #34d399;
+  --rose: #f43f5e;
+  --violet: #a78bfa;
+  --text: #f5f1e8;
+  --muted: #aab3c3;
+  --border: rgba(197, 160, 89, 0.22);
+  --shadow: 0 28px 80px rgba(0, 0, 0, 0.6);
+  --r: 24px;
+  --font: 'Cairo', sans-serif;
+  --fontA: 'Amiri', serif;
+  --ivory: var(--text);
+  --dim: var(--muted);
+  --line: var(--border);
+  --line2: rgba(197, 160, 89, 0.42);
+  --radius: var(--r);
+  --danger: var(--rose);
+  --success: var(--green);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
