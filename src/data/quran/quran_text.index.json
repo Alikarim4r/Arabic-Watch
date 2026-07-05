@@ -1,0 +1,9 @@
+{
+  "meta": null,
+  "imported_at": null,
+  "ayah_count": 0,
+  "is_full_quran": false,
+  "by_key": {},
+  "surah_index": {},
+  "notes": "Empty runtime index — run scripts/import_quran_text.mjs with a licensed full Quran JSON to populate."
+}
