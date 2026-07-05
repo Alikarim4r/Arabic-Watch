@@ -512,6 +512,65 @@ if (existsSync(batch02RevisedPath)) {
   else pass('Batch 2 revised patch has no auto-approved mappings');
 }
 
+const batch03Path = join(root, 'examples/evidence_patch.batch_03.proposed.json');
+const batch03ReviewPath = join(root, 'examples/evidence_patch.batch_03.review_template.json');
+const batch03RevisedPath = join(root, 'examples/evidence_patch.batch_03.revised.proposed.json');
+
+if (existsSync(batch03Path)) {
+  const batch03 = JSON.parse(readFileSync(batch03Path, 'utf8'));
+  const batch03Ids = new Set((batch03.mappings || []).map((m) => m.event_id));
+  const batch03Approved = (batch03.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch03Approved.length) fail('Batch 3 proposed patch has approved mappings', batch03Approved.map((m) => m.event_id));
+  else pass('Batch 3 proposed patch has no approved mappings');
+
+  const batch01IdsFor03 = existsSync(batch01Path)
+    ? new Set(JSON.parse(readFileSync(batch01Path, 'utf8')).mappings.map((m) => m.event_id))
+    : new Set();
+  const batch02IdsFor03 = existsSync(batch02Path)
+    ? new Set(JSON.parse(readFileSync(batch02Path, 'utf8')).mappings.map((m) => m.event_id))
+    : new Set();
+  const overlap03 = [...batch03Ids].filter((id) => batch01IdsFor03.has(id) || batch02IdsFor03.has(id));
+  if (overlap03.length) fail('Batch 3 must not overlap Batch 1 or 2 event_ids', overlap03);
+  else pass('Batch 3 event_ids do not overlap Batches 1–2');
+
+  const seedBatch03 = events.filter((e) => batch03Ids.has(e.id));
+  if (seedBatch03.some((e) => e.review_status === 'approved')) {
+    fail('Batch 3 seed events must not be approved', seedBatch03.filter((e) => e.review_status === 'approved').map((e) => e.id));
+  } else pass('Batch 3 seed events remain not approved');
+}
+
+if (existsSync(batch03ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', '--input', batch03ReviewPath], true)) {
+    fail('validate_scholar_review_template Batch 3', batch03ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 3 template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_scholar_review_decisions.mjs',
+        '--input',
+        batch03ReviewPath,
+        '--output',
+        batch03RevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_scholar_review_decisions Batch 3', '');
+  } else pass('compile_scholar_review_decisions produces Batch 3 revised patch');
+}
+
+if (existsSync(batch03RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', batch03RevisedPath], true)) {
+    fail('validate_revised_evidence_patch Batch 3', batch03RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 3 revised patch');
+
+  const revised03 = JSON.parse(readFileSync(batch03RevisedPath, 'utf8'));
+  const revised03Approved = (revised03.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revised03Approved.length) fail('Batch 3 revised patch must not auto-approve', revised03Approved.map((m) => m.event_id));
+  else pass('Batch 3 revised patch has no auto-approved mappings');
+}
+
 if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
 else pass('public-final safe event count remains 6');
 

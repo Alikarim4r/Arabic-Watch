@@ -168,6 +168,24 @@ export const EVIDENCE_SPRINT_BATCHES = [
       'nuh_04__',
     ],
   },
+  {
+    id: 'evidence_mapping_sprint_03',
+    label_ar: 'Sprint Batch 3',
+    patchPath: 'examples/evidence_patch.batch_03.proposed.json',
+    reviewTemplatePath: 'examples/evidence_patch.batch_03.review_template.json',
+    eventIds: [
+      'adam_02__',
+      'adam_03__',
+      'ibrahim_03__',
+      'musa_04__',
+      'musa_05__',
+      'musa_06__',
+      'musa_07__',
+      'musa_08__',
+      'muhammad_02__',
+      'muhammad_05__',
+    ],
+  },
 ];
 
 /**
