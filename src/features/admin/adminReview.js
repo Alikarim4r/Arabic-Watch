@@ -11,6 +11,7 @@ import {
   summarizeReviewStats,
 } from './reviewQueue.js';
 import { applyMockOverrides, saveMockOverride, submitReviewAction } from './reviewActions.js';
+import { renderEvidenceCurationPanel } from './evidenceCurationPanel.js';
 
 /** @type {Object|null} */
 let state = null;
@@ -34,12 +35,13 @@ export async function renderAdminReview(container) {
 
   const root = container.querySelector('#admin-review-root');
   const repo = await getRepository();
-  const [nodes, events, themes, eventAyahs, tafsirSources] = await Promise.all([
+  const [nodes, events, themes, eventAyahs, tafsirSources, surahs] = await Promise.all([
     repo.getNodes(),
     repo.getEvents(),
     repo.getThemes(),
     repo.getEventAyahs(),
     repo.getTafsirSources(),
+    repo.getSurahs(),
   ]);
 
   const env = getEnvConfig();
@@ -47,8 +49,15 @@ export async function renderAdminReview(container) {
 
   state = {
     repo,
+    nodes,
+    events,
+    themes,
+    eventAyahs,
     tafsirSources,
+    surahs,
     allRecords: buildReviewQueue({ nodes, events, themes, eventAyahs, tafsirSources }),
+    activeTab: 'review',
+    curationSelectedId: null,
     filters: {
       recordType: '',
       reviewStatus: 'pending',
@@ -69,6 +78,31 @@ export async function renderAdminReview(container) {
 
 function renderAdminPanel(root) {
   if (!state) return;
+
+  if (state.activeTab === 'curation') {
+    renderEvidenceCurationPanel(root, {
+      events: state.events,
+      nodes: state.nodes,
+      themes: state.themes,
+      eventAyahs: state.eventAyahs,
+      tafsirSources: state.tafsirSources,
+      surahs: state.surahs,
+      curationSelectedId: state.curationSelectedId,
+      onTabChange: (tab) => {
+        state.activeTab = tab;
+        renderAdminPanel(root);
+      },
+      onSelectEvent: (id) => {
+        state.curationSelectedId = id;
+        renderAdminPanel(root);
+      },
+      onToast: (msg) => {
+        state.toast = msg;
+        renderAdminPanel(root);
+      },
+    });
+    return;
+  }
 
   let records = applyMockOverrides(state.allRecords);
   records = filterReviewQueue(records, state.filters);
@@ -91,6 +125,10 @@ function renderAdminPanel(root) {
       : '';
 
   root.innerHTML = `
+    <div class="admin-tabs">
+      <button type="button" class="btn sm primary" data-tab="review">مراجعة عامة</button>
+      <button type="button" class="btn sm" data-tab="curation">Evidence Curation</button>
+    </div>
     <div class="admin-grid">
       <aside class="glass pad admin-sidebar">
         <div class="admin-stats">
@@ -179,6 +217,12 @@ function renderAdminPanel(root) {
   `;
 
   bindAdminEvents(root, records);
+
+  root.querySelector('[data-tab="curation"]')?.addEventListener('click', () => {
+    state.activeTab = 'curation';
+    state.toast = '';
+    renderAdminPanel(root);
+  });
 }
 
 function providerLabel() {

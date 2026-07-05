@@ -80,20 +80,32 @@ for (const { name, context } of contexts) {
   await page.waitForTimeout(300);
   await page.click('#graph-reset');
 
-  // Admin review evidence filters
+  // Admin Evidence Curation workbench
   await page.goto('http://127.0.0.1:3456/#admin-review', { waitUntil: 'networkidle' });
-  await page.waitForSelector('#admin-review .admin-grid', { timeout: 15000 });
-  await page.selectOption('#admin-evidence-status', 'needs_precise_mapping');
+  await page.waitForSelector('#admin-review .admin-tabs', { timeout: 15000 });
+  await page.locator('[data-tab="curation"]').click();
+  await page.waitForTimeout(400);
+  await page.waitForSelector('.admin-curation', { timeout: 10000 });
+  const curationQueue = await page.locator('.curation-queue-item').count();
+  if (curationQueue === 0) errors.push(`[${name}] evidence curation queue empty`);
+  await page.locator('.curation-queue-item').first().click();
+  await page.waitForTimeout(200);
+  await page.fill('#curation-form input[name="surah_id"]', '2');
+  await page.fill('#curation-form input[name="ayah_from"]', '30');
+  await page.fill('#curation-form input[name="ayah_to"]', '37');
+  await page.selectOption('#curation-form select[name="evidence_confidence"]', 'needs_review');
+  await page.selectOption('#curation-form select[name="proposed_review_status"]', 'pending');
+  await page.click('#curation-save-draft');
   await page.waitForTimeout(300);
-  if ((await page.locator('.admin-queue-item').count()) === 0) {
-    errors.push(`[${name}] admin evidence filter needs_precise_mapping empty`);
-  }
-  await page.selectOption('#admin-evidence-status', 'precise_evidence');
+  const saveMsg = await page.locator('#curation-validation-msg').innerText();
+  if (!saveMsg.includes('مسودة')) errors.push(`[${name}] curation save draft failed: ${saveMsg}`);
+  await page.click('#curation-export-patch');
   await page.waitForTimeout(300);
-  if ((await page.locator('.admin-queue-item').count()) === 0) {
-    errors.push(`[${name}] admin evidence filter precise_evidence empty`);
+  const exportMsg = await page.locator('#curation-validation-msg').innerText();
+  if (!exportMsg.includes('تصدير') && !exportMsg.includes('مسودة')) {
+    errors.push(`[${name}] curation export failed: ${exportMsg}`);
   }
-  const disclaimer = await page.locator('#admin-review .admin-disclaimer').innerText();
+  const disclaimer = await page.locator('#admin-review .admin-disclaimer').first().innerText();
   if (!disclaimer.includes('هذا ملخص تعليمي')) {
     errors.push(`[${name}] admin review missing Arabic disclaimer`);
   }
