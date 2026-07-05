@@ -430,9 +430,6 @@ if (existsSync(batch01Path)) {
   const seedBatchApproved = seedBatchEvents.filter((e) => e.review_status === 'approved');
   if (seedBatchApproved.length) fail('Batch 1 seed events must not be approved', seedBatchApproved.map((e) => e.id));
   else pass('Batch 1 seed events remain not approved');
-
-  if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
-  else pass('public-final safe event count remains 6');
 }
 
 if (existsSync(batch01ReviewPath)) {
@@ -458,6 +455,65 @@ if (existsSync(batch01RevisedPath)) {
   if (revisedApproved.length) fail('Batch 1 revised patch must not auto-approve', revisedApproved.map((m) => m.event_id));
   else pass('Batch 1 revised patch has no auto-approved mappings');
 }
+
+const batch02Path = join(root, 'examples/evidence_patch.batch_02.proposed.json');
+const batch02ReviewPath = join(root, 'examples/evidence_patch.batch_02.review_template.json');
+const batch02RevisedPath = join(root, 'examples/evidence_patch.batch_02.revised.proposed.json');
+
+if (existsSync(batch02Path)) {
+  const batch02 = JSON.parse(readFileSync(batch02Path, 'utf8'));
+  const batch02Ids = new Set((batch02.mappings || []).map((m) => m.event_id));
+  const batch02Approved = (batch02.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch02Approved.length) fail('Batch 2 proposed patch has approved mappings', batch02Approved.map((m) => m.event_id));
+  else pass('Batch 2 proposed patch has no approved mappings');
+
+  const batch01Ids = existsSync(batch01Path)
+    ? new Set(JSON.parse(readFileSync(batch01Path, 'utf8')).mappings.map((m) => m.event_id))
+    : new Set();
+  const overlap = [...batch02Ids].filter((id) => batch01Ids.has(id));
+  if (overlap.length) fail('Batch 2 must not overlap Batch 1 event_ids', overlap);
+  else pass('Batch 2 event_ids do not overlap Batch 1');
+
+  const seedBatch02 = events.filter((e) => batch02Ids.has(e.id));
+  if (seedBatch02.some((e) => e.review_status === 'approved')) {
+    fail('Batch 2 seed events must not be approved', seedBatch02.filter((e) => e.review_status === 'approved').map((e) => e.id));
+  } else pass('Batch 2 seed events remain not approved');
+}
+
+if (existsSync(batch02ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', '--input', batch02ReviewPath], true)) {
+    fail('validate_scholar_review_template Batch 2', batch02ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 2 template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_scholar_review_decisions.mjs',
+        '--input',
+        batch02ReviewPath,
+        '--output',
+        batch02RevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_scholar_review_decisions Batch 2', '');
+  } else pass('compile_scholar_review_decisions produces Batch 2 revised patch');
+}
+
+if (existsSync(batch02RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', batch02RevisedPath], true)) {
+    fail('validate_revised_evidence_patch Batch 2', batch02RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 2 revised patch');
+
+  const revised02 = JSON.parse(readFileSync(batch02RevisedPath, 'utf8'));
+  const revised02Approved = (revised02.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revised02Approved.length) fail('Batch 2 revised patch must not auto-approve', revised02Approved.map((m) => m.event_id));
+  else pass('Batch 2 revised patch has no auto-approved mappings');
+}
+
+if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
+else pass('public-final safe event count remains 6');
 
 if (!runNodeScript(['scripts/check_arabic_text_hygiene.mjs', '--strict'], true)) {
   fail('check_arabic_text_hygiene --strict', 'Arabic field errors including الخضr typo');

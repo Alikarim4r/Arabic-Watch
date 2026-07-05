@@ -58,9 +58,13 @@ node scripts/validate_scholar_review_template.mjs examples/evidence_patch.batch_
 ## Step 2 — Run compiler
 
 ```bash
+# Batch 1 (defaults)
+node scripts/compile_scholar_review_decisions.mjs
+
+# Any batch
 node scripts/compile_scholar_review_decisions.mjs \
-  examples/evidence_patch.batch_01.review_template.json \
-  examples/evidence_patch.batch_01.revised.proposed.json
+  --input examples/evidence_patch.batch_02.review_template.json \
+  --output examples/evidence_patch.batch_02.revised.proposed.json
 ```
 
 **Approval gates** (all required for `proposed_review_status: approved`):

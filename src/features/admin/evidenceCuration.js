@@ -149,6 +149,25 @@ export const EVIDENCE_SPRINT_BATCHES = [
       'isa_04__',
     ],
   },
+  {
+    id: 'evidence_mapping_sprint_02',
+    label_ar: 'Sprint Batch 2',
+    patchPath: 'examples/evidence_patch.batch_02.proposed.json',
+    reviewTemplatePath: 'examples/evidence_patch.batch_02.review_template.json',
+    scholarPackPath: 'docs/scholar_review_pack_batch_02.md',
+    eventIds: [
+      'yunus_02__',
+      'yunus_03__',
+      'ayyub_01__',
+      'ayyub_02__',
+      'sulayman_01__',
+      'sulayman_02__',
+      'dawud_01__',
+      'dawud_02__',
+      'dhulqarnayn_03__',
+      'nuh_04__',
+    ],
+  },
 ];
 
 /**

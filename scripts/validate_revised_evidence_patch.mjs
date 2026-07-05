@@ -1,18 +1,18 @@
 import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { pathToFileURL } from 'url';
 import { containsQuranTextPayload, canProposeApproved } from './lib/scholarDecisionConstants.js';
+import { parseBatchCliArgs } from './lib/batchCli.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const patchPath =
-  process.argv[2] || join(root, 'examples/evidence_patch.batch_01.revised.proposed.json');
+const { root, input: patchPath } = parseBatchCliArgs(process.argv, {
+  input: 'examples/evidence_patch.batch_01.revised.proposed.json',
+});
 
-const seed = JSON.parse(readFileSync(join(root, 'src/data/seed_content.json'), 'utf8'));
-const surahs = JSON.parse(readFileSync(join(root, 'src/data/surahs.json'), 'utf8')).surahs;
+const seed = JSON.parse(readFileSync(`${root}/src/data/seed_content.json`, 'utf8'));
+const surahs = JSON.parse(readFileSync(`${root}/src/data/surahs.json`, 'utf8')).surahs;
 const patch = JSON.parse(readFileSync(patchPath, 'utf8'));
 
-const { validatePatchFile, validatePatchEntry } = await import(
-  pathToFileURL(join(root, 'src/features/admin/evidenceValidation.js')).href
+const { validatePatchFile } = await import(
+  pathToFileURL(`${root}/src/features/admin/evidenceValidation.js`).href
 );
 
 const eventIds = new Set((seed.story_events || []).map((e) => e.id));
@@ -23,6 +23,7 @@ const ctx = { eventIds, sourceIds, surahMaxAyah };
 const errors = [];
 const mappings = patch.mappings || [];
 const rejected = patch.meta?.rejected_proposals || [];
+const patchEventIds = new Set(mappings.map((m) => m.event_id));
 
 if (patch.meta?.status !== 'revised_proposed') {
   errors.push('meta.status يجب أن يكون revised_proposed');
@@ -37,7 +38,22 @@ if (!mappings.length && !rejected.length) {
   errors.push('لا توجد mappings ولا rejected_proposals');
 }
 
-const patchResult = validatePatchFile(mappings.length ? mappings : [{ event_id: '_placeholder', surah_id: 1, ayah_from: 1, ayah_to: 1, relation_type: 'main', evidence_confidence: 'needs_review', proposed_review_status: 'pending' }], ctx);
+const patchResult = validatePatchFile(
+  mappings.length
+    ? mappings
+    : [
+        {
+          event_id: '_placeholder',
+          surah_id: 1,
+          ayah_from: 1,
+          ayah_to: 1,
+          relation_type: 'main',
+          evidence_confidence: 'needs_review',
+          proposed_review_status: 'pending',
+        },
+      ],
+  ctx
+);
 if (mappings.length && !patchResult.valid) {
   errors.push(...patchResult.errors);
 }
@@ -50,16 +66,18 @@ mappings.forEach((entry, i) => {
   }
 
   if (entry.proposed_review_status === 'approved') {
-    if (!canProposeApproved(
-      {
-        scholar_decision: entry.scholar_decision,
-        final_recommended_status: 'approved',
-        source_id: entry.source_id,
-        scholar_note: entry.scholar_note,
-        evidence_confidence: entry.evidence_confidence,
-      },
-      entry
-    )) {
+    if (
+      !canProposeApproved(
+        {
+          scholar_decision: entry.scholar_decision,
+          final_recommended_status: 'approved',
+          source_id: entry.source_id,
+          scholar_note: entry.scholar_note,
+          evidence_confidence: entry.evidence_confidence,
+        },
+        entry
+      )
+    ) {
       errors.push(`${prefix}: auto-approved item missing required scholar gates`);
     }
     if (!String(entry.scholar_note || '').trim()) {
@@ -88,17 +106,11 @@ rejected.forEach((r, i) => {
   }
 });
 
-const batch01Ids = new Set(
-  JSON.parse(
-    readFileSync(join(root, 'examples/evidence_patch.batch_01.proposed.json'), 'utf8')
-  ).mappings.map((m) => m.event_id)
-);
-
 const wronglyApprovedInSeed = (seed.story_events || []).filter(
-  (e) => batch01Ids.has(e.id) && e.review_status === 'approved'
+  (e) => patchEventIds.has(e.id) && e.review_status === 'approved'
 );
 if (wronglyApprovedInSeed.length) {
-  errors.push(`Batch 1 seed events must not be approved: ${wronglyApprovedInSeed.map((e) => e.id).join(', ')}`);
+  errors.push(`batch seed events must not be approved: ${wronglyApprovedInSeed.map((e) => e.id).join(', ')}`);
 }
 
 const autoApprovedWithoutScholar = mappings.filter(
@@ -107,16 +119,19 @@ const autoApprovedWithoutScholar = mappings.filter(
     (m.scholar_decision === 'undecided' || !String(m.scholar_decision || '').trim())
 );
 if (autoApprovedWithoutScholar.length) {
-  errors.push(`inferred approval without scholar decision: ${autoApprovedWithoutScholar.map((m) => m.event_id).join(', ')}`);
+  errors.push(
+    `inferred approval without scholar decision: ${autoApprovedWithoutScholar.map((m) => m.event_id).join(', ')}`
+  );
 }
 
 if (errors.length) {
-  console.log('FAIL validate_revised_evidence_patch', patchPath);
+  console.log('FAIL validate_revised_evidence_patch', patchPath.replace(`${root}/`, ''));
   errors.forEach((e) => console.log(' ', e));
   process.exit(1);
 }
 
 console.log('NOTE revised proposed patch — not production content; not applied');
-console.log('PASS validate_revised_evidence_patch', patchPath);
+console.log('PASS validate_revised_evidence_patch', patchPath.replace(`${root}/`, ''));
+console.log('batch_id:', patch.meta?.batch_id || '—');
 console.log('mappings:', mappings.length, '| rejected:', rejected.length);
 process.exit(0);

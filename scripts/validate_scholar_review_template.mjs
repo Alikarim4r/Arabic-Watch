@@ -1,43 +1,38 @@
-import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { readFileSync, existsSync } from 'fs';
+import { pathToFileURL } from 'url';
+import { containsQuranTextPayload } from './lib/scholarDecisionConstants.js';
+import { parseBatchCliArgs, defaultProposedPathForTemplate } from './lib/batchCli.mjs';
+import { SCHOLAR_DECISIONS } from './lib/scholarDecisionConstants.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const templatePath =
-  process.argv[2] || join(root, 'examples/evidence_patch.batch_01.review_template.json');
-const proposedPath = join(root, 'examples/evidence_patch.batch_01.proposed.json');
-const seed = JSON.parse(readFileSync(join(root, 'src/data/seed_content.json'), 'utf8'));
-const surahs = JSON.parse(readFileSync(join(root, 'src/data/surahs.json'), 'utf8')).surahs;
+const { root, input: templatePath, proposed: proposedPathArg } = parseBatchCliArgs(process.argv, {
+  input: 'examples/evidence_patch.batch_01.review_template.json',
+});
+
 const template = JSON.parse(readFileSync(templatePath, 'utf8'));
+const proposedPath =
+  proposedPathArg ||
+  (template.meta?.source_proposed_patch
+    ? `${root}/${String(template.meta.source_proposed_patch).replace(/^\//, '')}`
+    : defaultProposedPathForTemplate(templatePath));
+
+if (!existsSync(proposedPath)) {
+  console.log('FAIL validate_scholar_review_template — proposed patch not found:', proposedPath);
+  process.exit(1);
+}
+
+const seed = JSON.parse(readFileSync(`${root}/src/data/seed_content.json`, 'utf8'));
+const surahs = JSON.parse(readFileSync(`${root}/src/data/surahs.json`, 'utf8')).surahs;
 const proposed = JSON.parse(readFileSync(proposedPath, 'utf8'));
 
 const { CONFIDENCE_LEVELS, PROPOSED_REVIEW_STATUSES } = await import(
-  pathToFileURL(join(root, 'src/features/admin/evidenceValidation.js')).href
+  pathToFileURL(`${root}/src/features/admin/evidenceValidation.js`).href
 );
-
-const SCHOLAR_DECISIONS = [
-  '',
-  'approve_after_source_check',
-  'revise_ayah_range',
-  'split_event',
-  'rename_event',
-  'reject_mapping',
-  'needs_source',
-];
-
-const QURAN_TEXT_KEYS = [
-  'text_uthmani',
-  'text_ar',
-  'quran_text',
-  'ayah_text',
-  'text',
-  'uthmani',
-];
 
 const eventIds = new Set((seed.story_events || []).map((e) => e.id));
 const sourceIds = new Set((seed.tafsir_sources || []).map((s) => s.id));
 const surahMaxAyah = new Map(surahs.map((s) => [s.id, s.ayah_count]));
 const proposedEventIds = new Set((proposed.mappings || []).map((m) => m.event_id));
+const expectedCount = proposed.mappings?.length || 0;
 
 const errors = [];
 const mappings = template.mappings || [];
@@ -46,23 +41,8 @@ if (template.meta?.status !== 'review_template') {
   errors.push('meta.status يجب أن يكون review_template');
 }
 
-if (!Array.isArray(mappings) || mappings.length !== 10) {
-  errors.push('يجب أن يحتوي القالب على 10 mappings');
-}
-
-function containsQuranTextPayload(obj, path = '') {
-  if (!obj || typeof obj !== 'object') return [];
-  const hits = [];
-  for (const [key, value] of Object.entries(obj)) {
-    const nextPath = path ? `${path}.${key}` : key;
-    if (QURAN_TEXT_KEYS.includes(key)) {
-      hits.push(nextPath);
-    }
-    if (value && typeof value === 'object') {
-      hits.push(...containsQuranTextPayload(value, nextPath));
-    }
-  }
-  return hits;
+if (!Array.isArray(mappings) || mappings.length !== expectedCount) {
+  errors.push(`يجب أن يحتوي القالب على ${expectedCount} mappings (found ${mappings.length})`);
 }
 
 const quranTextHits = containsQuranTextPayload(template);
@@ -85,7 +65,7 @@ mappings.forEach((entry, i) => {
   }
 
   if (!proposedEventIds.has(entry.event_id)) {
-    errors.push(`${prefix}: event_id غير موجود في proposed patch Batch 1`);
+    errors.push(`${prefix}: event_id غير موجود في proposed patch (${proposedPath.replace(`${root}/`, '')})`);
   }
 
   if (seen.has(entry.event_id)) {
@@ -160,7 +140,7 @@ for (const id of proposedEventIds) {
 const batchEvents = (seed.story_events || []).filter((e) => proposedEventIds.has(e.id));
 const wronglyApproved = batchEvents.filter((e) => e.review_status === 'approved');
 if (wronglyApproved.length) {
-  errors.push(`seed contains approved Batch 1 events: ${wronglyApproved.map((e) => e.id).join(', ')}`);
+  errors.push(`seed contains approved batch events: ${wronglyApproved.map((e) => e.id).join(', ')}`);
 }
 
 if (errors.length) {
@@ -170,6 +150,7 @@ if (errors.length) {
 }
 
 console.log('NOTE review template — scholar fields blank; not production content');
-console.log('PASS validate_scholar_review_template', templatePath);
+console.log('PASS validate_scholar_review_template', templatePath.replace(`${root}/`, ''));
+console.log('proposed:', proposedPath.replace(`${root}/`, ''));
 console.log('mappings:', mappings.length);
 process.exit(0);

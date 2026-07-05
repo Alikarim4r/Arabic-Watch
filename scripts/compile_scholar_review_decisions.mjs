@@ -1,23 +1,22 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { pathToFileURL } from 'url';
 import {
   SCHOLAR_DECISIONS,
   canProposeApproved,
 } from './lib/scholarDecisionConstants.js';
+import { parseBatchCliArgs, defaultProposedPathForTemplate } from './lib/batchCli.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const inputPath =
-  process.argv[2] || join(root, 'examples/evidence_patch.batch_01.review_template.json');
-const outputPath =
-  process.argv[3] || join(root, 'examples/evidence_patch.batch_01.revised.proposed.json');
+const { root, input: inputPath, output: outputPath } = parseBatchCliArgs(process.argv, {
+  input: 'examples/evidence_patch.batch_01.review_template.json',
+  output: 'examples/evidence_patch.batch_01.revised.proposed.json',
+});
 
 const { validatePatchEntry, CONFIDENCE_LEVELS } = await import(
-  pathToFileURL(join(root, 'src/features/admin/evidenceValidation.js')).href
+  pathToFileURL(`${root}/src/features/admin/evidenceValidation.js`).href
 );
 
-const seed = JSON.parse(readFileSync(join(root, 'src/data/seed_content.json'), 'utf8'));
-const surahs = JSON.parse(readFileSync(join(root, 'src/data/surahs.json'), 'utf8')).surahs;
+const seed = JSON.parse(readFileSync(`${root}/src/data/seed_content.json`, 'utf8'));
+const surahs = JSON.parse(readFileSync(`${root}/src/data/surahs.json`, 'utf8')).surahs;
 const template = JSON.parse(readFileSync(inputPath, 'utf8'));
 
 const eventIds = new Set((seed.story_events || []).map((e) => e.id));
