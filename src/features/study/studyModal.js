@@ -1,5 +1,6 @@
 import { getRepository, isFinalContent, getStoryBundle, getEvidenceWarningAr } from '../../lib/dataService.js';
 import { escapeHtml, formatAyahRef, getNodesForSurah, nodeTypeLabel } from '../../lib/utils.js';
+import { renderAyahRangeHtml } from '../../lib/ayahDisplay.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
 
@@ -33,7 +34,7 @@ export async function openStudyModal(target) {
       const event = await repo.getEventById(target.id);
       const ayahs = (await repo.getEventAyahs()).filter((a) => a.event_id === target.id);
       const sources = await repo.getTafsirSources();
-      body.innerHTML = renderEventStudy(event, ayahs, sources);
+      body.innerHTML = await renderEventStudy(event, ayahs, sources, repo);
     } else if (target.type === 'surah') {
       const surahs = await repo.getSurahs();
       const surah = surahs.find((s) => String(s.id) === String(target.id));
@@ -109,25 +110,28 @@ async function renderRichNodeStudy(node, bundle, repo) {
     })
     .join('');
 
-  const ayahBlocks = events
-    .flatMap((ev) => {
-      const refs = eventAyahs.filter((a) => a.event_id === ev.id);
-      const evWarn = getEvidenceWarningAr(ev);
-      if (!refs.length) {
-        return [
-          `<div class="ayah draft-banner"><p>${escapeHtml(evWarn || 'لا يوجد ربط آيات دقيق لهذا الحدث.')}</p></div>`,
-        ];
-      }
-      return refs.map(
-        (a) => `
-      <div class="ayah">
+  const ayahBlockParts = [];
+  for (const ev of events) {
+    const refs = eventAyahs.filter((a) => a.event_id === ev.id);
+    const evWarn = getEvidenceWarningAr(ev);
+    if (!refs.length) {
+      ayahBlockParts.push(
+        `<div class="ayah draft-banner"><p>${escapeHtml(evWarn || 'لا يوجد ربط آيات دقيق لهذا الحدث.')}</p></div>`
+      );
+      continue;
+    }
+    for (const a of refs) {
+      const quranHtml = await renderAyahRangeHtml(repo, a.surah_id, a.ayah_from, a.ayah_to);
+      ayahBlockParts.push(`
+      <div class="ayah-evidence-block">
         <small>${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)} — ${escapeHtml(a.relation_type)}</small>
+        ${quranHtml}
         <p>${escapeHtml(a.evidence_note_ar || a.note_ar || ev.summary_ar || '')}</p>
         ${evWarn ? `<p class="muted">${escapeHtml(evWarn)}</p>` : ''}
-      </div>`
-      );
-    })
-    .join('');
+      </div>`);
+    }
+  }
+  const ayahBlocks = ayahBlockParts.join('');
 
   const draftLessons = (node.lessons_ar || [])
     .map((l) => `<li>${escapeHtml(l)} <span class="tag rose">مسودة</span></li>`)
@@ -209,11 +213,16 @@ function networkConclusion(id) {
   return map[id] || 'هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.';
 }
 
-function renderEventStudy(event, ayahs, sources) {
+async function renderEventStudy(event, ayahs, sources, repo) {
   if (!event) return `<div class="modal-body"><p>لا توجد مادة.</p>${closeBtn()}</div>`;
   const finalNote = !isFinalContent(event)
     ? `<div class="draft-banner">${escapeHtml(getEvidenceWarningAr(event) || `محتوى غير نهائي — ${event.review_status === 'needs_source' ? 'يحتاج مصدر' : 'قيد المراجعة'}.`)}</div>`
     : '';
+
+  const ayahSections = [];
+  for (const a of ayahs) {
+    ayahSections.push(await renderAyahRangeHtml(repo, a.surah_id, a.ayah_from, a.ayah_to));
+  }
 
   const sourceRows = (event.sources || []).map((s) => {
     const src = sources.find((x) => x.id === s.source_id);
@@ -230,7 +239,7 @@ function renderEventStudy(event, ayahs, sources) {
       ${reviewBadgeHtml(event.review_status)}
       <p style="margin-top:12px">${escapeHtml(event.summary_ar)}</p>
       <h3 class="gold" style="margin-top:18px">الآيات</h3>
-      <ul class="source-list">${ayahs.map((a) => `<li>${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)} (${escapeHtml(a.relation_type)})</li>`).join('') || '<li class="muted">—</li>'}</ul>
+      ${ayahSections.join('') || '<p class="muted">—</p>'}
       <h3 class="gold">دروس تعليمية</h3>
       <ul class="lesson-list">${(event.lessons_ar || []).map((l) => `<li>${escapeHtml(l)}</li>`).join('') || '<li class="muted">—</li>'}</ul>
       <h3 class="gold">المصادر</h3>

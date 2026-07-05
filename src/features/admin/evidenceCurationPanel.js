@@ -1,6 +1,7 @@
 import { escapeHtml } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
+import { quranTextStatusBadgeHtml } from '../../lib/ayahDisplay.js';
 import {
   buildExportPatch,
   EVIDENCE_GUIDANCE_AR,
@@ -18,8 +19,8 @@ import {
  * @param {HTMLElement} root
  * @param {Object} ctx
  */
-export function renderEvidenceCurationPanel(root, ctx) {
-  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast } = ctx;
+export async function renderEvidenceCurationPanel(root, ctx) {
+  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo } = ctx;
   const stats = summarizeEvidenceStats(events, eventAyahs);
   const queue = buildMappingQueue(events, nodes, themes, eventAyahs);
   const selectedId = ctx.curationSelectedId || queue[0]?.id || null;
@@ -30,6 +31,18 @@ export function renderEvidenceCurationPanel(root, ctx) {
   const sourceIds = new Set(tafsirSources.map((s) => s.id));
   const surahMaxAyah = new Map(surahs.map((s) => [s.id, s.ayah_count]));
   const validationCtx = { eventIds, sourceIds, surahMaxAyah };
+
+  let selectedTextStatus = 'missing';
+  if (selected && repo?.getAyahRangeTextStatus) {
+    const surahId = Number(draft.surah_id || selected.ayahs?.[0]?.surah_id);
+    const ayahFrom = Number(draft.ayah_from || selected.ayahs?.[0]?.ayah_from);
+    const ayahTo = Number(draft.ayah_to || selected.ayahs?.[0]?.ayah_to);
+    if (surahId && ayahFrom && ayahTo) {
+      selectedTextStatus = await repo.getAyahRangeTextStatus(surahId, ayahFrom, ayahTo);
+    }
+  }
+
+  const quranImported = repo?.isQuranTextImported ? await repo.isQuranTextImported() : false;
 
   root.innerHTML = `
     <div class="admin-curation">
@@ -47,6 +60,9 @@ export function renderEvidenceCurationPanel(root, ctx) {
           <div class="stat ok"><strong>${stats.safeForPublicFinal}</strong><span>آمن للعرض النهائي</span></div>
           <div class="stat rose"><strong>${stats.blockedFromFinal}</strong><span>محجوب عن النهائي</span></div>
         </div>
+        <p class="muted" style="margin-top:10px">
+          حالة النص القرآني: ${quranImported ? '<span class="tag green">النص متوفر (6236)</span>' : '<span class="tag rose">النص غير مستورد</span>'}
+        </p>
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
       </div>
 
@@ -66,7 +82,7 @@ export function renderEvidenceCurationPanel(root, ctx) {
         </div>
 
         <div class="glass pad admin-detail" id="curation-form-wrap">
-          ${selected ? curationFormHtml(selected, draft, tafsirSources) : '<p class="muted">اختر حدثًا من القائمة.</p>'}
+          ${selected ? curationFormHtml(selected, draft, tafsirSources, selectedTextStatus) : '<p class="muted">اختر حدثًا من القائمة.</p>'}
         </div>
       </div>
 
@@ -154,20 +170,21 @@ function curationQueueItem(item, selected) {
       <strong>${escapeHtml(item.title_ar)}</strong>
       <span class="tag">${escapeHtml(item.node_name_ar)}</span>
       ${reviewBadgeHtml(item.review_status)}
-      ${noAyah ? '<span class="tag rose">⚠ لا نطاق آيات</span>' : ''}
+      ${noAyah ? '<span class="tag rose">⚠ لا نطاق آيات</span>' : '<span class="tag rose quran-text-badge">النص غير مستورد</span>'}
     </button>`;
 }
 
-function curationFormHtml(item, draft, tafsirSources) {
+function curationFormHtml(item, draft, tafsirSources, textStatus) {
   const themeTags = (item.theme_names || []).map((t) => `<span class="tag green">${escapeHtml(t)}</span>`).join('');
   const ayahWarn = !item.ayahs?.length
     ? '<div class="admin-warning">⚠️ لا يوجد نطاق آيات — هذا الحدث محجوب عن العرض النهائي.</div>'
     : '';
+  const textBadge = quranTextStatusBadgeHtml(textStatus);
 
   return `
     <h3 class="gold">${escapeHtml(item.title_ar)}</h3>
     <p class="muted">${escapeHtml(item.id)} · ${escapeHtml(item.node_name_ar)}</p>
-    <p>${reviewBadgeHtml(item.review_status)} <span class="tag">${escapeHtml(item.evidence_status)}</span> <span class="tag">${escapeHtml(item.evidence_confidence)}</span></p>
+    <p>${reviewBadgeHtml(item.review_status)} <span class="tag">${escapeHtml(item.evidence_status)}</span> <span class="tag">${escapeHtml(item.evidence_confidence)}</span> ${textBadge}</p>
     ${ayahWarn}
     <p style="margin-top:10px">${escapeHtml(item.summary_ar || '—')}</p>
     <div style="margin-top:8px">${themeTags || '<span class="muted">—</span>'}</div>

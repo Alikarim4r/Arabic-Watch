@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -83,10 +83,13 @@ const env = getEnvConfig();
 if (env.dataMode !== 'local') fail('env default data mode', env.dataMode);
 else pass('env defaults to local data mode');
 
-// Mock fetch for repository factory tests in Node
+// Mock fetch for repository factory tests in Node (404 when optional files missing)
 globalThis.fetch = async (url) => {
   const rel = String(url).replace(/^\.\//, '');
   const file = join(root, 'src', rel);
+  if (!existsSync(file)) {
+    return { ok: false, status: 404, async json() { throw new Error(`missing ${rel}`); } };
+  }
   return {
     ok: true,
     async json() {
@@ -125,5 +128,39 @@ if (!queue.length || stats.total !== queue.length) fail('admin review queue buil
 else pass('admin review queue builds records');
 if (stats.pending + stats.needs_source < 1) fail('admin pending records exist', '');
 else pass('admin queue includes pending/needs_source records');
+
+const { validateQuranText } = await import(
+  pathToFileURL(join(root, 'scripts/lib/quranTextValidation.mjs')).href
+);
+const sampleQuran = JSON.parse(
+  readFileSync(join(root, 'src/data/quran/quran_text.sample.json'), 'utf8')
+);
+const sampleValidation = validateQuranText(sampleQuran, {
+  fileLabel: 'quran_text.sample.json',
+});
+if (!sampleValidation.valid) fail('validate_quran_text sample', sampleValidation.errors.join('; '));
+else pass('validate_quran_text passes on sample file');
+
+try {
+  const localRepo = await createRepository({ dataMode: 'local' });
+  const ayah = await localRepo.getAyah(12, 4);
+  if (ayah.available) fail('getAyah without import should not be available', '');
+  else if (!ayah.placeholder_ar?.includes('غير مستورد')) fail('getAyah placeholder text', ayah.placeholder_ar);
+  else pass('getAyah returns safe placeholder without Quran import');
+
+  const range = await localRepo.getAyahRange(12, 4, 6);
+  if (range.some((r) => r.available)) fail('getAyahRange without import', 'unexpected available');
+  else pass('getAyahRange safe without Quran import');
+
+  const imported = await localRepo.isQuranTextImported();
+  if (imported) fail('isQuranTextImported without index', 'should be false');
+  else pass('isQuranTextImported false without full import');
+
+  const finalWithoutQuran = events.filter((e) => isFinalContent(e));
+  if (finalWithoutQuran.length < 1) fail('public final gate without quran text', 'no final events');
+  else pass('public final gate works without full Quran text');
+} catch (err) {
+  fail('quran repository methods', err.message);
+}
 
 process.exit(failed ? 1 : 0);

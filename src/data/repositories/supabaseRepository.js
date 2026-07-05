@@ -1,7 +1,8 @@
 /** @typedef {import('../../lib/repository.js').Repository} Repository */
 
 import { getEnvConfig } from '../../config/env.js';
-import { loadLocalRepository } from './localRepository.js';
+import { attachQuranTextMethods } from '../../lib/quranText.js';
+import { loadLocalRepository, loadQuranTextIndex } from './localRepository.js';
 
 /**
  * Map Supabase row shapes to the JSON seed shape used by the UI.
@@ -66,8 +67,14 @@ export async function createSupabaseRepository(options = {}) {
   }
 
   let cachedData = null;
+  let quranIndex = null;
 
-  return {
+  async function ensureQuranIndex() {
+    if (quranIndex === null) quranIndex = await loadQuranTextIndex();
+    return quranIndex;
+  }
+
+  const repo = {
     async loadAll() {
       if (!cachedData) cachedData = await loadRemoteOrLocal();
       return cachedData;
@@ -139,4 +146,7 @@ export async function createSupabaseRepository(options = {}) {
       };
     },
   };
+
+  await ensureQuranIndex();
+  return attachQuranTextMethods(repo, quranIndex);
 }

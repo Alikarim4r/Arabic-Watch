@@ -48,6 +48,12 @@
  * @property {() => Promise<Object[]>} getEras
  * @property {() => Promise<'local'|'supabase'>} [getProvider]
  * @property {(payload: { contentType: string, contentId: string, action: string, note?: string, reviewerName?: string }) => Promise<Object>} [submitReviewAction]
+ * @property {() => Promise<boolean>} [isQuranTextImported]
+ * @property {() => Promise<Object|null>} [getQuranTextMeta]
+ * @property {(surahId: number, ayahNumber: number) => Promise<Object>} [getAyah]
+ * @property {(surahId: number, ayahFrom: number, ayahTo: number) => Promise<Object[]>} [getAyahRange]
+ * @property {(surahId: number) => Promise<Object[]>} [getSurahAyahs]
+ * @property {(surahId: number, ayahFrom: number, ayahTo: number) => Promise<'available'|'partial'|'missing'>} [getAyahRangeTextStatus]
  */
 
 export {};

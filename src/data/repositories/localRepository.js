@@ -1,13 +1,16 @@
 /** @typedef {import('../../lib/repository.js').Repository} Repository */
 
+import { attachQuranTextMethods } from '../../lib/quranText.js';
+
 let cachedData = null;
 
 /**
  * @param {Object} data
+ * @param {Object|null} [quranIndex]
  * @returns {Repository}
  */
-export function createLocalJsonRepository(data) {
-  return {
+export function createLocalJsonRepository(data, quranIndex = null) {
+  const repo = {
     async loadAll() {
       if (!cachedData) cachedData = data;
       return cachedData;
@@ -74,6 +77,21 @@ export function createLocalJsonRepository(data) {
       };
     },
   };
+
+  return attachQuranTextMethods(repo, quranIndex);
+}
+
+/**
+ * @returns {Promise<Object|null>}
+ */
+export async function loadQuranTextIndex() {
+  try {
+    const res = await fetch('./data/quran/quran_text.index.json');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -81,9 +99,10 @@ export function createLocalJsonRepository(data) {
  * @returns {Promise<Repository>}
  */
 export async function loadLocalRepository() {
-  const [seedRes, surahsRes] = await Promise.all([
+  const [seedRes, surahsRes, quranIndex] = await Promise.all([
     fetch('./data/seed_content.json'),
     fetch('./data/surahs.json'),
+    loadQuranTextIndex(),
   ]);
 
   if (!seedRes.ok) throw new Error('Failed to load seed_content.json');
@@ -97,5 +116,5 @@ export async function loadLocalRepository() {
     surahs: surahsFile.surahs || seed.surahs || [],
   };
 
-  return createLocalJsonRepository(merged);
+  return createLocalJsonRepository(merged, quranIndex);
 }

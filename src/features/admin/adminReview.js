@@ -81,6 +81,7 @@ function renderAdminPanel(root) {
 
   if (state.activeTab === 'curation') {
     renderEvidenceCurationPanel(root, {
+      repo: state.repo,
       events: state.events,
       nodes: state.nodes,
       themes: state.themes,

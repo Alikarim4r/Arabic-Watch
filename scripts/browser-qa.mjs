@@ -109,6 +109,29 @@ for (const { name, context } of contexts) {
   if (!disclaimer.includes('هذا ملخص تعليمي')) {
     errors.push(`[${name}] admin review missing Arabic disclaimer`);
   }
+  const quranBadge = await page.locator('.admin-evidence-stats .tag.rose').first().innerText();
+  if (!quranBadge.includes('النص غير مستورد')) {
+    errors.push(`[${name}] admin curation missing النص غير مستورد badge`);
+  }
+
+  // Story Mode Quran text fallback (no full import in repo)
+  await page.goto('http://127.0.0.1:3456/#story', { waitUntil: 'networkidle' });
+  await page.waitForSelector('#storySelect', { timeout: 10000 });
+  await page.selectOption('#storySelect', 'yusuf');
+  await page.waitForTimeout(500);
+  const storyAyahFallback = await page.locator('#story-root .quran-missing-note').first().innerText();
+  if (!storyAyahFallback.includes('غير مستورد')) {
+    errors.push(`[${name}] story mode missing Quran text fallback`);
+  }
+
+  // Study modal Quran text fallback
+  await page.click('#story-open-study');
+  await page.waitForSelector('.modal.show');
+  const studyFallback = await page.locator('.modal-body .quran-missing-note').first().innerText();
+  if (!studyFallback.includes('غير مستورد')) {
+    errors.push(`[${name}] study modal missing Quran text fallback`);
+  }
+  await closeModal();
 
   // Story Mode evidence warnings
   await page.goto('http://127.0.0.1:3456/#story', { waitUntil: 'networkidle' });

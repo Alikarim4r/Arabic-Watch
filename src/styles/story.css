@@ -134,3 +134,32 @@
     animation: none;
   }
 }
+
+.quran-uthmani {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: 1.35rem;
+  line-height: 2;
+  margin: 10px 0 0;
+  color: var(--text, #f5f0e8);
+}
+
+.quran-missing-note {
+  font-size: 0.92rem;
+  color: var(--muted, rgba(255, 255, 255, 0.65));
+  margin: 8px 0 0;
+}
+
+.ayah-inline,
+.quran-text-block,
+.quran-fallback {
+  text-align: right;
+  width: 100%;
+}
+
+.ayah-card-inline .ayah-inline {
+  margin-top: 10px;
+}
+
+.ayah-evidence-block {
+  margin-bottom: 14px;
+}

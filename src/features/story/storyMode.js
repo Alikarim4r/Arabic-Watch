@@ -1,5 +1,6 @@
 import { getStoryBundle, isFinalContent, getEvidenceWarningAr } from '../../lib/dataService.js';
-import { escapeHtml, formatAyahRef, getReviewBadge, isMainStoryNode } from '../../lib/utils.js';
+import { escapeHtml, getReviewBadge, isMainStoryNode } from '../../lib/utils.js';
+import { renderAyahInlineHtml } from '../../lib/ayahDisplay.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { openStudyModal } from '../study/studyModal.js';
@@ -59,6 +60,9 @@ export async function renderStoryMode(container, onReady) {
       .filter(Boolean);
 
     const evidenceWarning = getEvidenceWarningAr(current);
+    const ayahBlocks = ayahs.length
+      ? (await Promise.all(ayahs.map((a) => renderAyahInlineHtml(repo, a)))).join('')
+      : '<span class="tag rose">لا يوجد دليل آيات دقيق</span>';
     const draftBanner =
       !isFinalContent(current) || evidenceWarning
         ? `<div class="draft-banner">${escapeHtml(evidenceWarning || `محتوى ${getReviewBadge(current.review_status).label} — ليس تفسيرًا نهائيًا.`)}</div>`
@@ -88,7 +92,7 @@ export async function renderStoryMode(container, onReady) {
           <p>${escapeHtml(current.summary_ar)}</p>
           <div>${themeChips.map((t) => `<span class="tag green">${escapeHtml(t.name_ar)}</span>`).join('')}</div>
           <div class="ayah-card-inline">
-            ${ayahs.length ? ayahs.map((a) => `<span class="tag blue">${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)}</span>`).join('') : '<span class="tag rose">لا يوجد دليل آيات دقيق</span>'}
+            ${ayahBlocks}
             ${reviewBadgeHtml(current.review_status)}
           </div>
           <br />
