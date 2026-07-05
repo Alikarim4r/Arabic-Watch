@@ -1,0 +1,272 @@
+/* Mushaf Reader — full Quran reading interface */
+
+.mushaf-section {
+  scroll-margin-top: 72px;
+}
+
+.mushaf-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.mushaf-toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+.mushaf-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.mushaf-toolbar-actions {
+  justify-content: center;
+}
+
+.mushaf-field {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--muted, #9ca3af);
+}
+
+.mushaf-field-sm {
+  min-width: 72px;
+}
+
+.mushaf-field input,
+.mushaf-field select,
+.mushaf-select,
+.mushaf-search {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #f3f4f6;
+  padding: 8px 10px;
+  font-family: var(--fontB, 'Cairo', sans-serif);
+}
+
+.mushaf-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.mushaf-status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.mushaf-progress {
+  color: var(--gold2, #f3d77c);
+}
+
+.mushaf-last-read-btn {
+  font-size: 13px;
+}
+
+.mushaf-settings-panel {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
+}
+
+.mushaf-settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.mushaf-settings-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mushaf-check {
+  cursor: pointer;
+}
+
+.mushaf-reading-wrap {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 16px;
+}
+
+.mushaf-reading-area {
+  --mushaf-font-size: 24px;
+  --mushaf-line-height: 1.9;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px 20px;
+  min-height: 420px;
+}
+
+.mushaf-night .mushaf-reading-area {
+  background: #0a0a0f;
+  border-color: rgba(243, 215, 124, 0.12);
+}
+
+.mushaf-surah-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.mushaf-surah-title {
+  font-family: var(--fontA, 'Amiri', serif);
+  font-size: 36px;
+  color: var(--gold2, #f3d77c);
+  margin: 0 0 8px;
+}
+
+.mushaf-surah-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.mushaf-bismillah {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mushaf-bismillah-text {
+  font-family: var(--fontA, 'Amiri', serif);
+  font-size: calc(var(--mushaf-font-size) + 4px);
+  color: var(--gold2, #f3d77c);
+  line-height: var(--mushaf-line-height);
+}
+
+.mushaf-import-note {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.mushaf-ayah-block {
+  display: grid;
+  gap: 14px;
+}
+
+.mushaf-ayah-page .mushaf-ayah {
+  padding: 12px 8px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.mushaf-ayah-list .mushaf-ayah {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mushaf-ayah {
+  position: relative;
+}
+
+.mushaf-ayah-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(197, 160, 89, 0.2);
+  color: var(--gold2, #f3d77c);
+  font-size: 13px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.mushaf-hide-ayah-numbers .mushaf-ayah-badge {
+  display: none;
+}
+
+.mushaf-hide-references .mushaf-ayah-ref,
+.mushaf-hide-references .mushaf-ayah-ref-only {
+  display: none;
+}
+
+.mushaf-ayah-text {
+  font-family: var(--fontA, 'Amiri', serif);
+  font-size: var(--mushaf-font-size);
+  line-height: var(--mushaf-line-height);
+  margin: 8px 0 0;
+  text-align: justify;
+}
+
+.mushaf-ayah-ref-only {
+  font-family: var(--fontA, 'Amiri', serif);
+  font-size: calc(var(--mushaf-font-size) - 2px);
+  color: var(--gold2, #f3d77c);
+  margin: 6px 0 4px;
+}
+
+.mushaf-side-panel {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.mushaf-side-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.mushaf-bookmark-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.mushaf-bookmark-item {
+  width: 100%;
+  text-align: right;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #e5e7eb;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-family: var(--fontB, 'Cairo', sans-serif);
+  font-size: 13px;
+}
+
+.mushaf-bookmark-item:hover {
+  border-color: rgba(197, 160, 89, 0.35);
+}
+
+.mushaf-disclaimer {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.mushaf-open-btn {
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+@media (max-width: 980px) {
+  .mushaf-reading-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .mushaf-toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mushaf-field,
+  .mushaf-search {
+    width: 100%;
+  }
+}

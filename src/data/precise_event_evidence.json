@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "description_ar": "خرائط أدلة قرآنية دقيقة لكل حدث — مرجع مسودة من الإصدار 0.2 والنص الأصلي، وليست تفسيرًا معتمدًا تلقائيًا.",
+    "policy": "Only events listed here receive precise_evidence. All others remain needs_precise_mapping."
+  },
+  "mappings": [
+    {
+      "event_id": "muhammad_revelation",
+      "surah_id": 96,
+      "ayah_from": 1,
+      "ayah_to": 5,
+      "relation_type": "main",
+      "evidence_note_ar": "أول الوحي في غار حراء",
+      "evidence_confidence": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "event_id": "musa_birth",
+      "surah_id": 28,
+      "ayah_from": 7,
+      "ayah_to": 13,
+      "relation_type": "main",
+      "evidence_note_ar": "ولادة موسى وإلقاؤه في اليم",
+      "evidence_confidence": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "event_id": "nuh_dawah",
+      "surah_id": 71,
+      "ayah_from": 5,
+      "ayah_to": 20,
+      "relation_type": "main",
+      "evidence_note_ar": "آيات دعوة نوح عليه السلام",
+      "evidence_confidence": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "event_id": "nuh_ark",
+      "surah_id": 11,
+      "ayah_from": 36,
+      "ayah_to": 44,
+      "relation_type": "main",
+      "evidence_note_ar": "صنع السفينة والطوفان",
+      "evidence_confidence": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "event_id": "yusuf_dream",
+      "surah_id": 12,
+      "ayah_from": 4,
+      "ayah_to": 6,
+      "relation_type": "main",
+      "evidence_note_ar": "رؤيا يوسف للشمس والقمر",
+      "evidence_confidence": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "event_id": "yusuf_well",
+      "surah_id": 12,
+      "ayah_from": 7,
+      "ayah_to": 18,
+      "relation_type": "main",
+      "evidence_note_ar": "الإلقاء في الجب والبيع",
+      "evidence_confidence": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "event_id": "yusuf_prison",
+      "surah_id": 12,
+      "ayah_from": 23,
+      "ayah_to": 57,
+      "relation_type": "main",
+      "evidence_note_ar": "الفتنة والسجن",
+      "evidence_confidence": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "cited"
+    },
+    {
+      "event_id": "ibrahim_idols",
+      "surah_id": 6,
+      "ayah_from": 74,
+      "ayah_to": 79,
+      "relation_type": "main",
+      "evidence_note_ar": "النظر في الكواكب والحجة العقلية — مسودة تحتاج مراجعة",
+      "evidence_confidence": "needs_review",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "event_id": "ibrahim_kaaba",
+      "surah_id": 21,
+      "ayah_from": 51,
+      "ayah_to": 70,
+      "relation_type": "main",
+      "evidence_note_ar": "تحطيم الأصنام — مسودة تحتاج مراجعة ومصدر",
+      "evidence_confidence": "needs_review",
+      "review_status": "needs_source",
+      "source_status": "needs_source"
+    },
+    {
+      "event_id": "isa_birth",
+      "surah_id": 19,
+      "ayah_from": 16,
+      "ayah_to": 21,
+      "relation_type": "main",
+      "evidence_note_ar": "ولادة عيسى — مسودة تحتاج مراجعة",
+      "evidence_confidence": "needs_review",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "event_id": "maryam_withdraw",
+      "surah_id": 3,
+      "ayah_from": 37,
+      "ayah_to": 37,
+      "relation_type": "main",
+      "evidence_note_ar": "اعتزال مريم — مسودة تحتاج مراجعة",
+      "evidence_confidence": "needs_review",
+      "review_status": "pending",
+      "source_status": "pending"
+    }
+  ]
+}
