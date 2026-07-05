@@ -806,6 +806,28 @@ if (!runNodeScript(['scripts/test_mushaf_reader.mjs'], true)) {
   fail('test_mushaf_reader', '');
 } else pass('test_mushaf_reader logic tests');
 
+if (!runNodeScript(['scripts/test_quran_text_import.mjs'], true)) {
+  fail('test_quran_text_import', '');
+} else pass('test_quran_text_import pipeline tests');
+
+if (!runNodeScript(['scripts/verify_quran_text_import.mjs'], true)) {
+  fail('verify_quran_text_import', '');
+} else pass('verify_quran_text_import (placeholder or full import)');
+
+const missingSourceReportPath = join(root, 'docs/quran_text_missing_source_report.md');
+const importResultPath = join(root, 'docs/quran_text_import_result.md');
+const indexPath = join(root, 'src/data/quran/quran_text.index.json');
+const indexPayload = existsSync(indexPath) ? JSON.parse(readFileSync(indexPath, 'utf8')) : null;
+const quranFullImported = Boolean(indexPayload?.is_full_quran && indexPayload?.ayah_count === 6236);
+
+if (quranFullImported) {
+  if (!existsSync(importResultPath)) fail('quran_text_import_result.md missing after import', importResultPath);
+  else pass('quran_text_import_result.md exists');
+} else {
+  if (!existsSync(missingSourceReportPath)) fail('quran_text_missing_source_report.md missing', missingSourceReportPath);
+  else pass('quran_text_missing_source_report.md exists');
+}
+
 const mushafDesignPath = join(root, 'docs/mushaf_reader_design.md');
 if (!existsSync(mushafDesignPath)) fail('mushaf_reader_design.md missing', mushafDesignPath);
 else pass('mushaf_reader_design.md exists');

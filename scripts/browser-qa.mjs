@@ -303,29 +303,54 @@ for (const { name, context } of contexts) {
   // Mushaf Reader section
   await page.goto('http://127.0.0.1:3456/#mushaf', { waitUntil: 'networkidle' });
   await page.waitForSelector('#mushaf', { timeout: 15000 });
+  const quranImported = await page.evaluate(async () => {
+    const res = await fetch('./data/quran/quran_text.index.json');
+    const data = await res.json();
+    return Boolean(data.is_full_quran && data.ayah_count === 6236);
+  });
   const mushafHeading = await page.locator('#mushaf h2').innerText();
   if (!mushafHeading.includes('قارئ المصحف')) {
     errors.push(`[${name}] mushaf section missing heading`);
   }
   const navMushaf = await page.locator('.nav a[href="#mushaf"]').count();
   if (navMushaf < 1) errors.push(`[${name}] nav missing المصحف link`);
-  const missingNote = await page.locator('#mushaf .quran-missing-note').first().innerText();
-  if (!missingNote.includes('غير مستورد')) {
-    errors.push(`[${name}] mushaf missing Quran text placeholder`);
-  }
-  await page.selectOption('#mushaf-surah-select', '2');
-  await page.waitForTimeout(400);
-  const surahHeader = await page.locator('.mushaf-surah-title').innerText();
-  if (!surahHeader.includes('البقرة')) {
-    errors.push(`[${name}] mushaf surah selector failed: ${surahHeader}`);
-  }
-  await page.fill('#mushaf-goto-ayah', '31');
-  await page.fill('#mushaf-goto-surah', '2');
-  await page.click('#mushaf-goto-quick');
-  await page.waitForTimeout(400);
-  const refOnly = await page.locator('.mushaf-ayah-ref-only').first().innerText();
-  if (!refOnly.includes('البقرة') || !refOnly.includes('31')) {
-    errors.push(`[${name}] mushaf missing ayah reference placeholder: ${refOnly}`);
+  const importBadge = await page.locator('#mushaf-import-status').innerText();
+  if (quranImported) {
+    if (!importBadge.includes('النص القرآني مستورد')) {
+      errors.push(`[${name}] mushaf missing imported badge: ${importBadge}`);
+    }
+    await page.fill('#mushaf-goto-surah', '2');
+    await page.fill('#mushaf-goto-ayah', '255');
+    await page.click('#mushaf-goto-quick');
+    await page.waitForTimeout(500);
+    const uthmani = await page.locator('.mushaf-ayah-available .mushaf-ayah-text').first().innerText();
+    if (!uthmani || uthmani.length < 3) {
+      errors.push(`[${name}] mushaf missing text_uthmani after import`);
+    }
+    const missingTop = await page.locator('#mushaf .mushaf-import-note').count();
+    if (missingTop > 0) errors.push(`[${name}] mushaf shows import placeholder after full import`);
+  } else {
+    if (!importBadge.includes('غير مستورد')) {
+      errors.push(`[${name}] mushaf missing not-imported badge: ${importBadge}`);
+    }
+    const missingNote = await page.locator('#mushaf .quran-missing-note').first().innerText();
+    if (!missingNote.includes('غير مستورد')) {
+      errors.push(`[${name}] mushaf missing Quran text placeholder`);
+    }
+    await page.selectOption('#mushaf-surah-select', '2');
+    await page.waitForTimeout(400);
+    const surahHeader = await page.locator('.mushaf-surah-title').innerText();
+    if (!surahHeader.includes('البقرة')) {
+      errors.push(`[${name}] mushaf surah selector failed: ${surahHeader}`);
+    }
+    await page.fill('#mushaf-goto-ayah', '31');
+    await page.fill('#mushaf-goto-surah', '2');
+    await page.click('#mushaf-goto-quick');
+    await page.waitForTimeout(400);
+    const refOnly = await page.locator('.mushaf-ayah-ref-only').first().innerText();
+    if (!refOnly.includes('البقرة') || !refOnly.includes('31')) {
+      errors.push(`[${name}] mushaf missing ayah reference placeholder: ${refOnly}`);
+    }
   }
   await page.locator('#mushaf-font-size').fill('28');
   await page.waitForTimeout(200);
