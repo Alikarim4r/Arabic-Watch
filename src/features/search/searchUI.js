@@ -4,93 +4,100 @@ import { escapeHtml } from '../../lib/utils.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { openStudyModal } from '../study/studyModal.js';
 
+const TYPE_TAG = {
+  prophet: '',
+  person: 'rose',
+  event: 'blue',
+  theme: 'green',
+  place: 'violet',
+  surah: 'violet',
+};
+
+const TYPE_LABEL = {
+  prophet: 'نبي/شخصية',
+  person: 'شخصية',
+  event: 'حدث',
+  theme: 'موضوع',
+  place: 'مكان',
+  surah: 'سورة',
+};
+
 /**
  * @param {HTMLElement} container
- * @param {Object} filters
- * @param {(filters: Object) => void} onFiltersChange
  */
-export async function renderSearchView(container, filters, onFiltersChange) {
+export async function renderSearchView(container) {
   container.innerHTML = `
-    <section class="panel">
-      <h2 class="panel-title">محرك البحث</h2>
-      <div class="search-bar">
-        <input id="search-query" type="search" placeholder="ابحث في الشخصيات، الأحداث، المحاور…" value="${escapeHtml(filters.query || '')}" />
-        <select id="search-mode">
-          <option value="normalized">بحث عربي مطبّع</option>
-          <option value="exact">بحث مطابق</option>
-        </select>
-        <select id="search-type">
-          <option value="">كل الأنواع</option>
-          <option value="prophet">أنبياء</option>
-          <option value="person">شخصيات</option>
-          <option value="event">أحداث</option>
-          <option value="theme">محاور</option>
-          <option value="place">أماكن</option>
-          <option value="surah">سور</option>
-        </select>
-        <select id="search-review">
-          <option value="">كل حالات المراجعة</option>
-          <option value="approved">مراجَع</option>
-          <option value="pending">قيد المراجعة</option>
-          <option value="needs_source">يحتاج مصدر</option>
-        </select>
-        <select id="search-surah">
-          <option value="">كل السور</option>
-        </select>
+    <section id="search">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">البحث والتحليل</span>
+          <h2>اسأل الأطلس</h2>
+          <p>بحث داخلي مع تطبيع عربي — المحتوى غير المراجع يُعرض بشارات واضحة.</p>
+        </div>
+        <div class="glass pad">
+          <div class="search-box">
+            <input id="q" type="search" placeholder="مثال: موسى، الصبر، التمكين، يوسف..." />
+            <select id="type">
+              <option value="">كل الأنواع</option>
+              <option value="prophet">الأنبياء</option>
+              <option value="person">الشخصيات</option>
+              <option value="event">الأحداث</option>
+              <option value="theme">الموضوعات</option>
+              <option value="place">الأماكن</option>
+              <option value="surah">السور</option>
+            </select>
+            <select id="search-review">
+              <option value="">كل حالات المراجعة</option>
+              <option value="approved">مراجَع</option>
+              <option value="pending">قيد المراجعة</option>
+              <option value="needs_source">يحتاج مصدر</option>
+            </select>
+          </div>
+          <div class="results" id="results"></div>
+          <div class="card" style="margin-top:20px">
+            <h3>📚 إرشاد البحث</h3>
+            <p class="muted">لا يُعرض تفسير مختلق. للأسئلة التفسيرية راجع المصحف وكتب التفسير المعتمدة. المحتوى هنا ملخص تعليمي مرتبط بالآيات.</p>
+          </div>
+        </div>
       </div>
-      <div id="search-results" class="search-results"></div>
     </section>
   `;
 
-  const { getRepository } = await import('../../lib/dataService.js');
-  const surahs = await (await getRepository()).getSurahs();
-  const surahSelect = container.querySelector('#search-surah');
-  surahs.forEach((s) => {
-    const opt = document.createElement('option');
-    opt.value = String(s.id);
-    opt.textContent = `${s.id}. ${s.name_ar}`;
-    if (String(filters.surahId) === String(s.id)) opt.selected = true;
-    surahSelect.appendChild(opt);
-  });
-
-  const resultsEl = container.querySelector('#search-results');
-  renderStateBox(resultsEl, 'loading');
-
+  const resultsEl = container.querySelector('#results');
   const runSearch = async () => {
-    const nextFilters = {
-      query: container.querySelector('#search-query').value,
-      mode: container.querySelector('#search-mode').value,
-      type: container.querySelector('#search-type').value,
+    const filters = {
+      query: container.querySelector('#q').value,
+      mode: 'normalized',
+      type: container.querySelector('#type').value,
       reviewStatus: container.querySelector('#search-review').value,
-      surahId: container.querySelector('#search-surah').value,
     };
-    onFiltersChange(nextFilters);
 
     try {
-      const results = await searchContent(nextFilters.query, nextFilters);
+      const results = await searchContent(filters.query, filters);
       if (!results.length) {
-        renderStateBox(resultsEl, 'empty');
+        resultsEl.innerHTML = '<p class="muted">لا توجد نتائج.</p>';
         return;
       }
 
       resultsEl.innerHTML = results
-        .map(
-          (r) => `
-        <article class="search-result" data-id="${escapeHtml(r.id)}" data-type="${escapeHtml(r.hrefType)}" data-node="${escapeHtml(r.node_id || '')}">
+        .slice(0, 36)
+        .map((r) => {
+          const tagClass = TYPE_TAG[r.resultType] || '';
+          return `
+        <div class="card result" data-id="${escapeHtml(r.id)}" data-type="${escapeHtml(r.hrefType)}" data-node="${escapeHtml(r.node_id || '')}">
+          <span class="tag ${tagClass}">${TYPE_LABEL[r.resultType] || escapeHtml(r.resultType)}</span>
+          ${reviewBadgeHtml(r.review_status)}
           <h3>${escapeHtml(r.title_ar)}</h3>
-          <p class="muted">${escapeHtml(r.summary_ar || '')}</p>
-          <div class="meta">
-            <span class="chip">${escapeHtml(r.resultType)}</span>
-            ${reviewBadgeHtml(r.review_status)}
-          </div>
-        </article>`
-        )
+          <div class="sub">${escapeHtml(r.summary_ar?.slice(0, 80) || '')}</div>
+          <p>${escapeHtml((r.summary_ar || '').slice(0, 165))}</p>
+        </div>`;
+        })
         .join('');
 
-      resultsEl.querySelectorAll('.search-result').forEach((el) => {
+      resultsEl.querySelectorAll('.result').forEach((el) => {
         el.addEventListener('click', () => {
           openStudyModal({
-            type: el.dataset.type,
+            type: el.dataset.type === 'event' ? 'event' : el.dataset.type === 'surah' ? 'surah' : 'node',
             id: el.dataset.id,
             nodeId: el.dataset.node,
           });
@@ -101,15 +108,9 @@ export async function renderSearchView(container, filters, onFiltersChange) {
     }
   };
 
-  container.querySelector('#search-query').addEventListener('input', debounce(runSearch, 250));
-  ['#search-mode', '#search-type', '#search-review', '#search-surah'].forEach((sel) => {
-    container.querySelector(sel).addEventListener('change', runSearch);
-  });
-
-  if (filters.mode) container.querySelector('#search-mode').value = filters.mode;
-  if (filters.type) container.querySelector('#search-type').value = filters.type;
-  if (filters.reviewStatus) container.querySelector('#search-review').value = filters.reviewStatus;
-
+  container.querySelector('#q').addEventListener('input', debounce(runSearch, 200));
+  container.querySelector('#type').addEventListener('change', runSearch);
+  container.querySelector('#search-review').addEventListener('change', runSearch);
   await runSearch();
 }
 

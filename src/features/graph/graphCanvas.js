@@ -2,13 +2,22 @@ import { normalizeArabic } from '../../lib/arabicNormalize.js';
 import { prefersReducedMotion } from '../../lib/utils.js';
 
 const TYPE_COLORS = {
-  prophet: '#f3d68a',
-  person: '#c8d4ff',
-  people: '#ffcf75',
-  place: '#7fffd4',
-  theme: '#d9a7ff',
-  event_group: '#ffad82',
-  surah: '#fff0b8',
+  prophet: '#c5a059',
+  person: '#f43f5e',
+  people: '#f43f5e',
+  place: '#a78bfa',
+  theme: '#34d399',
+  event_group: '#38bdf8',
+  surah: '#38bdf8',
+};
+
+const TYPE_RADIUS = {
+  prophet: 14,
+  person: 8,
+  people: 8,
+  place: 8,
+  theme: 8,
+  surah: 8,
 };
 
 /**
@@ -17,55 +26,62 @@ const TYPE_COLORS = {
  */
 export function createGraphCanvas(canvas, options) {
   const ctx = canvas.getContext('2d');
-  let width = 0;
-  let height = 0;
-  let animationId = 0;
-  let paused = options.paused || prefersReducedMotion();
+  let clientW = 0;
+  let clientH = 0;
+  let animId = 0;
+  let moving = !options.paused && !prefersReducedMotion();
   let filters = {};
+  let scale = 1;
+  let ox = 0;
+  let oy = 0;
+  let drag = null;
+  let pan = null;
 
-  const simNodes = options.nodes.map((n, i) => ({
+  const simNodes = options.nodes.map((n) => ({
     ...n,
-    x: 0,
-    y: 0,
+    label: n.name_ar,
+    x: (Math.random() - 0.5) * 900,
+    y: (Math.random() - 0.5) * 620,
     vx: 0,
     vy: 0,
-    radius: n.node_type === 'theme' ? 14 : 18,
     visible: true,
   }));
 
-  const simLinks = options.links.map((l) => ({
-    ...l,
-    source: simNodes.find((n) => n.id === l.source_node_id),
-    target: simNodes.find((n) => n.id === l.target_node_id),
-  }));
-
-  let dragged = null;
-  let pan = { x: 0, y: 0 };
-  let scale = 1;
-  let pinchStart = null;
+  const simLinks = options.links
+    .map((l) => [l.source_node_id, l.target_node_id])
+    .filter(([a, b]) => simNodes.find((n) => n.id === a) && simNodes.find((n) => n.id === b));
 
   function resize() {
     const rect = canvas.parentElement.getBoundingClientRect();
-    width = rect.width;
-    height = Math.max(420, rect.height || 420);
-    canvas.width = width * devicePixelRatio;
-    canvas.height = height * devicePixelRatio;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    clientW = rect.width;
+    clientH = rect.height;
+    canvas.width = clientW * devicePixelRatio;
+    canvas.height = clientH * devicePixelRatio;
+    canvas.style.width = `${clientW}px`;
+    canvas.style.height = `${clientH}px`;
     ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   }
 
-  function resetLayout() {
-    simNodes.forEach((node, i) => {
-      const angle = (i / simNodes.length) * Math.PI * 2;
-      const r = Math.min(width, height) * 0.28;
-      node.x = width / 2 + Math.cos(angle) * r;
-      node.y = height / 2 + Math.sin(angle) * r;
-      node.vx = 0;
-      node.vy = 0;
-    });
-    pan = { x: 0, y: 0 };
-    scale = 1;
+  function screen(n) {
+    return {
+      x: clientW / 2 + (n.x + ox) * scale,
+      y: clientH / 2 + (n.y + oy) * scale,
+    };
+  }
+
+  function world(x, y) {
+    return {
+      x: (x - clientW / 2) / scale - ox,
+      y: (y - clientH / 2) / scale - oy,
+    };
+  }
+
+  function color(type) {
+    return TYPE_COLORS[type] || '#fff';
+  }
+
+  function radius(type) {
+    return TYPE_RADIUS[type] || 8;
   }
 
   function applyFilters(next) {
@@ -92,10 +108,9 @@ export function createGraphCanvas(canvas, options) {
         if (node.id !== filters.placeId && !linked) visible = false;
       }
       if (filters.surahId) {
-        const sid = Number(filters.surahId);
-        visible = node.node_type === 'surah' ? node.name_ar.includes(String(sid)) || node.id.includes(String(sid)) : visible;
-        if (node.node_type === 'prophet' || node.node_type === 'person') {
-          visible = true;
+        const sid = String(filters.surahId);
+        if (node.node_type === 'surah') {
+          visible = node.id.includes(sid) || node.name_ar.includes(sid);
         }
       }
       if (q) {
@@ -106,155 +121,175 @@ export function createGraphCanvas(canvas, options) {
     });
   }
 
-  function tick() {
-    if (!paused) {
-      simNodes.forEach((node) => {
-        if (!node.visible) return;
-        simNodes.forEach((other) => {
-          if (node === other || !other.visible) return;
-          const dx = node.x - other.x;
-          const dy = node.y - other.y;
-          const dist = Math.max(Math.hypot(dx, dy), 1);
-          const force = 900 / (dist * dist);
-          node.vx += (dx / dist) * force;
-          node.vy += (dy / dist) * force;
-        });
+  function step() {
+    if (moving) {
+      simNodes.forEach((n) => {
+        n.vx *= 0.86;
+        n.vy *= 0.86;
       });
 
-      simLinks.forEach((link) => {
-        if (!link.source?.visible || !link.target?.visible) return;
-        const dx = link.target.x - link.source.x;
-        const dy = link.target.y - link.source.y;
-        const dist = Math.max(Math.hypot(dx, dy), 1);
-        const force = (dist - 120) * 0.003;
-        link.source.vx += (dx / dist) * force;
-        link.source.vy += (dy / dist) * force;
-        link.target.vx -= (dx / dist) * force;
-        link.target.vy -= (dy / dist) * force;
+      for (let i = 0; i < simNodes.length; i++) {
+        for (let j = i + 1; j < simNodes.length; j++) {
+          const a = simNodes[i];
+          const b = simNodes[j];
+          if (!a.visible || !b.visible) continue;
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const d = Math.max(35, Math.hypot(dx, dy));
+          const f = 850 / (d * d);
+          a.vx += (dx / d) * f;
+          a.vy += (dy / d) * f;
+          b.vx -= (dx / d) * f;
+          b.vy -= (dy / d) * f;
+        }
+      }
+
+      simLinks.forEach(([aId, bId]) => {
+        const a = simNodes.find((n) => n.id === aId);
+        const b = simNodes.find((n) => n.id === bId);
+        if (!a?.visible || !b?.visible) return;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const d = Math.max(1, Math.hypot(dx, dy));
+        const f = (d - 115) * 0.008;
+        a.vx += (dx / d) * f;
+        a.vy += (dy / d) * f;
+        b.vx -= (dx / d) * f;
+        b.vy -= (dy / d) * f;
       });
 
-      simNodes.forEach((node) => {
-        if (!node.visible || node === dragged) return;
-        node.vx += (width / 2 - node.x) * 0.0008;
-        node.vy += (height / 2 - node.y) * 0.0008;
-        node.vx *= 0.86;
-        node.vy *= 0.86;
-        node.x += node.vx;
-        node.y += node.vy;
-        node.x = Math.max(30, Math.min(width - 30, node.x));
-        node.y = Math.max(30, Math.min(height - 30, node.y));
+      simNodes.forEach((n) => {
+        if (n !== drag && n.visible) {
+          n.x += n.vx;
+          n.y += n.vy;
+        }
       });
     }
 
     draw();
-    animationId = requestAnimationFrame(tick);
+    animId = requestAnimationFrame(step);
   }
 
   function draw() {
-    ctx.clearRect(0, 0, width, height);
-    ctx.save();
-    ctx.translate(pan.x, pan.y);
-    ctx.scale(scale, scale);
+    ctx.clearRect(0, 0, clientW, clientH);
 
-    simLinks.forEach((link) => {
-      if (!link.source?.visible || !link.target?.visible) return;
-      ctx.strokeStyle = 'rgba(243,214,138,0.18)';
-      ctx.lineWidth = 1;
+    simLinks.forEach(([aId, bId]) => {
+      const a = simNodes.find((n) => n.id === aId);
+      const b = simNodes.find((n) => n.id === bId);
+      if (!a?.visible || !b?.visible) return;
+      const A = screen(a);
+      const B = screen(b);
+      ctx.strokeStyle = 'rgba(255,255,255,.09)';
       ctx.beginPath();
-      ctx.moveTo(link.source.x, link.source.y);
-      ctx.lineTo(link.target.x, link.target.y);
+      ctx.moveTo(A.x, A.y);
+      ctx.lineTo(B.x, B.y);
       ctx.stroke();
     });
 
-    simNodes.forEach((node) => {
-      if (!node.visible) return;
-      const color = TYPE_COLORS[node.node_type] || '#f3d68a';
+    simNodes.forEach((n) => {
+      if (!n.visible) return;
+      const p = screen(n);
+      const r = radius(n.node_type);
+      ctx.shadowBlur = n.node_type === 'prophet' ? 18 : 8;
+      ctx.shadowColor = color(n.node_type);
+      ctx.fillStyle = color(n.node_type);
       ctx.beginPath();
-      ctx.fillStyle = color;
-      ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-      ctx.stroke();
-
-      ctx.fillStyle = '#f6efdc';
-      ctx.font = '12px Reem Kufi, Amiri, serif';
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff';
+      ctx.font = `${n.node_type === 'prophet' ? '700 13px' : '11px'} Cairo, sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(node.name_ar.split(' ')[0], node.x, node.y + node.radius + 14);
+      const label = n.label.length > 14 ? n.label.split(' ')[0] : n.label;
+      ctx.fillText(label, p.x, p.y - r - 7);
     });
-
-    ctx.restore();
   }
 
-  function nodeAt(x, y) {
-    const px = (x - pan.x) / scale;
-    const py = (y - pan.y) / scale;
-    return simNodes.find(
-      (node) => node.visible && Math.hypot(node.x - px, node.y - py) <= node.radius + 4
-    );
+  function hit(x, y) {
+    const w = world(x, y);
+    return simNodes.find((n) => {
+      if (!n.visible) return false;
+      const hitR = radius(n.node_type);
+      return Math.hypot(n.x - w.x, n.y - w.y) < hitR / scale + 4;
+    });
   }
 
-  function pointerPos(evt) {
-    const rect = canvas.getBoundingClientRect();
-    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+  function pointer(e) {
+    const r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
   }
 
-  canvas.addEventListener('pointerdown', (evt) => {
-    canvas.setPointerCapture(evt.pointerId);
-    const pos = pointerPos(evt);
-    dragged = nodeAt(pos.x, pos.y) || null;
-    if (!dragged) pinchStart = { ...pos, pan: { ...pan }, scale };
-  });
-
-  canvas.addEventListener('pointermove', (evt) => {
-    const pos = pointerPos(evt);
-    if (dragged) {
-      dragged.x = (pos.x - pan.x) / scale;
-      dragged.y = (pos.y - pan.y) / scale;
-      dragged.vx = 0;
-      dragged.vy = 0;
-    } else if (pinchStart && evt.buttons) {
-      pan.x = pinchStart.pan.x + (pos.x - pinchStart.x);
-      pan.y = pinchStart.pan.y + (pos.y - pinchStart.y);
+  canvas.addEventListener('mousedown', (e) => {
+    const p = pointer(e);
+    const n = hit(p.x, p.y);
+    if (n) {
+      drag = n;
+      options.onNodeClick?.(n);
+    } else {
+      pan = { x: e.clientX, y: e.clientY, ox, oy };
     }
   });
 
-  canvas.addEventListener('pointerup', (evt) => {
-    const pos = pointerPos(evt);
-    if (dragged) {
-      options.onNodeClick?.(dragged);
-    } else if (!pinchStart || Math.hypot(pos.x - pinchStart.x, pos.y - pinchStart.y) < 4) {
-      const hit = nodeAt(pos.x, pos.y);
-      if (hit) options.onNodeClick?.(hit);
+  window.addEventListener('mousemove', (e) => {
+    const p = pointer(e);
+    if (drag) {
+      const w = world(p.x, p.y);
+      drag.x = w.x;
+      drag.y = w.y;
+      drag.vx = 0;
+      drag.vy = 0;
+    } else if (pan) {
+      ox = pan.ox + (e.clientX - pan.x) / scale;
+      oy = pan.oy + (e.clientY - pan.y) / scale;
     }
-    dragged = null;
-    pinchStart = null;
+  });
+
+  window.addEventListener('mouseup', () => {
+    drag = null;
+    pan = null;
   });
 
   canvas.addEventListener(
     'wheel',
-    (evt) => {
-      evt.preventDefault();
-      const delta = evt.deltaY > 0 ? 0.92 : 1.08;
-      scale = Math.max(0.6, Math.min(2.2, scale * delta));
+    (e) => {
+      e.preventDefault();
+      zoom(e.deltaY < 0 ? 1.1 : 0.9);
     },
     { passive: false }
   );
 
-  const ro = new ResizeObserver(() => resize());
+  function zoom(f) {
+    scale = Math.max(0.35, Math.min(3, scale * f));
+  }
+
+  function resetLayout() {
+    scale = 1;
+    ox = 0;
+    oy = 0;
+    simNodes.forEach((n) => {
+      n.x = (Math.random() - 0.5) * 900;
+      n.y = (Math.random() - 0.5) * 620;
+      n.vx = 0;
+      n.vy = 0;
+    });
+  }
+
+  const ro = new ResizeObserver(resize);
   ro.observe(canvas.parentElement);
   resize();
-  resetLayout();
-  tick();
+  step();
 
   return {
     setFilters: applyFilters,
     resetLayout,
+    zoomIn: () => zoom(1.15),
+    zoomOut: () => zoom(0.85),
     togglePause() {
-      paused = !paused;
-      return paused;
+      moving = !moving;
+      return !moving;
     },
     destroy() {
-      cancelAnimationFrame(animationId);
+      cancelAnimationFrame(animId);
       ro.disconnect();
     },
   };

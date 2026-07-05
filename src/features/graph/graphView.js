@@ -1,5 +1,5 @@
 import { getGraphData } from '../../lib/dataService.js';
-import { escapeHtml, nodeTypeLabel, reviewBadgeHtml } from '../../lib/utils.js';
+import { escapeHtml, nodeTypeLabel } from '../../lib/utils.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { createGraphCanvas } from './graphCanvas.js';
 import { openStudyModal } from '../study/studyModal.js';
@@ -13,130 +13,126 @@ let graphInstance = null;
  */
 export async function renderGraphView(container) {
   const state = getState();
+
   container.innerHTML = `
-    <section class="panel">
-      <h2 class="panel-title">الكون الشبكي للقصص</h2>
-      <div class="graph-toolbar">
-        <input id="graph-search" type="search" placeholder="بحث داخل الشبكة…" value="${escapeHtml(state.graphFilters.query || '')}" />
-        <select id="graph-type"><option value="">كل الأنواع</option></select>
-        <select id="graph-surah"><option value="">كل السور</option></select>
-        <select id="graph-theme"><option value="">كل المحاور</option></select>
-        <select id="graph-place"><option value="">كل الأماكن</option></select>
-        <button class="btn" id="graph-reset" type="button">إعادة ترتيب</button>
-        <button class="btn" id="graph-pause" type="button">${state.graphPaused ? 'تشغيل الحركة' : 'إيقاف الحركة'}</button>
-      </div>
-      <div class="graph-layout">
-        <div>
-          <div class="graph-canvas-wrap">
-            <canvas id="graph-canvas"></canvas>
+    <section id="universe">
+      <div class="wrap">
+        <div class="head">
+          <span class="eyebrow">الكون التفاعلي</span>
+          <h2>شبكة الأنبياء والسور والموضوعات</h2>
+          <p>اسحب الشبكة، كبّر وصغّر، واضغط على العقد لفتح الدراسة أو الانتقال.</p>
+        </div>
+        <div id="universeWrap" class="glass">
+          <canvas id="universe2d"></canvas>
+          <div class="mode-badge">Canvas Physics Graph</div>
+          <div class="controls">
+            <button type="button" id="graph-zoom-in">＋</button>
+            <button type="button" id="graph-zoom-out">−</button>
+            <button type="button" id="graph-reset">⟲</button>
+            <button type="button" id="graph-pause" class="${state.graphPaused ? '' : 'active'}">${state.graphPaused ? '▶ الحركة' : '⏯ الحركة'}</button>
+          </div>
+          <div class="legend">
+            <div><span class="dot d1"></span>نبي</div>
+            <div><span class="dot d2"></span>سورة</div>
+            <div><span class="dot d3"></span>موضوع</div>
+            <div><span class="dot d4"></span>شخصية</div>
+            <div><span class="dot d5"></span>مكان</div>
           </div>
         </div>
-        <aside id="graph-panel" class="graph-side-panel empty">
-          <p>اضغط على عقدة لعرض التفاصيل</p>
-        </aside>
+        <div class="graph-filters pad" style="margin-top:14px">
+          <div class="search-box graph-search-box">
+            <input id="graph-search" type="search" placeholder="بحث داخل الشبكة…" value="${escapeHtml(state.graphFilters.query || '')}" />
+            <select id="graph-type"><option value="">كل الأنواع</option></select>
+            <select id="graph-theme"><option value="">كل المحاور</option></select>
+            <select id="graph-place"><option value="">كل الأماكن</option></select>
+            <select id="graph-surah"><option value="">كل السور</option></select>
+          </div>
+        </div>
       </div>
     </section>
   `;
 
   try {
     const { nodes, links, themes } = await getGraphData();
-    populateSelect(container.querySelector('#graph-type'), uniqueTypes(nodes));
-    populateSelect(container.querySelector('#graph-theme'), themes.map((t) => ({ value: t.id, label: t.name_ar })));
-    populateSelect(
+    fillSelect(container.querySelector('#graph-type'), uniqueTypes(nodes));
+    fillSelect(container.querySelector('#graph-theme'), themes.map((t) => ({ v: t.id, l: t.name_ar })));
+    fillSelect(
       container.querySelector('#graph-place'),
-      nodes.filter((n) => n.node_type === 'place').map((n) => ({ value: n.id, label: n.name_ar }))
+      nodes.filter((n) => n.node_type === 'place').map((n) => ({ v: n.id, l: n.name_ar }))
     );
-
-    const surahNodes = nodes.filter((n) => n.node_type === 'surah');
-    const eventSurahIds = new Set([12, 28, 20, 21, 2, 71, 11, 3, 19, 96]);
-    populateSelect(
+    fillSelect(
       container.querySelector('#graph-surah'),
-      [...eventSurahIds].map((id) => ({ value: String(id), label: `سورة ${id}` }))
+      [12, 28, 20, 2, 71, 11, 3, 19, 96].map((id) => ({ v: String(id), l: `سورة ${id}` }))
     );
 
-    const canvas = container.querySelector('#graph-canvas');
+    const canvas = container.querySelector('#universe2d');
     graphInstance = createGraphCanvas(canvas, {
       nodes,
       links,
       paused: state.graphPaused,
-      onNodeClick: (node) => renderGraphPanel(container.querySelector('#graph-panel'), node),
+      onNodeClick: (node) => {
+        if (['prophet', 'person'].includes(node.node_type)) {
+          openStudyModal({ type: 'node', id: node.id });
+        } else if (node.node_type === 'theme') {
+          document.getElementById('q')?.focus();
+          setState({ searchFilters: { ...getState().searchFilters, query: node.name_ar } });
+        } else {
+          openStudyModal({ type: 'node', id: node.id });
+        }
+      },
     });
 
-    bindGraphControls(container, nodes, links);
+    bindControls(container, nodes);
   } catch (err) {
-    renderStateBox(container.querySelector('.graph-layout'), 'error', err.message);
+    renderStateBox(container.querySelector('#universeWrap'), 'error', err.message);
   }
 }
 
-function populateSelect(select, items) {
+function fillSelect(sel, items) {
   items.forEach((item) => {
     const opt = document.createElement('option');
-    opt.value = item.value || item;
-    opt.textContent = item.label || nodeTypeLabel(item) || item;
-    select.appendChild(opt);
+    opt.value = item.v || item.value || item;
+    opt.textContent = item.l || item.label || nodeTypeLabel(item) || item;
+    sel.appendChild(opt);
   });
 }
 
 function uniqueTypes(nodes) {
   return [...new Set(nodes.map((n) => n.node_type))].map((t) => ({
-    value: t,
-    label: nodeTypeLabel(t),
+    v: t,
+    l: nodeTypeLabel(t),
   }));
 }
 
-function bindGraphControls(container, nodes, links) {
-  const applyFilters = () => {
+function bindControls(container) {
+  const apply = () => {
     const filters = {
       query: container.querySelector('#graph-search').value,
       nodeType: container.querySelector('#graph-type').value,
-      surahId: container.querySelector('#graph-surah').value,
       themeId: container.querySelector('#graph-theme').value,
       placeId: container.querySelector('#graph-place').value,
+      surahId: container.querySelector('#graph-surah').value,
     };
     setState({ graphFilters: filters });
     graphInstance?.setFilters(filters);
   };
 
-  container.querySelector('#graph-search').addEventListener('input', applyFilters);
-  ['#graph-type', '#graph-surah', '#graph-theme', '#graph-place'].forEach((sel) => {
-    container.querySelector(sel).addEventListener('change', applyFilters);
+  container.querySelector('#graph-search').addEventListener('input', apply);
+  ['#graph-type', '#graph-theme', '#graph-place', '#graph-surah'].forEach((s) => {
+    container.querySelector(s).addEventListener('change', apply);
   });
 
+  container.querySelector('#graph-zoom-in').addEventListener('click', () => graphInstance?.zoomIn());
+  container.querySelector('#graph-zoom-out').addEventListener('click', () => graphInstance?.zoomOut());
   container.querySelector('#graph-reset').addEventListener('click', () => graphInstance?.resetLayout());
   container.querySelector('#graph-pause').addEventListener('click', (e) => {
     const paused = graphInstance?.togglePause();
     setState({ graphPaused: paused });
-    e.currentTarget.textContent = paused ? 'تشغيل الحركة' : 'إيقاف الحركة';
+    e.currentTarget.classList.toggle('active', !paused);
+    e.currentTarget.textContent = paused ? '▶ الحركة' : '⏯ الحركة';
   });
 
-  applyFilters();
-}
-
-/**
- * @param {HTMLElement} panel
- * @param {Object} node
- */
-function renderGraphPanel(panel, node) {
-  panel.classList.remove('empty');
-  panel.innerHTML = `
-    <h3>${escapeHtml(node.name_ar)}</h3>
-    <p class="muted">${escapeHtml(node.summary_ar || '')}</p>
-    <div class="chip-row">
-      <span class="chip">${escapeHtml(nodeTypeLabel(node.node_type))}</span>
-      ${reviewBadgeHtml(node.review_status)}
-    </div>
-    <div class="chip-row" style="margin-top:14px">
-      <button class="btn" type="button" id="graph-open-story">Story Mode</button>
-      <button class="btn" type="button" id="graph-open-study">دراسة</button>
-    </div>
-  `;
-
-  panel.querySelector('#graph-open-story').addEventListener('click', () => {
-    setState({ activeView: 'story', selectedNodeId: node.id });
-  });
-  panel.querySelector('#graph-open-study').addEventListener('click', () => {
-    openStudyModal({ type: 'node', id: node.id });
-  });
+  apply();
 }
 
 export function destroyGraphView() {

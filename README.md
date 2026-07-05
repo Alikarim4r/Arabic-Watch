@@ -58,7 +58,7 @@ configure({ provider: 'supabase', supabaseUrl: '...', supabaseKey: '...' });
 
 ## Note on original prototype
 
-The file `quran_story_universe_10_10_final.html` was not present in the uploaded workspace. Visual identity follows the upgrade kit and the repository design reference in `/backup/design_reference.html`.
+The original `quran_story_universe_10_10_final.html` is in the repo root and `/backup`. The refactored app was aligned to it per `/docs/original_prototype_parity_report.md`.
 
 ## Pending work
 

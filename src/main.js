@@ -1,102 +1,68 @@
-import { renderDisclaimer } from './components/disclaimer.js';
-import { renderHeader } from './components/header.js';
+import { renderDisclaimer, DISCLAIMER_AR } from './components/disclaimer.js';
+import { renderHero, renderStickyNav, renderFooter, renderMethodology } from './components/homeChrome.js';
 import { renderStateBox } from './components/loadingState.js';
-import { getState, setState, subscribe } from './lib/state.js';
 import { configure, getRepository } from './lib/dataService.js';
-import { renderGraphView, destroyGraphView } from './features/graph/graphView.js';
+import { renderGraphView } from './features/graph/graphView.js';
 import { renderStoryMode } from './features/story/storyMode.js';
 import { renderSearchView } from './features/search/searchUI.js';
 import { renderSurahGrid } from './features/surahs/surahGrid.js';
+import { renderEraTimeline, renderStudyCards } from './features/home/eraTimeline.js';
 
 configure({ provider: 'local', publicMode: true });
 
-const disclaimerMount = document.querySelector('#disclaimer-mount');
-const headerMount = document.querySelector('#header-mount');
-const viewMount = document.querySelector('#view-mount');
-
-renderDisclaimer(disclaimerMount);
+let cleanupStars = null;
 
 async function bootstrap() {
-  renderStateBox(viewMount, 'loading');
+  const main = document.querySelector('#app-main');
+  main.innerHTML = '<div class="wrap"><div class="state-box">جاري تحميل الأطلس…</div></div>';
+
   try {
-    await getRepository();
-    setState({ loading: false, error: null });
+    const repo = await getRepository();
+    const [nodes, events, eventAyahs, themes] = await Promise.all([
+      repo.getNodes(),
+      repo.getEvents(),
+      repo.getEventAyahs(),
+      repo.getThemes(),
+    ]);
+
+    renderDisclaimer(document.querySelector('#disclaimer-mount'));
+    cleanupStars = renderHero(document.querySelector('#hero-mount'), {
+      prophetCount: nodes.filter((n) => ['prophet', 'person'].includes(n.node_type)).length,
+      themeCount: themes.length,
+      ayahRefCount: eventAyahs.length,
+    });
+    renderStickyNav(document.querySelector('#nav-mount'));
+    renderMethodology(document.querySelector('#method-mount'));
+
+    main.innerHTML = '';
+    const mounts = {
+      universe: document.createElement('div'),
+      story: document.createElement('div'),
+      timeline: document.createElement('div'),
+      search: document.createElement('div'),
+      surahs: document.createElement('div'),
+      study: document.createElement('div'),
+    };
+
+    Object.values(mounts).forEach((el) => main.appendChild(el));
+
+    await Promise.all([
+      renderGraphView(mounts.universe),
+      renderStoryMode(mounts.story),
+      renderSearchView(mounts.search),
+      renderSurahGrid(mounts.surahs),
+    ]);
+
+    renderEraTimeline(mounts.timeline, nodes);
+    renderStudyCards(mounts.study, nodes);
+    renderFooter(document.querySelector('#footer-mount'));
   } catch (err) {
-    setState({ loading: false, error: err.message });
-    renderStateBox(viewMount, 'error', err.message);
+    console.error(err);
+    main.innerHTML = '';
+    renderStateBox(main, 'error', err.message);
   }
 }
 
-function renderApp() {
-  const state = getState();
-  renderHeader(headerMount, {
-    activeView: state.activeView,
-    onNavigate: (view) => {
-      if (view !== 'graph') destroyGraphView();
-      setState({ activeView: view });
-    },
-  });
-
-  viewMount.innerHTML = '';
-
-  switch (state.activeView) {
-    case 'graph':
-      renderGraphView(viewMount);
-      break;
-    case 'story':
-      renderStoryMode(viewMount, state.selectedNodeId, state.selectedEventId);
-      break;
-    case 'search':
-      renderSearchView(viewMount, state.searchFilters, (filters) => {
-        Object.assign(state.searchFilters, filters);
-      });
-      break;
-    case 'surahs':
-      renderSurahGrid(viewMount);
-      break;
-    default:
-      renderHome(viewMount);
-  }
-}
-
-function renderHome(container) {
-  container.innerHTML = `
-    <section class="panel">
-      <h2 class="panel-title">مرحبًا في أطلس القصص القرآني</h2>
-      <p>استكشف شبكة العلاقات بين الأنبياء والمحاور والأماكن، أو انتقل إلى Story Mode لقراءة الأحداث مرتبة بالآيات.</p>
-      <div class="chip-row" style="margin-top:16px">
-        <button class="btn" data-go="graph" type="button">الكون الشبكي</button>
-        <button class="btn" data-go="story" type="button">Story Mode — يوسف</button>
-        <button class="btn" data-go="search" type="button">البحث</button>
-        <button class="btn" data-go="surahs" type="button">شبكة السور</button>
-      </div>
-      <div class="study-section">
-        <h4>حالة المشروع</h4>
-        <ul class="lesson-list">
-          <li>البيانات محلية عبر JSON — جاهزة للربط مع Supabase.</li>
-          <li>المحتوى غير المراجع يظهر بشارات واضحة وليس كتفسير نهائي.</li>
-          <li>كل حدث مرتبط بسورة وآية/مدى آيات.</li>
-        </ul>
-      </div>
-    </section>
-  `;
-
-  container.querySelector('[data-go="story"]').addEventListener('click', () => {
-    setState({ activeView: 'story', selectedNodeId: 'yusuf', selectedEventId: null });
-  });
-
-  container.querySelectorAll('[data-go]').forEach((btn) => {
-    if (btn.dataset.go === 'story') return;
-    btn.addEventListener('click', () => setState({ activeView: btn.dataset.go }));
-  });
-}
-
-let renderToken = '';
-
-subscribe((state) => {
-  const token = `${state.activeView}|${state.selectedNodeId}|${state.selectedEventId}|${state.graphPaused}`;
-  if (token === renderToken && renderToken) return;
-  renderToken = token;
-  renderApp();
-});
 bootstrap();
+
+export { DISCLAIMER_AR };
