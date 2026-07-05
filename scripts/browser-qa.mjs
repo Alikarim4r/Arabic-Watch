@@ -114,6 +114,22 @@ for (const { name, context } of contexts) {
     errors.push(`[${name}] admin curation missing النص غير مستورد badge`);
   }
 
+  // Content Batches tab
+  await page.locator('[data-tab="batches"]').click();
+  await page.waitForTimeout(400);
+  await page.waitForSelector('.admin-batches', { timeout: 10000 });
+  const batchesTab = await page.locator('.admin-batches h3.gold').first().innerText();
+  if (!batchesTab.includes('دفعات المحتوى')) {
+    errors.push(`[${name}] content batches tab missing heading`);
+  }
+  await page.click('#batch-create-sample');
+  await page.waitForTimeout(600);
+  const batchCount = await page.locator('.batch-queue-item').count();
+  if (batchCount < 1) {
+    const batchMsg = await page.locator('#batch-validation-msg').innerText().catch(() => '');
+    errors.push(`[${name}] content batch sample create failed: ${batchMsg || '(empty)'}`);
+  }
+
   // Admin Review local demo banner + review history
   await page.locator('[data-tab="review"]').click();
   await page.waitForTimeout(300);

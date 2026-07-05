@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "npx --yes serve src -p 3000",
     "start": "npm run dev",
-    "qa": "node scripts/data-integrity-check.mjs && node scripts/qa-check.mjs && node scripts/validate_evidence_patch.mjs examples/evidence_patch.sample.json && node scripts/validate_quran_text.mjs src/data/quran/quran_text.sample.json && node scripts/browser-qa.mjs"
+    "qa": "node scripts/data-integrity-check.mjs && node scripts/export_seed_to_supabase_sql.mjs && node scripts/build_content_change_batch.mjs && node scripts/qa-check.mjs && node scripts/validate_evidence_patch.mjs examples/evidence_patch.sample.json && node scripts/validate_quran_text.mjs src/data/quran/quran_text.sample.json && node scripts/validate_content_change_batch.mjs examples/content_change_batch.sample.json && node scripts/browser-qa.mjs"
   },
   "devDependencies": {
     "playwright": "^1.52.0"

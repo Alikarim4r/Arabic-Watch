@@ -25,6 +25,7 @@ import {
   submitReviewAction,
 } from './reviewActions.js';
 import { renderEvidenceCurationPanel } from './evidenceCurationPanel.js';
+import { renderContentBatchesPanel } from './contentBatchesPanel.js';
 
 /** @type {Object|null} */
 let state = null;
@@ -80,6 +81,7 @@ export async function renderAdminReview(container) {
     allRecords: buildReviewQueue({ nodes, events, themes, eventAyahs, tafsirSources }),
     activeTab: 'review',
     curationSelectedId: null,
+    batchSelectedId: null,
     filters: {
       recordType: '',
       reviewStatus: 'pending',
@@ -142,6 +144,33 @@ async function renderAdminPanel(root) {
     return;
   }
 
+  if (state.activeTab === 'batches') {
+    await renderContentBatchesPanel(root, {
+      repo: state.repo,
+      auth: state.auth,
+      isLocalMode: isLocalRuntime(),
+      isSupabaseMode: isSupabaseRuntime(),
+      canSubmitBatches: isLocalRuntime() || (await isReviewer()),
+      isAdmin: await isAdmin(),
+      batchSelectedId: state.batchSelectedId,
+      onTabChange: (tab) => {
+        state.activeTab = tab;
+        renderAdminPanel(root);
+      },
+      onSelectBatch: (id) => {
+        state.batchSelectedId = id;
+        renderAdminPanel(root);
+      },
+      onRefreshBatches: () => {
+        renderAdminPanel(root);
+      },
+      onToast: (msg) => {
+        state.toast = msg;
+      },
+    });
+    return;
+  }
+
   let records = applyMockOverrides(state.allRecords);
   records = filterReviewQueue(records, state.filters);
   const stats = summarizeReviewStats(applyMockOverrides(state.allRecords));
@@ -177,6 +206,7 @@ async function renderAdminPanel(root) {
     <div class="admin-tabs">
       <button type="button" class="btn sm primary" data-tab="review">مراجعة عامة</button>
       <button type="button" class="btn sm" data-tab="curation">Evidence Curation</button>
+      <button type="button" class="btn sm" data-tab="batches">دفعات المحتوى</button>
     </div>
     <div class="admin-grid">
       <aside class="glass pad admin-sidebar">
@@ -269,6 +299,12 @@ async function renderAdminPanel(root) {
 
   root.querySelector('[data-tab="curation"]')?.addEventListener('click', () => {
     state.activeTab = 'curation';
+    state.toast = '';
+    renderAdminPanel(root);
+  });
+
+  root.querySelector('[data-tab="batches"]')?.addEventListener('click', () => {
+    state.activeTab = 'batches';
     state.toast = '';
     renderAdminPanel(root);
   });

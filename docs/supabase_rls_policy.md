@@ -1,8 +1,10 @@
 # Supabase Row Level Security (RLS) Policies
 
-This document describes the RLS model for Phase 8 review persistence tables. Content tables (story nodes/events) remain in local JSON until a future migration phase.
+This document describes the RLS model for review persistence (Phase 8) and core content tables (Phase 9).
 
-## Tables
+## Phase 8 — Review persistence
+
+### Tables
 
 | Table | Purpose |
 |-------|---------|
@@ -10,21 +12,50 @@ This document describes the RLS model for Phase 8 review persistence tables. Con
 | `review_actions` | Append-only audit log of review decisions |
 | `evidence_patch_submissions` | Submitted evidence mapping patches awaiting admin decision |
 
-## Views
+### Views
 
 | View | Purpose |
 |------|---------|
 | `content_review_queue_view` | Chronological review actions with reviewer display names |
 | `content_review_latest_action_view` | Latest action per `(record_type, record_id)` |
 
+## Phase 9 — Core content + promotion batches
+
+### Content tables
+
+| Table | Public read | Reviewer read | Public write |
+|-------|-------------|---------------|--------------|
+| `story_nodes` | `row_is_public_final(...)` | All rows | Denied |
+| `story_events` | `row_is_public_final(..., is_event=true)` | All rows | Denied |
+| `themes` | `row_is_public_final(...)` | All rows | Denied |
+| `event_ayahs` | Parent event is public-final | All rows | Denied |
+| `node_links` | Source node is public-final | All rows | Denied |
+| `surahs` | All rows | All rows | Denied |
+| `tafsir_sources` | `is_approved = true` | All rows | Denied |
+| `content_change_batches` | Own/submitted rows for reviewer; admins see all | Reviewer+ | Insert/update via policies |
+
+### content_change_batches policies
+
+| Operation | Who | Rule |
+|-----------|-----|------|
+| SELECT | Reviewer/admin or creator | `is_active_reviewer()` OR `created_by = auth.uid()` |
+| INSERT | Reviewer/admin | `created_by = auth.uid()`, status `draft`/`submitted` |
+| UPDATE | Reviewer (own draft/submitted) or admin | Admin required for `approved`/`rejected`/`applied` |
+| DELETE | **Denied** | Immutable audit trail |
+
+**No automatic apply:** marking `applied` updates batch status only — it does not mutate `story_*` tables in the UI.
+
+### content_review_queue_content_view
+
+Reviewer/admin view of non-final nodes, events, and themes for queue tooling.
+
 ## Helper functions
 
-- `public.is_active_reviewer()` — true when authenticated user has active `reviewer` or `admin` role
-- `public.is_active_admin()` — true when authenticated user has active `admin` role
+- `public.is_active_reviewer()` — active `reviewer` or `admin`
+- `public.is_active_admin()` — active `admin`
+- `public.row_is_public_final(...)` — mirrors app `isFinalContent()` rules
 
-## Policies
-
-### reviewer_profiles
+## Phase 8 policies (unchanged summary)
 
 | Operation | Who | Rule |
 |-----------|-----|------|

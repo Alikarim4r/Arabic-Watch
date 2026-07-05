@@ -1,26 +1,17 @@
 /** @typedef {import('../../lib/repository.js').Repository} Repository */
 
 import { getEnvConfig } from '../../config/env.js';
-import { getCurrentUser } from '../../lib/authService.js';
+import { getCurrentUser, isAdmin } from '../../lib/authService.js';
 import { getSupabaseClient } from '../../lib/supabaseClient.js';
 import { attachQuranTextMethods } from '../../lib/quranText.js';
+import {
+  fetchContentChangeBatches,
+  fetchReviewQueueFromSupabase,
+  fetchSupabaseContentBundle,
+} from '../../lib/supabaseContentMapper.js';
 import { loadLocalRepository, loadQuranTextIndex } from './localRepository.js';
 
-/**
- * Map Supabase row shapes to the JSON seed shape used by the UI.
- */
-export function mapSupabaseBundle(rows) {
-  return {
-    story_nodes: rows.story_nodes || [],
-    story_events: rows.story_events || [],
-    event_ayahs: rows.event_ayahs || [],
-    node_links: rows.node_links || [],
-    themes: rows.themes || [],
-    tafsir_sources: rows.tafsir_sources || [],
-    eras: rows.eras || [],
-    surahs: rows.surahs || [],
-  };
-}
+export { mapSupabaseBundle } from '../../lib/supabaseContentMapper.js';
 
 /**
  * @param {Object} payload
@@ -42,9 +33,6 @@ function buildReviewActionRow(payload, userId) {
 }
 
 /**
- * Create a Supabase-backed repository.
- * Falls back to local JSON when credentials are missing or fetch fails.
- *
  * @param {{ supabaseUrl?: string, supabaseAnonKey?: string }} [options]
  * @returns {Promise<Repository>}
  */
@@ -71,24 +59,8 @@ export async function createSupabaseRepository(options = {}) {
     return localFallback;
   }
 
-  /**
-   * Content tables are not migrated yet — seed JSON remains source of truth for display.
-   * Review actions persist to Supabase audit tables only (no auto-approval of content).
-   */
-  async function loadRemoteOrLocal() {
-    try {
-      console.info('[QSU] Supabase mode — content from local seed; review actions persist remotely.');
-      const local = await getFallback();
-      const data = await local.loadAll();
-      return { ...data, _provider: 'supabase' };
-    } catch (err) {
-      console.warn('[QSU] Supabase load failed — falling back to local JSON.', err);
-      const local = await getFallback();
-      return local.loadAll();
-    }
-  }
-
   let cachedData = null;
+  let contentLoadWarning = null;
   let quranIndex = null;
 
   async function ensureQuranIndex() {
@@ -96,21 +68,66 @@ export async function createSupabaseRepository(options = {}) {
     return quranIndex;
   }
 
+  async function loadRemoteOrLocal() {
+    try {
+      const remote = await fetchSupabaseContentBundle(client);
+      const local = await getFallback();
+      const localData = await local.loadAll();
+      console.info('[QSU] Supabase content tables loaded.');
+      return { ...remote, eras: localData.eras || [] };
+    } catch (err) {
+      if (err.message === 'CONTENT_TABLES_MISSING' || err.message === 'CONTENT_TABLES_EMPTY') {
+        contentLoadWarning =
+          err.message === 'CONTENT_TABLES_EMPTY'
+            ? 'Supabase content tables exist but are empty — using local seed fallback.'
+            : 'Supabase content tables missing — run migrations + seed SQL. Using local seed fallback.';
+        console.warn(`[QSU] ${contentLoadWarning}`);
+        const local = await getFallback();
+        const data = await local.loadAll();
+        return { ...data, _provider: 'supabase', _contentSource: 'local_fallback', _contentWarning: contentLoadWarning };
+      }
+      console.warn('[QSU] Supabase content load failed — falling back to local JSON.', err);
+      const local = await getFallback();
+      const data = await local.loadAll();
+      return { ...data, _provider: 'supabase', _contentSource: 'local_fallback' };
+    }
+  }
+
   const repo = {
     async loadAll() {
-      if (!cachedData) cachedData = await loadRemoteOrLocal();
+      if (!cachedData) {
+        const remote = await loadRemoteOrLocal();
+        const fallback = await getFallback();
+        const localData = await fallback.loadAll();
+        cachedData = {
+          ...localData,
+          ...remote,
+          eras: localData.eras || [],
+          _contentWarning: remote._contentWarning || contentLoadWarning,
+        };
+      }
       return cachedData;
     },
     async getProvider() {
       return 'supabase';
     },
+    async getContentSource() {
+      const d = await this.loadAll();
+      return d._contentSource || 'supabase';
+    },
     async getNodes() {
       const d = await this.loadAll();
       return d.story_nodes || [];
     },
+    async getStoryNodes() {
+      return this.getNodes();
+    },
     async getEvents() {
       const d = await this.loadAll();
       return d.story_events || [];
+    },
+    async getStoryEvents() {
+      return this.getEvents();
     },
     async getNodeById(id) {
       const nodes = await this.getNodes();
@@ -129,6 +146,9 @@ export async function createSupabaseRepository(options = {}) {
     async getLinks() {
       const d = await this.loadAll();
       return d.node_links || [];
+    },
+    async getNodeLinks() {
+      return this.getLinks();
     },
     async getEventAyahs() {
       const d = await this.loadAll();
@@ -151,10 +171,81 @@ export async function createSupabaseRepository(options = {}) {
       return d.eras || [];
     },
 
-    /**
-     * Persist review action audit row — does not mutate approved content tables.
-     * @param {Object} payload
-     */
+    async getReviewQueue() {
+      return fetchReviewQueueFromSupabase(client);
+    },
+
+    async getContentChangeBatches() {
+      return fetchContentChangeBatches(client);
+    },
+
+    async submitContentChangeBatch(batchPayload) {
+      const user = await getCurrentUser();
+      if (!user?.id) {
+        return { ok: false, error: 'not_authenticated', message: 'Sign in as reviewer to submit batches.' };
+      }
+      const { data, error } = await client
+        .from('content_change_batches')
+        .insert({
+          batch_type: batchPayload.batch_type || 'evidence_promotion',
+          status: batchPayload.status || 'draft',
+          summary: batchPayload.summary || '',
+          payload: batchPayload.payload || batchPayload,
+          created_by: user.id,
+        })
+        .select('*')
+        .single();
+      if (error) return { ok: false, error: error.message, message: 'Failed to submit content batch.' };
+      return {
+        ok: true,
+        persisted: true,
+        data,
+        message: 'Content batch recorded — not applied to production tables automatically.',
+      };
+    },
+
+    async updateContentChangeBatchStatus(batchId, status, reviewerNote = '') {
+      const user = await getCurrentUser();
+      if (!user?.id) return { ok: false, error: 'not_authenticated' };
+
+      if (status === 'applied' && !(await isAdmin())) {
+        return { ok: false, message: 'Only admin can mark batches as applied.' };
+      }
+      if (['approved', 'rejected', 'applied'].includes(status) && !(await isAdmin())) {
+        return { ok: false, message: 'Admin role required for this batch transition.' };
+      }
+
+      const patch = {
+        status,
+        reviewer_note: reviewerNote,
+      };
+      if (status === 'approved') {
+        patch.approved_by = user.id;
+        patch.approved_at = new Date().toISOString();
+      }
+      if (status === 'applied') {
+        patch.applied_by = user.id;
+        patch.applied_at = new Date().toISOString();
+      }
+
+      const { data, error } = await client
+        .from('content_change_batches')
+        .update(patch)
+        .eq('id', batchId)
+        .select('*')
+        .single();
+
+      if (error) return { ok: false, error: error.message };
+      return {
+        ok: true,
+        data,
+        message:
+          status === 'applied'
+            ? 'Batch marked applied — run controlled promotion job to mutate content tables.'
+            : `Batch marked ${status}.`,
+      };
+    },
+
     async submitReviewAction(payload) {
       const user = await getCurrentUser();
       if (!user?.id) {
@@ -189,10 +280,6 @@ export async function createSupabaseRepository(options = {}) {
       };
     },
 
-    /**
-     * @param {string} recordType
-     * @param {string} recordId
-     */
     async getReviewActionHistory(recordType, recordId) {
       const { data, error } = await client
         .from('review_actions')
@@ -208,9 +295,6 @@ export async function createSupabaseRepository(options = {}) {
       return data || [];
     },
 
-    /**
-     * @param {Object} patchPayload
-     */
     async submitEvidencePatch(patchPayload) {
       const user = await getCurrentUser();
       if (!user?.id) {
@@ -250,12 +334,6 @@ export async function createSupabaseRepository(options = {}) {
       };
     },
 
-    /**
-     * Admin-only status update for evidence patch submissions.
-     * @param {string} submissionId
-     * @param {'approved'|'rejected'} status
-     * @param {string} [reviewerNote]
-     */
     async reviewEvidencePatchSubmission(submissionId, status, reviewerNote = '') {
       const user = await getCurrentUser();
       if (!user?.id) {

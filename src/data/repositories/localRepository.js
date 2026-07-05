@@ -10,6 +10,9 @@ const sessionReviewHistory = [];
 /** @type {Object[]} */
 const sessionEvidencePatches = [];
 
+/** @type {Object[]} */
+const sessionContentBatches = [];
+
 /**
  * @param {Object} data
  * @param {Object|null} [quranIndex]
@@ -136,6 +139,71 @@ export function createLocalJsonRepository(data, quranIndex = null) {
         mock: true,
         provider: 'local',
         message: 'Patch approval requires Supabase admin mode.',
+      };
+    },
+
+    async getStoryNodes() {
+      return this.getNodes();
+    },
+    async getStoryEvents() {
+      return this.getEvents();
+    },
+    async getNodeLinks() {
+      return this.getLinks();
+    },
+
+    async getReviewQueue() {
+      const [nodes, events, themes] = await Promise.all([
+        this.getNodes(),
+        this.getEvents(),
+        this.getThemes(),
+      ]);
+      return [
+        ...nodes.map((n) => ({ record_type: 'node', record_id: n.id, title_ar: n.name_ar, ...n })),
+        ...events.map((e) => ({ record_type: 'event', record_id: e.id, title_ar: e.title_ar, ...e })),
+        ...themes.map((t) => ({ record_type: 'theme', record_id: t.id, title_ar: t.name_ar, ...t })),
+      ];
+    },
+
+    async getContentChangeBatches() {
+      return sessionContentBatches;
+    },
+
+    async submitContentChangeBatch(batchPayload) {
+      const entry = {
+        id: `local-batch-${Date.now()}`,
+        batch_type: batchPayload.batch_type || 'evidence_promotion',
+        status: batchPayload.status || 'draft',
+        summary: batchPayload.summary || '',
+        payload: batchPayload.payload || batchPayload,
+        created_at: new Date().toISOString(),
+        source: 'local_session',
+      };
+      sessionContentBatches.unshift(entry);
+      return {
+        ok: true,
+        mock: true,
+        provider: 'local',
+        persisted: false,
+        data: entry,
+        message: 'Content batch saved in local session only — not applied to production.',
+      };
+    },
+
+    async updateContentChangeBatchStatus(batchId, status, reviewerNote = '') {
+      const batch = sessionContentBatches.find((b) => b.id === batchId);
+      if (!batch) return { ok: false, message: 'Batch not found in session.' };
+      batch.status = status;
+      batch.reviewer_note = reviewerNote;
+      batch.updated_at = new Date().toISOString();
+      if (status === 'approved') batch.approved_at = batch.updated_at;
+      if (status === 'applied') batch.applied_at = batch.updated_at;
+      return {
+        ok: true,
+        mock: true,
+        provider: 'local',
+        data: batch,
+        message: `Batch marked ${status} in session only — content tables not mutated.`,
       };
     },
   };

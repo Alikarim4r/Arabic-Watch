@@ -52,6 +52,7 @@ export async function renderEvidenceCurationPanel(root, ctx) {
       <div class="admin-tabs">
         <button type="button" class="btn sm" data-tab="review">مراجعة عامة</button>
         <button type="button" class="btn sm primary" data-tab="curation">Evidence Curation</button>
+        <button type="button" class="btn sm" data-tab="batches">دفعات المحتوى</button>
       </div>
 
       <div class="admin-evidence-stats glass pad">
@@ -103,6 +104,10 @@ export async function renderEvidenceCurationPanel(root, ctx) {
 
   root.querySelector('[data-tab="review"]')?.addEventListener('click', () => {
     ctx.onTabChange('review');
+  });
+
+  root.querySelector('[data-tab="batches"]')?.addEventListener('click', () => {
+    ctx.onTabChange('batches');
   });
 
   root.querySelectorAll('.curation-queue-item').forEach((btn) => {

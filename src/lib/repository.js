@@ -57,6 +57,14 @@
  * @property {(recordType: string, recordId: string) => Promise<Object[]>} [getReviewActionHistory]
  * @property {(patchPayload: Object) => Promise<Object>} [submitEvidencePatch]
  * @property {(submissionId: string, status: 'approved'|'rejected', reviewerNote?: string) => Promise<Object>} [reviewEvidencePatchSubmission]
+ * @property {() => Promise<Object[]>} [getStoryNodes]
+ * @property {() => Promise<Object[]>} [getStoryEvents]
+ * @property {() => Promise<Object[]>} [getNodeLinks]
+ * @property {() => Promise<Object[]>} [getReviewQueue]
+ * @property {() => Promise<Object[]>} [getContentChangeBatches]
+ * @property {(batchPayload: Object) => Promise<Object>} [submitContentChangeBatch]
+ * @property {(batchId: string, status: string, reviewerNote?: string) => Promise<Object>} [updateContentChangeBatchStatus]
+ * @property {() => Promise<string>} [getContentSource]
  */
 
 export {};

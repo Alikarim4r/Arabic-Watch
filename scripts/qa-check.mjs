@@ -214,4 +214,26 @@ try {
   fail('supabase missing env handling', err.message);
 }
 
+try {
+  const localRepo = await createRepository({ dataMode: 'local' });
+  const batches = await localRepo.getContentChangeBatches?.();
+  if (!Array.isArray(batches)) fail('getContentChangeBatches local', '');
+  else pass('content change batches API available locally');
+
+  const submitBatch = await localRepo.submitContentChangeBatch?.({
+    batch_type: 'evidence_promotion',
+    status: 'draft',
+    summary: 'qa test batch',
+    payload: { items: [{ change_type: 'review_action', record_type: 'event', event_id: 'musa_03__', proposed_review_status: 'pending', promote_as_final: false }] },
+  });
+  if (!submitBatch?.ok) fail('submitContentChangeBatch local session', '');
+  else pass('content batch session submit works locally');
+
+  const pendingFinal = events.filter((e) => e.review_status !== 'approved' && isFinalContent(e));
+  if (pendingFinal.length) fail('pending events must not pass final gate', pendingFinal.map((e) => e.id));
+  else pass('no pending/needs_precise_mapping appears as verified final');
+} catch (err) {
+  fail('content batch local tests', err.message);
+}
+
 process.exit(failed ? 1 : 0);
