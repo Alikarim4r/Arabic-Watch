@@ -26,6 +26,10 @@ if (patch.meta?.status === 'proposed') {
   console.log('NOTE patch status=proposed — not production content; human review required');
 }
 
+if (patch.meta?.status === 'revised_proposed') {
+  console.log('NOTE patch status=revised_proposed — compiled from scholar review; not applied');
+}
+
 if (result.valid) {
   console.log('PASS validate_evidence_patch', patchPath);
   console.log('mappings:', patch.mappings.length);

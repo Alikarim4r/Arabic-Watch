@@ -441,6 +441,28 @@ if (existsSync(batch01ReviewPath)) {
   } else pass('validate_scholar_review_template on Batch 1 template');
 }
 
+const batch01RevisedPath = join(root, 'examples/evidence_patch.batch_01.revised.proposed.json');
+if (existsSync(batch01ReviewPath)) {
+  if (!runNodeScript(['scripts/compile_scholar_review_decisions.mjs'], true)) {
+    fail('compile_scholar_review_decisions on blank template', '');
+  } else pass('compile_scholar_review_decisions produces revised patch from blank template');
+}
+
+if (existsSync(batch01RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', batch01RevisedPath], true)) {
+    fail('validate_revised_evidence_patch', batch01RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 1 revised patch');
+
+  const revised = JSON.parse(readFileSync(batch01RevisedPath, 'utf8'));
+  const revisedApproved = (revised.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revisedApproved.length) fail('Batch 1 revised patch must not auto-approve', revisedApproved.map((m) => m.event_id));
+  else pass('Batch 1 revised patch has no auto-approved mappings');
+}
+
+if (!runNodeScript(['scripts/check_arabic_text_hygiene.mjs', '--strict'], true)) {
+  fail('check_arabic_text_hygiene --strict', 'Arabic field errors including الخضr typo');
+} else pass('check_arabic_text_hygiene --strict (no الخضr in data)');
+
 const disclaimerPath = join(root, 'src/components/disclaimer.js');
 if (existsSync(disclaimerPath)) {
   const disclaimerSrc = readFileSync(disclaimerPath, 'utf8');
