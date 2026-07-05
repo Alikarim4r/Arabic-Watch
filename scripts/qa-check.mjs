@@ -143,19 +143,36 @@ if (!sampleValidation.valid) fail('validate_quran_text sample', sampleValidation
 else pass('validate_quran_text passes on sample file');
 
 try {
+  const indexPathQuran = join(root, 'src/data/quran/quran_text.index.json');
+  const quranIndex = existsSync(indexPathQuran) ? JSON.parse(readFileSync(indexPathQuran, 'utf8')) : null;
+  const quranFull = Boolean(quranIndex?.is_full_quran && quranIndex?.ayah_count === 6236);
+
   const localRepo = await createRepository({ dataMode: 'local' });
   const ayah = await localRepo.getAyah(12, 4);
-  if (ayah.available) fail('getAyah without import should not be available', '');
-  else if (!ayah.placeholder_ar?.includes('غير مستورد')) fail('getAyah placeholder text', ayah.placeholder_ar);
-  else pass('getAyah returns safe placeholder without Quran import');
-
   const range = await localRepo.getAyahRange(12, 4, 6);
-  if (range.some((r) => r.available)) fail('getAyahRange without import', 'unexpected available');
-  else pass('getAyahRange safe without Quran import');
-
   const imported = await localRepo.isQuranTextImported();
-  if (imported) fail('isQuranTextImported without index', 'should be false');
-  else pass('isQuranTextImported false without full import');
+
+  if (quranFull) {
+    if (!imported) fail('isQuranTextImported after full import', 'should be true');
+    else pass('isQuranTextImported true after full import');
+    if (!ayah.available || !ayah.text_uthmani) fail('getAyah after import', '12:4 should be available');
+    else pass('getAyah returns text_uthmani after import');
+    if (!range.every((r) => r.available && r.text_uthmani)) fail('getAyahRange after import', '12:4-6 unavailable');
+    else pass('getAyahRange returns imported text');
+    const sample255 = await localRepo.getAyah(2, 255);
+    if (!sample255.available) fail('sample ayah 2:255 after import', '');
+    else pass('sample ayah lookup 2:255 after import');
+  } else {
+    if (ayah.available) fail('getAyah without import should not be available', '');
+    else if (!ayah.placeholder_ar?.includes('غير مستورد')) fail('getAyah placeholder text', ayah.placeholder_ar);
+    else pass('getAyah returns safe placeholder without Quran import');
+
+    if (range.some((r) => r.available)) fail('getAyahRange without import', 'unexpected available');
+    else pass('getAyahRange safe without Quran import');
+
+    if (imported) fail('isQuranTextImported without index', 'should be false');
+    else pass('isQuranTextImported false without full import');
+  }
 
   const finalWithoutQuran = events.filter((e) => isFinalContent(e));
   if (finalWithoutQuran.length < 1) fail('public final gate without quran text', 'no final events');
@@ -821,7 +838,8 @@ const indexPayload = existsSync(indexPath) ? JSON.parse(readFileSync(indexPath, 
 const quranFullImported = Boolean(indexPayload?.is_full_quran && indexPayload?.ayah_count === 6236);
 
 if (quranFullImported) {
-  if (!existsSync(importResultPath)) fail('quran_text_import_result.md missing after import', importResultPath);
+  const importResult = join(root, 'docs/quran_text_import_result.md');
+  if (!existsSync(importResult)) fail('quran_text_import_result.md missing after import', importResult);
   else pass('quran_text_import_result.md exists');
 } else {
   if (!existsSync(missingSourceReportPath)) fail('quran_text_missing_source_report.md missing', missingSourceReportPath);

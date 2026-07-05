@@ -50,19 +50,22 @@ assert(
   'import script copies text_uthmani verbatim (no normalize)'
 );
 
+const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+const quranImported = Boolean(index.is_full_quran && index.ayah_count === 6236);
+
 const licensedFound = licensedPaths.filter((p) => existsSync(p));
-if (licensedFound.length === 0) {
-  assert(true, 'no licensed source file in workspace (expected for Phase 25 stop)');
+if (licensedFound.length > 0) {
+  assert(true, `licensed source file present: ${licensedFound[0].replace(`${root}/`, '')}`);
+  if (!quranImported) {
+    assert(false, 'licensed file exists but full import index not populated — run import_quran_text.mjs');
+  }
+} else {
+  assert(true, 'no licensed source file in workspace');
   const missingReport = join(root, 'docs/quran_text_missing_source_report.md');
   assert(existsSync(missingReport), 'quran_text_missing_source_report.md exists');
   const report = readFileSync(missingReport, 'utf8');
   assert(report.includes('No import performed'), 'missing source report documents no import');
-} else {
-  assert(false, `licensed file present but Phase 25 should import via verify script: ${licensedFound[0]}`);
 }
-
-const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-const quranImported = Boolean(index.is_full_quran && index.ayah_count === 6236);
 
 if (quranImported) {
   const verify = spawnSync(process.execPath, ['scripts/verify_quran_text_import.mjs'], {

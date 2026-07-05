@@ -305,126 +305,126 @@
       "id": 44,
       "name_ar": "الدخان",
       "revelation_type": "makkah",
-      "ayah_count": 37,
+      "ayah_count": 59,
       "featured": false
     },
     {
       "id": 45,
       "name_ar": "الجاثية",
       "revelation_type": "makkah",
-      "ayah_count": 35,
+      "ayah_count": 37,
       "featured": false
     },
     {
       "id": 46,
       "name_ar": "الأحقاف",
       "revelation_type": "makkah",
-      "ayah_count": 38,
+      "ayah_count": 35,
       "featured": false
     },
     {
       "id": 47,
       "name_ar": "محمد",
       "revelation_type": "madinah",
-      "ayah_count": 29,
+      "ayah_count": 38,
       "featured": false
     },
     {
       "id": 48,
       "name_ar": "الفتح",
       "revelation_type": "madinah",
-      "ayah_count": 18,
+      "ayah_count": 29,
       "featured": false
     },
     {
       "id": 49,
       "name_ar": "الحجرات",
       "revelation_type": "madinah",
-      "ayah_count": 45,
+      "ayah_count": 18,
       "featured": false
     },
     {
       "id": 50,
       "name_ar": "ق",
       "revelation_type": "makkah",
-      "ayah_count": 59,
+      "ayah_count": 45,
       "featured": false
     },
     {
       "id": 51,
       "name_ar": "الذاريات",
       "revelation_type": "makkah",
-      "ayah_count": 49,
+      "ayah_count": 60,
       "featured": false
     },
     {
       "id": 52,
       "name_ar": "الطور",
       "revelation_type": "makkah",
-      "ayah_count": 62,
+      "ayah_count": 49,
       "featured": false
     },
     {
       "id": 53,
       "name_ar": "النجم",
       "revelation_type": "makkah",
-      "ayah_count": 55,
+      "ayah_count": 62,
       "featured": false
     },
     {
       "id": 54,
       "name_ar": "القمر",
       "revelation_type": "makkah",
-      "ayah_count": 78,
+      "ayah_count": 55,
       "featured": false
     },
     {
       "id": 55,
       "name_ar": "الرحمن",
       "revelation_type": "makkah",
-      "ayah_count": 96,
+      "ayah_count": 78,
       "featured": false
     },
     {
       "id": 56,
       "name_ar": "الواقعة",
       "revelation_type": "makkah",
-      "ayah_count": 29,
+      "ayah_count": 96,
       "featured": false
     },
     {
       "id": 57,
       "name_ar": "الحديد",
       "revelation_type": "madinah",
-      "ayah_count": 22,
+      "ayah_count": 29,
       "featured": false
     },
     {
       "id": 58,
       "name_ar": "المجادلة",
       "revelation_type": "madinah",
-      "ayah_count": 24,
+      "ayah_count": 22,
       "featured": false
     },
     {
       "id": 59,
       "name_ar": "الحشر",
       "revelation_type": "madinah",
-      "ayah_count": 13,
+      "ayah_count": 24,
       "featured": false
     },
     {
       "id": 60,
       "name_ar": "الممتحنة",
       "revelation_type": "madinah",
-      "ayah_count": 14,
+      "ayah_count": 13,
       "featured": false
     },
     {
       "id": 61,
       "name_ar": "الصف",
       "revelation_type": "madinah",
-      "ayah_count": 11,
+      "ayah_count": 14,
       "featured": false
     },
     {
@@ -438,14 +438,14 @@
       "id": 63,
       "name_ar": "المنافقون",
       "revelation_type": "madinah",
-      "ayah_count": 18,
+      "ayah_count": 11,
       "featured": false
     },
     {
       "id": 64,
       "name_ar": "التغابن",
       "revelation_type": "madinah",
-      "ayah_count": 12,
+      "ayah_count": 18,
       "featured": false
     },
     {
@@ -459,14 +459,14 @@
       "id": 66,
       "name_ar": "التحريم",
       "revelation_type": "madinah",
-      "ayah_count": 30,
+      "ayah_count": 12,
       "featured": false
     },
     {
       "id": 67,
       "name_ar": "الملك",
       "revelation_type": "makkah",
-      "ayah_count": 52,
+      "ayah_count": 30,
       "featured": false
     },
     {
@@ -480,273 +480,273 @@
       "id": 69,
       "name_ar": "الحاقة",
       "revelation_type": "makkah",
-      "ayah_count": 44,
+      "ayah_count": 52,
       "featured": false
     },
     {
       "id": 70,
       "name_ar": "المعارج",
       "revelation_type": "makkah",
-      "ayah_count": 28,
+      "ayah_count": 44,
       "featured": false
     },
     {
       "id": 71,
       "name_ar": "نوح",
       "revelation_type": "makkah",
-      "ayah_count": 20,
+      "ayah_count": 28,
       "featured": true
     },
     {
       "id": 72,
       "name_ar": "الجن",
       "revelation_type": "makkah",
-      "ayah_count": 56,
+      "ayah_count": 28,
       "featured": false
     },
     {
       "id": 73,
       "name_ar": "المزمل",
       "revelation_type": "makkah",
-      "ayah_count": 40,
+      "ayah_count": 20,
       "featured": false
     },
     {
       "id": 74,
       "name_ar": "المدثر",
       "revelation_type": "makkah",
-      "ayah_count": 31,
+      "ayah_count": 56,
       "featured": false
     },
     {
       "id": 75,
       "name_ar": "القيامة",
       "revelation_type": "makkah",
-      "ayah_count": 50,
+      "ayah_count": 40,
       "featured": false
     },
     {
       "id": 76,
       "name_ar": "الإنسان",
       "revelation_type": "makkah",
-      "ayah_count": 40,
+      "ayah_count": 31,
       "featured": false
     },
     {
       "id": 77,
       "name_ar": "المرسلات",
       "revelation_type": "makkah",
-      "ayah_count": 46,
+      "ayah_count": 50,
       "featured": false
     },
     {
       "id": 78,
       "name_ar": "النبأ",
       "revelation_type": "makkah",
-      "ayah_count": 42,
+      "ayah_count": 40,
       "featured": false
     },
     {
       "id": 79,
       "name_ar": "النازعات",
       "revelation_type": "makkah",
-      "ayah_count": 29,
+      "ayah_count": 46,
       "featured": false
     },
     {
       "id": 80,
       "name_ar": "عبس",
       "revelation_type": "makkah",
-      "ayah_count": 19,
+      "ayah_count": 42,
       "featured": false
     },
     {
       "id": 81,
       "name_ar": "التكوير",
       "revelation_type": "makkah",
-      "ayah_count": 36,
+      "ayah_count": 29,
       "featured": false
     },
     {
       "id": 82,
       "name_ar": "الانفطار",
       "revelation_type": "makkah",
-      "ayah_count": 25,
+      "ayah_count": 19,
       "featured": false
     },
     {
       "id": 83,
       "name_ar": "المطففين",
       "revelation_type": "makkah",
-      "ayah_count": 22,
+      "ayah_count": 36,
       "featured": false
     },
     {
       "id": 84,
       "name_ar": "الانشقاق",
       "revelation_type": "makkah",
-      "ayah_count": 17,
+      "ayah_count": 25,
       "featured": false
     },
     {
       "id": 85,
       "name_ar": "البروج",
       "revelation_type": "makkah",
-      "ayah_count": 19,
+      "ayah_count": 22,
       "featured": false
     },
     {
       "id": 86,
       "name_ar": "الطارق",
       "revelation_type": "makkah",
-      "ayah_count": 26,
+      "ayah_count": 17,
       "featured": false
     },
     {
       "id": 87,
       "name_ar": "الأعلى",
       "revelation_type": "makkah",
-      "ayah_count": 30,
+      "ayah_count": 19,
       "featured": false
     },
     {
       "id": 88,
       "name_ar": "الغاشية",
       "revelation_type": "makkah",
-      "ayah_count": 20,
+      "ayah_count": 26,
       "featured": false
     },
     {
       "id": 89,
       "name_ar": "الفجر",
       "revelation_type": "makkah",
-      "ayah_count": 15,
+      "ayah_count": 30,
       "featured": false
     },
     {
       "id": 90,
       "name_ar": "البلد",
       "revelation_type": "makkah",
-      "ayah_count": 21,
+      "ayah_count": 20,
       "featured": false
     },
     {
       "id": 91,
       "name_ar": "الشمس",
       "revelation_type": "makkah",
-      "ayah_count": 11,
+      "ayah_count": 15,
       "featured": false
     },
     {
       "id": 92,
       "name_ar": "الليل",
       "revelation_type": "makkah",
-      "ayah_count": 8,
+      "ayah_count": 21,
       "featured": false
     },
     {
       "id": 93,
       "name_ar": "الضحى",
       "revelation_type": "makkah",
-      "ayah_count": 8,
+      "ayah_count": 11,
       "featured": false
     },
     {
       "id": 94,
       "name_ar": "الشرح",
       "revelation_type": "makkah",
-      "ayah_count": 19,
+      "ayah_count": 8,
       "featured": false
     },
     {
       "id": 95,
       "name_ar": "التين",
       "revelation_type": "makkah",
-      "ayah_count": 5,
+      "ayah_count": 8,
       "featured": false
     },
     {
       "id": 96,
       "name_ar": "العلق",
       "revelation_type": "makkah",
-      "ayah_count": 8,
+      "ayah_count": 19,
       "featured": true
     },
     {
       "id": 97,
       "name_ar": "القدر",
       "revelation_type": "makkah",
-      "ayah_count": 8,
+      "ayah_count": 5,
       "featured": false
     },
     {
       "id": 98,
       "name_ar": "البينة",
       "revelation_type": "makkah",
-      "ayah_count": 11,
+      "ayah_count": 8,
       "featured": false
     },
     {
       "id": 99,
       "name_ar": "الزلزلة",
       "revelation_type": "makkah",
-      "ayah_count": 11,
+      "ayah_count": 8,
       "featured": false
     },
     {
       "id": 100,
       "name_ar": "العاديات",
       "revelation_type": "makkah",
-      "ayah_count": 8,
+      "ayah_count": 11,
       "featured": false
     },
     {
       "id": 101,
       "name_ar": "القارعة",
       "revelation_type": "makkah",
-      "ayah_count": 3,
+      "ayah_count": 11,
       "featured": false
     },
     {
       "id": 102,
       "name_ar": "التكاثر",
       "revelation_type": "makkah",
-      "ayah_count": 9,
+      "ayah_count": 8,
       "featured": false
     },
     {
       "id": 103,
       "name_ar": "العصر",
       "revelation_type": "makkah",
-      "ayah_count": 5,
+      "ayah_count": 3,
       "featured": false
     },
     {
       "id": 104,
       "name_ar": "الهمزة",
       "revelation_type": "makkah",
-      "ayah_count": 4,
+      "ayah_count": 9,
       "featured": false
     },
     {
       "id": 105,
       "name_ar": "الفيل",
       "revelation_type": "makkah",
-      "ayah_count": 7,
+      "ayah_count": 5,
       "featured": false
     },
     {
       "id": 106,
       "name_ar": "قريش",
       "revelation_type": "makkah",
-      "ayah_count": 3,
+      "ayah_count": 4,
       "featured": false
     },
     {
       "id": 107,
       "name_ar": "الماعون",
       "revelation_type": "makkah",
-      "ayah_count": 6,
+      "ayah_count": 7,
       "featured": false
     },
     {
@@ -760,14 +760,14 @@
       "id": 109,
       "name_ar": "الكافرون",
       "revelation_type": "makkah",
-      "ayah_count": 5,
+      "ayah_count": 6,
       "featured": false
     },
     {
       "id": 110,
       "name_ar": "النصر",
       "revelation_type": "makkah",
-      "ayah_count": 4,
+      "ayah_count": 3,
       "featured": false
     },
     {
@@ -781,21 +781,21 @@
       "id": 112,
       "name_ar": "الإخلاص",
       "revelation_type": "makkah",
-      "ayah_count": 6,
+      "ayah_count": 4,
       "featured": false
     },
     {
       "id": 113,
       "name_ar": "الفلق",
       "revelation_type": "makkah",
-      "ayah_count": 0,
+      "ayah_count": 5,
       "featured": false
     },
     {
       "id": 114,
       "name_ar": "الناس",
       "revelation_type": "makkah",
-      "ayah_count": 0,
+      "ayah_count": 6,
       "featured": false
     }
   ]

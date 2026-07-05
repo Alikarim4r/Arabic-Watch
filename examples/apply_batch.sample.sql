@@ -1,6 +1,6 @@
 -- SAMPLE / GENERATED APPLY SQL — review before running in production
 -- batch id: example-approved-batch-001
--- generated at: 2026-07-05T11:01:49.636Z
+-- generated at: 2026-07-05T12:31:50.579Z
 -- dry run status: sql-generation
 -- affected records: 2 item(s)
 BEGIN;

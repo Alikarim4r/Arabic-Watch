@@ -53,6 +53,12 @@ for (const { name, context } of contexts) {
   await page.goto('http://127.0.0.1:3456/', { waitUntil: 'networkidle' });
   await page.waitForSelector('#universe2d', { timeout: 15000 });
 
+  const quranImported = await page.evaluate(async () => {
+    const res = await fetch('./data/quran/quran_text.index.json');
+    const data = await res.json();
+    return Boolean(data.is_full_quran && data.ayah_count === 6236);
+  });
+
   // Story next/prev
   await page.click('#story-next');
   await page.waitForTimeout(300);
@@ -125,8 +131,12 @@ for (const { name, context } of contexts) {
   if (!curationDisclaimer.includes('هذا ملخص تعليمي')) {
     errors.push(`[${name}] admin review missing Arabic disclaimer`);
   }
-  const quranBadge = await page.locator('.admin-evidence-stats .tag.rose').first().innerText();
-  if (!quranBadge.includes('النص غير مستورد')) {
+  const quranBadge = await page.locator('.admin-evidence-stats .muted').first().innerText();
+  if (quranImported) {
+    if (!quranBadge.includes('النص متوفر')) {
+      errors.push(`[${name}] admin curation missing النص متوفر badge after import: ${quranBadge}`);
+    }
+  } else if (!quranBadge.includes('النص غير مستورد')) {
     errors.push(`[${name}] admin curation missing النص غير مستورد badge`);
   }
 
@@ -279,22 +289,36 @@ for (const { name, context } of contexts) {
   const savedQ = await page.locator('#admin-q').inputValue();
   if (savedQ !== 'yusuf') errors.push(`[${name}] saved review filters did not persist`);
 
-  // Story Mode Quran text fallback (no full import in repo)
+  // Story Mode Quran text display
   await page.goto('http://127.0.0.1:3456/#story', { waitUntil: 'networkidle' });
   await page.waitForSelector('#storySelect', { timeout: 10000 });
   await page.selectOption('#storySelect', 'yusuf');
   await page.waitForTimeout(500);
-  const storyAyahFallback = await page.locator('#story-root .quran-missing-note').first().innerText();
-  if (!storyAyahFallback.includes('غير مستورد')) {
-    errors.push(`[${name}] story mode missing Quran text fallback`);
+  if (quranImported) {
+    const storyUthmani = await page.locator('#story-root .quran-uthmani').first().innerText();
+    if (!storyUthmani || storyUthmani.length < 3) {
+      errors.push(`[${name}] story mode missing imported Quran text`);
+    }
+  } else {
+    const storyAyahFallback = await page.locator('#story-root .quran-missing-note').first().innerText();
+    if (!storyAyahFallback.includes('غير مستورد')) {
+      errors.push(`[${name}] story mode missing Quran text fallback`);
+    }
   }
 
-  // Study modal Quran text fallback
+  // Study modal Quran text display
   await page.click('#story-open-study');
   await page.waitForSelector('.modal.show');
-  const studyFallback = await page.locator('.modal-body .quran-missing-note').first().innerText();
-  if (!studyFallback.includes('غير مستورد')) {
-    errors.push(`[${name}] study modal missing Quran text fallback`);
+  if (quranImported) {
+    const studyUthmani = await page.locator('.modal-body .quran-uthmani').first().innerText();
+    if (!studyUthmani || studyUthmani.length < 3) {
+      errors.push(`[${name}] study modal missing imported Quran text`);
+    }
+  } else {
+    const studyFallback = await page.locator('.modal-body .quran-missing-note').first().innerText();
+    if (!studyFallback.includes('غير مستورد')) {
+      errors.push(`[${name}] study modal missing Quran text fallback`);
+    }
   }
   const mushafBtnStudy = await page.locator('.modal-body [data-mushaf-open]').count();
   if (mushafBtnStudy < 1) errors.push(`[${name}] study modal missing فتح في المصحف button`);
@@ -303,11 +327,6 @@ for (const { name, context } of contexts) {
   // Mushaf Reader section
   await page.goto('http://127.0.0.1:3456/#mushaf', { waitUntil: 'networkidle' });
   await page.waitForSelector('#mushaf', { timeout: 15000 });
-  const quranImported = await page.evaluate(async () => {
-    const res = await fetch('./data/quran/quran_text.index.json');
-    const data = await res.json();
-    return Boolean(data.is_full_quran && data.ayah_count === 6236);
-  });
   const mushafHeading = await page.locator('#mushaf h2').innerText();
   if (!mushafHeading.includes('قارئ المصحف')) {
     errors.push(`[${name}] mushaf section missing heading`);
