@@ -80,10 +80,26 @@ for (const { name, context } of contexts) {
   await page.waitForTimeout(300);
   await page.click('#graph-reset');
 
-  // Admin Evidence Curation workbench
+  // Admin Review — reviewer dashboard & navigation
   await page.goto('http://127.0.0.1:3456/#admin-review', { waitUntil: 'networkidle' });
-  await page.waitForSelector('#admin-review .admin-tabs', { timeout: 15000 });
-  await page.locator('[data-tab="curation"]').click();
+  await page.waitForSelector('#admin-review', { timeout: 15000 });
+  const demoBanner = await page.locator('#admin-review .admin-demo-banner').first().innerText();
+  if (!demoBanner.includes('وضع تجريبي محلي')) {
+    errors.push(`[${name}] admin review missing local demo banner`);
+  }
+  const reviewerNav = await page.locator('[data-reviewer-tab="dashboard"]').count();
+  if (reviewerNav < 1) errors.push(`[${name}] reviewer navigation missing`);
+
+  await page.locator('[data-reviewer-tab="dashboard"]').click();
+  await page.waitForTimeout(400);
+  await page.waitForSelector('#reviewer-dashboard', { timeout: 10000 });
+  const dashboardHeading = await page.locator('#reviewer-dashboard h2').innerText();
+  if (!dashboardHeading.includes('لوحة المراجع')) {
+    errors.push(`[${name}] reviewer dashboard missing heading`);
+  }
+
+  // Evidence Curation workbench
+  await page.locator('[data-reviewer-tab="curation"]').click();
   await page.waitForTimeout(400);
   await page.waitForSelector('.admin-curation', { timeout: 10000 });
   const curationQueue = await page.locator('.curation-queue-item').count();
@@ -115,7 +131,7 @@ for (const { name, context } of contexts) {
   }
 
   // Content Batches tab
-  await page.locator('[data-tab="batches"]').click();
+  await page.locator('[data-reviewer-tab="batches"]').click();
   await page.waitForTimeout(400);
   await page.waitForSelector('.admin-batches', { timeout: 10000 });
   const batchesTab = await page.locator('.admin-main h3.gold').first().innerText();
@@ -138,21 +154,54 @@ for (const { name, context } of contexts) {
     errors.push(`[${name}] content batch sample create failed: ${batchMsg || '(empty)'}`);
   }
 
-  // Admin Review local demo banner + review history
-  await page.locator('[data-tab="review"]').click();
-  await page.waitForTimeout(300);
-  const demoBanner = await page.locator('#admin-review .admin-demo-banner').first().innerText();
-  if (!demoBanner.includes('وضع تجريبي محلي')) {
-    errors.push(`[${name}] admin review missing local demo banner`);
-  }
+  // Review Queue — confirmation + filters
+  await page.locator('[data-reviewer-tab="review"]').click();
+  await page.waitForTimeout(400);
+  const filterChips = await page.locator('.filter-chips .filter-chip').count();
+  if (filterChips < 1) errors.push(`[${name}] review queue filter chips missing`);
   await page.locator('.admin-queue-item').first().click();
   await page.waitForTimeout(200);
+  await page.fill('#admin-note', 'qa test note for needs_source');
   await page.locator('#admin-detail [data-action="needs_source"]').click();
+  await page.waitForSelector('.qsu-confirm-overlay', { timeout: 5000 });
+  await page.fill('#qsu-confirm-reviewer-note', 'qa confirmation note');
+  await page.click('#qsu-confirm-ok');
   await page.waitForTimeout(800);
   const detailText = await page.locator('#admin-detail').innerText();
-  if (!detailText.includes('needs_source') && !detailText.includes('سجل إجراءات المراجعة')) {
+  if (!detailText.includes('سجل إجراءات المراجعة')) {
     errors.push(`[${name}] admin review history panel missing after action`);
   }
+
+  // Review History tab
+  await page.locator('[data-reviewer-tab="history"]').click();
+  await page.waitForTimeout(400);
+  const historyPanel = await page.locator('.review-history-panel h3').innerText();
+  if (!historyPanel.includes('سجل المراجعات')) {
+    errors.push(`[${name}] review history panel missing`);
+  }
+
+  // Profile tab + sign-in UI
+  await page.locator('[data-reviewer-tab="profile"]').click();
+  await page.waitForTimeout(400);
+  const profilePanel = await page.locator('.reviewer-profile-panel h3').innerText();
+  if (!profilePanel.includes('إعدادات الحساب')) {
+    errors.push(`[${name}] reviewer profile panel missing`);
+  }
+  const signInView = await page.locator('#sign-in-view').count();
+  if (signInView < 1) errors.push(`[${name}] sign-in UI missing in profile`);
+
+  // Saved filters persist
+  await page.locator('[data-reviewer-tab="review"]').click();
+  await page.waitForTimeout(300);
+  await page.fill('#admin-q', 'yusuf');
+  await page.click('#save-filters');
+  await page.waitForTimeout(300);
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForSelector('#admin-review', { timeout: 15000 });
+  await page.locator('[data-reviewer-tab="review"]').click();
+  await page.waitForTimeout(400);
+  const savedQ = await page.locator('#admin-q').inputValue();
+  if (savedQ !== 'yusuf') errors.push(`[${name}] saved review filters did not persist`);
 
   // Story Mode Quran text fallback (no full import in repo)
   await page.goto('http://127.0.0.1:3456/#story', { waitUntil: 'networkidle' });

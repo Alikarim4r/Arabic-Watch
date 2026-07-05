@@ -1,24 +1,41 @@
-import { getRepository, getDataMode, isFinalContent, getEvidenceWarningAr } from '../../lib/dataService.js';
+import { getRepository, getDataMode, isFinalContent } from '../../lib/dataService.js';
 import { getEnvConfig, isLocalRuntime, isSupabaseRuntime } from '../../config/env.js';
 import {
   canAccessAdminReview,
+  formatAuthError,
   getAuthModeLabelAr,
   getAuthState,
+  invalidateAuthCache,
   isAdmin,
   isReviewer,
+  setLocalMockRole,
+  signIn,
+  signOut,
 } from '../../lib/authService.js';
 import { escapeHtml, formatAyahRef } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
+import { showToast, initToastContainer } from '../../components/toast.js';
+import { showConfirmDialog } from '../../components/confirmDialog.js';
+import { renderAccessDeniedView } from '../auth/accessDeniedView.js';
+import { renderAuthStatusPanel } from '../auth/authStatusPanel.js';
+import { bindSignInView, renderSignInView } from '../auth/signInView.js';
 import {
+  applyChipFilter,
+  buildFilterChips,
   buildReviewQueue,
   filterReviewQueue,
   getNonFinalRecords,
+  loadSavedReviewFilters,
   resolveSourceLabels,
+  saveReviewFilters,
+  sortReviewQueueByPriority,
   summarizeReviewStats,
 } from './reviewQueue.js';
 import {
   applyMockOverrides,
+  actionRequiresConfirmation,
+  actionRequiresNote,
   loadReviewActionHistory,
   renderReviewHistoryHtml,
   saveMockOverride,
@@ -26,6 +43,10 @@ import {
 } from './reviewActions.js';
 import { renderEvidenceCurationPanel } from './evidenceCurationPanel.js';
 import { renderContentBatchesPanel } from './contentBatchesPanel.js';
+import { renderReviewerDashboard } from './reviewerDashboard.js';
+import { renderReviewHistoryPanel } from './reviewHistoryPanel.js';
+import { renderReviewerProfilePanel } from './reviewerProfilePanel.js';
+import { bindReviewerNav, renderReviewerNav } from './reviewerNav.js';
 
 /** @type {Object|null} */
 let state = null;
@@ -34,146 +55,314 @@ let state = null;
  * @param {HTMLElement} container
  */
 export async function renderAdminReview(container) {
+  initToastContainer();
   container.innerHTML = `
     <section id="admin-review" class="admin-review">
       <div class="wrap">
         <div class="head">
           <span class="eyebrow">حوكمة المحتوى</span>
-          <h2>لوحة مراجعة المحتوى (Admin Review)</h2>
-          <p>مراجعة السجلات قبل النشر النهائي — الإجراءات تجريبية حتى ربط Supabase.</p>
+          <h2>لوحة المراجع (Reviewer Dashboard)</h2>
+          <p>مراجعة السجلات قبل النشر النهائي — لا يُعتمد المحتوى تلقائيًا.</p>
         </div>
-        <div id="admin-review-root"><div class="state-box">جاري تحميل قائمة المراجعة…</div></div>
+        <div id="admin-review-root"><div class="state-box">جاري تحميل لوحة المراجع…</div></div>
       </div>
     </section>
   `;
 
   const root = container.querySelector('#admin-review-root');
-  const repo = await getRepository();
-  const [nodes, events, themes, eventAyahs, tafsirSources, surahs] = await Promise.all([
-    repo.getNodes(),
-    repo.getEvents(),
-    repo.getThemes(),
-    repo.getEventAyahs(),
-    repo.getTafsirSources(),
-    repo.getSurahs(),
-  ]);
 
-  const env = getEnvConfig();
-  const auth = await getAuthState();
-  const canAccess = await canAccessAdminReview();
-  const provider = (await repo.getProvider?.()) || getDataMode();
+  try {
+    const repo = await getRepository();
+    const [nodes, events, themes, eventAyahs, tafsirSources, surahs] = await Promise.all([
+      repo.getNodes(),
+      repo.getEvents(),
+      repo.getThemes(),
+      repo.getEventAyahs(),
+      repo.getTafsirSources(),
+      repo.getSurahs(),
+    ]);
 
-  if (!canAccess) {
-    root.innerHTML = renderAccessDenied(auth);
-    return;
+    const env = getEnvConfig();
+    const auth = await getAuthState();
+    const canAccess = await canAccessAdminReview();
+
+    if (!canAccess) {
+      root.innerHTML = renderSignInShell(auth, { accessDenied: true });
+      bindAuthShell(root, { repo: null });
+      return;
+    }
+
+    const savedFilters = loadSavedReviewFilters();
+    state = {
+      repo,
+      auth,
+      env,
+      nodes,
+      events,
+      themes,
+      eventAyahs,
+      tafsirSources,
+      surahs,
+      allRecords: buildReviewQueue({ nodes, events, themes, eventAyahs, tafsirSources }),
+      activeTab: 'dashboard',
+      curationSelectedId: null,
+      batchSelectedId: null,
+      historyFilters: {},
+      authLoading: false,
+      authError: '',
+      panelError: '',
+      panelLoading: false,
+      activeChip: '',
+      filters: savedFilters || {
+        recordType: '',
+        reviewStatus: '',
+        sourceStatus: '',
+        sourceId: '',
+        nodeType: '',
+        evidenceStatus: '',
+        evidenceConfidence: '',
+        onlyNotFinal: false,
+        q: '',
+      },
+      selectedId: null,
+      selectedType: null,
+    };
+
+    await renderAdminPanel(root);
+  } catch (err) {
+    root.innerHTML = `<div class="state-box error">${escapeHtml(err.message)}<br/><button type="button" class="btn sm" id="admin-retry">إعادة المحاولة</button></div>`;
+    root.querySelector('#admin-retry')?.addEventListener('click', () => renderAdminReview(container));
   }
-
-  state = {
-    repo,
-    auth,
-    env,
-    nodes,
-    events,
-    themes,
-    eventAyahs,
-    tafsirSources,
-    surahs,
-    allRecords: buildReviewQueue({ nodes, events, themes, eventAyahs, tafsirSources }),
-    activeTab: 'review',
-    curationSelectedId: null,
-    batchSelectedId: null,
-    filters: {
-      recordType: '',
-      reviewStatus: 'pending',
-      sourceStatus: '',
-      sourceId: '',
-      nodeType: '',
-      evidenceStatus: '',
-      evidenceConfidence: '',
-      onlyNotFinal: false,
-      q: '',
-    },
-    selectedId: null,
-    toast: '',
-  };
-
-  renderAdminPanel(root);
 }
 
-function renderAccessDenied(auth) {
+function renderSignInShell(auth, { accessDenied = false } = {}) {
   return `
-    <div class="glass pad admin-access-denied">
-      <h3 class="gold">صلاحية المراجعة مطلوبة</h3>
-      <p>وضع Supabase نشط — يلزم حساب <strong>reviewer</strong> أو <strong>admin</strong> للوصول إلى لوحة المراجعة.</p>
-      <p class="muted">المستخدم الحالي: ${escapeHtml(auth.user?.email || 'غير مسجّل')} · الدور: ${escapeHtml(auth.role)}</p>
-      <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
-    </div>`;
+    ${renderAuthStatusPanel({ auth, error: state?.authError })}
+    ${renderSignInView({ auth, loading: state?.authLoading, error: state?.authError })}
+    ${accessDenied ? renderAccessDeniedView({ user: auth.user, role: auth.role }) : ''}
+  `;
+}
+
+function bindAuthShell(root, { repo }) {
+  bindSignInView(root, {
+    onSignIn: async (email, password) => {
+      state = state || {};
+      state.authLoading = true;
+      state.authError = '';
+      const result = await signIn(email, password);
+      state.authLoading = false;
+      if (!result.ok) {
+        state.authError = formatAuthError(result.error);
+        showToast(state.authError, 'error');
+        return;
+      }
+      invalidateAuthCache();
+      showToast('تم تسجيل الدخول بنجاح', 'success');
+      if (repo) await renderAdminPanel(root.closest('#admin-review-root') || root);
+      else location.reload();
+    },
+    onSignOut: async () => {
+      await signOut();
+      invalidateAuthCache();
+      showToast('تم تسجيل الخروج', 'info');
+      location.reload();
+    },
+    onMockRole: (role) => {
+      setLocalMockRole(role);
+      invalidateAuthCache();
+      showToast(role ? `دور تجريبي: ${role}` : 'تم مسح الدور التجريبي', 'info');
+      location.reload();
+    },
+  });
+}
+
+async function refreshAuth() {
+  invalidateAuthCache();
+  state.auth = await getAuthState();
 }
 
 async function renderAdminPanel(root) {
   if (!state) return;
 
-  if (state.activeTab === 'curation') {
-    await renderEvidenceCurationPanel(root, {
-      repo: state.repo,
-      auth: state.auth,
-      isLocalMode: isLocalRuntime(),
-      isSupabaseMode: isSupabaseRuntime(),
-      canSubmitPatches: isLocalRuntime() || (await isReviewer()),
-      isAdmin: await isAdmin(),
-      events: state.events,
-      nodes: state.nodes,
-      themes: state.themes,
-      eventAyahs: state.eventAyahs,
-      tafsirSources: state.tafsirSources,
-      surahs: state.surahs,
-      curationSelectedId: state.curationSelectedId,
-      onTabChange: (tab) => {
-        state.activeTab = tab;
-        renderAdminPanel(root);
-      },
-      onSelectEvent: (id) => {
-        state.curationSelectedId = id;
-        renderAdminPanel(root);
-      },
-      onToast: (msg) => {
-        state.toast = msg;
-        renderAdminPanel(root);
-      },
-    });
+  const canAccess = await canAccessAdminReview();
+  if (!canAccess) {
+    root.innerHTML = renderSignInShell(state.auth, { accessDenied: true });
+    bindAuthShell(root, { repo: state.repo });
     return;
   }
 
-  if (state.activeTab === 'batches') {
-    await renderContentBatchesPanel(root, {
-      repo: state.repo,
-      auth: state.auth,
-      isLocalMode: isLocalRuntime(),
-      isSupabaseMode: isSupabaseRuntime(),
-      canSubmitBatches: isLocalRuntime() || (await isReviewer()),
-      isAdmin: await isAdmin(),
-      batchSelectedId: state.batchSelectedId,
-      onTabChange: (tab) => {
-        state.activeTab = tab;
-        renderAdminPanel(root);
-      },
-      onSelectBatch: (id) => {
-        state.batchSelectedId = id;
-        renderAdminPanel(root);
-      },
-      onRefreshBatches: () => {
-        renderAdminPanel(root);
-      },
-      onToast: (msg) => {
-        state.toast = msg;
-      },
-    });
-    return;
-  }
+  const demoBanner = isLocalRuntime()
+    ? `<div class="draft-banner admin-demo-banner">${escapeHtml(getAuthModeLabelAr())}</div>`
+    : `<div class="admin-warning">${escapeHtml(getAuthModeLabelAr())}</div>`;
 
+  root.innerHTML = `
+    ${demoBanner}
+    ${renderAuthStatusPanel({ auth: state.auth, error: state.authError })}
+    ${renderReviewerNav(state.activeTab, { isAdmin: await isAdmin() })}
+    <div id="admin-active-panel"></div>
+  `;
+
+  bindReviewerNav(root, (tab) => {
+    state.activeTab = tab;
+    renderAdminPanel(root);
+  });
+
+  const panel = root.querySelector('#admin-active-panel');
+  if (!panel) return;
+
+  switch (state.activeTab) {
+    case 'dashboard':
+      await renderDashboardPanel(panel);
+      break;
+    case 'curation':
+      await renderEvidenceCurationPanel(panel, buildSubCtx());
+      break;
+    case 'batches':
+      await renderContentBatchesPanel(panel, buildSubCtx());
+      break;
+    case 'history':
+      await renderHistoryPanel(panel);
+      break;
+    case 'profile':
+      await renderProfilePanel(panel);
+      break;
+    case 'review':
+    default:
+      await renderReviewQueuePanel(panel);
+      break;
+  }
+}
+
+function buildSubCtx() {
+  return {
+    repo: state.repo,
+    auth: state.auth,
+    isLocalMode: isLocalRuntime(),
+    isSupabaseMode: isSupabaseRuntime(),
+    canSubmitPatches: isLocalRuntime() || state.auth.role === 'reviewer' || state.auth.role === 'admin',
+    canSubmitBatches: isLocalRuntime() || state.auth.role === 'reviewer' || state.auth.role === 'admin',
+    isAdmin: state.auth.role === 'admin',
+    events: state.events,
+    nodes: state.nodes,
+    themes: state.themes,
+    eventAyahs: state.eventAyahs,
+    tafsirSources: state.tafsirSources,
+    surahs: state.surahs,
+    curationSelectedId: state.curationSelectedId,
+    batchSelectedId: state.batchSelectedId,
+    onTabChange: (tab) => {
+      state.activeTab = tab;
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+    onSelectEvent: (id) => {
+      state.curationSelectedId = id;
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+    onSelectBatch: (id) => {
+      state.batchSelectedId = id;
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+    onRefreshBatches: () => renderAdminPanel(document.querySelector('#admin-review-root')),
+    onToast: (msg) => showToast(msg, 'success'),
+    showConfirmDialog,
+  };
+}
+
+async function renderDashboardPanel(panel) {
+  const recentActions = (await state.repo.getAllReviewActionHistory?.(12)) || [];
+  const recentPatches = (await state.repo.getEvidencePatchSubmissions?.(8)) || [];
+  const recentBatches = (await state.repo.getContentChangeBatches?.()) || [];
+  await renderReviewerDashboard(panel, {
+    allRecords: applyMockOverrides(state.allRecords),
+    auth: state.auth,
+    recentActions,
+    recentPatches,
+    recentBatches,
+    onGotoTab: (tab) => {
+      state.activeTab = tab;
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+  });
+}
+
+async function renderHistoryPanel(panel) {
+  state.panelLoading = true;
+  await renderReviewHistoryPanel(panel, { history: [], loading: true });
+  const history = (await state.repo.getAllReviewActionHistory?.(200)) || [];
+  state.panelLoading = false;
+  await renderReviewHistoryPanel(panel, {
+    history,
+    loading: false,
+    filters: state.historyFilters,
+    onFilterChange: (f) => {
+      state.historyFilters = f;
+      renderHistoryPanel(panel);
+    },
+    onRetry: () => renderHistoryPanel(panel),
+  });
+}
+
+async function renderProfilePanel(panel) {
+  const history = (await state.repo.getAllReviewActionHistory?.(500)) || [];
+  const patches = (await state.repo.getEvidencePatchSubmissions?.(100)) || [];
+  const profile = (await state.repo.getReviewerProfile?.()) || null;
+  const stats = {
+    actionCount: history.length,
+    approvedCount: history.filter((h) => h.action === 'approve').length,
+    rejectedCount: history.filter((h) => ['reject', 'request_revision'].includes(h.action)).length,
+    patchCount: patches.length,
+    lastActivity: history[0]?.created_at || null,
+  };
+  await renderReviewerProfilePanel(panel, {
+    auth: state.auth,
+    profile,
+    stats,
+    isAdmin: await isAdmin(),
+    reviewerList: (await state.repo.getReviewerProfiles?.()) || [],
+    loading: false,
+    onRetry: () => renderProfilePanel(panel),
+  });
+
+  const signInMount = document.createElement('div');
+  signInMount.style.marginTop = '16px';
+  panel.appendChild(signInMount);
+  signInMount.innerHTML = renderSignInView({ auth: state.auth, loading: state.authLoading, error: state.authError });
+  bindSignInView(signInMount, {
+    onSignIn: async (email, password) => {
+      state.authLoading = true;
+      const result = await signIn(email, password);
+      state.authLoading = false;
+      if (!result.ok) {
+        state.authError = formatAuthError(result.error);
+        showToast(state.authError, 'error');
+      } else {
+        await refreshAuth();
+        showToast('تم تسجيل الدخول', 'success');
+      }
+      renderProfilePanel(panel);
+    },
+    onSignOut: async () => {
+      await signOut();
+      await refreshAuth();
+      showToast('تم تسجيل الخروج', 'info');
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+    onMockRole: (role) => {
+      setLocalMockRole(role);
+      invalidateAuthCache();
+      showToast(role ? `دور: ${role}` : 'مسح الدور', 'info');
+      location.reload();
+    },
+  });
+}
+
+async function renderReviewQueuePanel(panel) {
   let records = applyMockOverrides(state.allRecords);
-  records = filterReviewQueue(records, state.filters);
+  records = sortReviewQueueByPriority(filterReviewQueue(records, state.filters));
+  if (state.activeChip) records = applyChipFilter(records, state.activeChip);
+
   const stats = summarizeReviewStats(applyMockOverrides(state.allRecords));
+  const chips = buildFilterChips(applyMockOverrides(state.allRecords));
   const nonFinal = getNonFinalRecords(applyMockOverrides(state.allRecords));
   const selected =
     records.find((r) => r.id === state.selectedId && r.recordType === state.selectedType) ||
@@ -185,15 +374,7 @@ async function renderAdminPanel(root) {
     state.selectedType = selected.recordType;
   }
 
-  const pendingRatio = stats.total ? stats.pending / stats.total : 0;
-  const warning =
-    pendingRatio > 0.5
-      ? `<div class="admin-warning">⚠️ ${stats.pending + stats.needs_source} سجلًا (${Math.round(pendingRatio * 100)}%) ما زال قيد المراجعة — لا يُعرض كمحتوى نهائي في الوضع العام.</div>`
-      : '';
-
-  const demoBanner = isLocalRuntime()
-    ? `<div class="draft-banner admin-demo-banner">${escapeHtml(getAuthModeLabelAr())}</div>`
-    : `<div class="admin-warning">${escapeHtml(getAuthModeLabelAr())}</div>`;
+  const selectedIndex = selected ? records.findIndex((r) => r.id === selected.id && r.recordType === selected.recordType) : -1;
 
   let historyHtml = '<p class="muted">—</p>';
   if (selected && state.repo.getReviewActionHistory) {
@@ -201,13 +382,7 @@ async function renderAdminPanel(root) {
     historyHtml = renderReviewHistoryHtml(history, { localMode: isLocalRuntime() });
   }
 
-  root.innerHTML = `
-    ${demoBanner}
-    <div class="admin-tabs">
-      <button type="button" class="btn sm primary" data-tab="review">مراجعة عامة</button>
-      <button type="button" class="btn sm" data-tab="curation">Evidence Curation</button>
-      <button type="button" class="btn sm" data-tab="batches">دفعات المحتوى</button>
-    </div>
+  panel.innerHTML = `
     <div class="admin-grid">
       <aside class="glass pad admin-sidebar">
         <div class="admin-stats">
@@ -215,161 +390,70 @@ async function renderAdminPanel(root) {
           <div class="stat ok"><strong>${stats.approved}</strong><span>مراجَع</span></div>
           <div class="stat warn"><strong>${stats.pending}</strong><span>قيد المراجعة</span></div>
           <div class="stat rose"><strong>${stats.needs_source}</strong><span>يحتاج مصدر</span></div>
-          <div class="stat warn"><strong>${stats.needs_precise_mapping || 0}</strong><span>يحتاج ربط آيات</span></div>
         </div>
-        ${warning}
-        ${
-          stats.needs_precise_mapping
-            ? `<div class="admin-warning">📍 ${stats.needs_precise_mapping} سجلًا بدون دليل قرآني دقيق — لا يُعرض كمحتوى نهائي.</div>`
-            : ''
-        }
-        <p class="muted admin-meta">وضع البيانات: <strong>${escapeHtml(getDataMode())}</strong> · المطلوب: <strong>${escapeHtml(state.env.dataMode)}</strong> · المزود: <strong>${escapeHtml(String(providerLabel()))}</strong> · الدور: <strong>${escapeHtml(state.auth.role)}</strong></p>
+        <div class="filter-chips">
+          ${chips.map((c) => `<button type="button" class="btn sm filter-chip ${state.activeChip === c.key ? 'primary' : ''}" data-chip="${c.key}">${escapeHtml(c.label_ar)} (${c.count})</button>`).join('')}
+          ${state.activeChip ? '<button type="button" class="btn sm" id="clear-chip">مسح</button>' : ''}
+        </div>
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
-
         <h3 class="gold">تصفية</h3>
         <div class="admin-filters">
-          <input type="search" id="admin-q" placeholder="بحث…" value="${escapeHtml(state.filters.q)}" />
+          <input type="search" id="admin-q" placeholder="بحث record_id / title / node…" value="${escapeHtml(state.filters.q)}" />
           <select id="admin-type">
-            <option value="" ${state.filters.recordType === '' ? 'selected' : ''}>كل الأنواع</option>
+            <option value="">كل الأنواع</option>
             <option value="node" ${state.filters.recordType === 'node' ? 'selected' : ''}>عقدة</option>
             <option value="event" ${state.filters.recordType === 'event' ? 'selected' : ''}>حدث</option>
             <option value="theme" ${state.filters.recordType === 'theme' ? 'selected' : ''}>محور</option>
           </select>
           <select id="admin-review-status">
-            <option value="" ${state.filters.reviewStatus === '' ? 'selected' : ''}>كل حالات المراجعة</option>
-            <option value="pending" ${state.filters.reviewStatus === 'pending' ? 'selected' : ''}>قيد المراجعة</option>
-            <option value="needs_source" ${state.filters.reviewStatus === 'needs_source' ? 'selected' : ''}>يحتاج مصدر</option>
-            <option value="approved" ${state.filters.reviewStatus === 'approved' ? 'selected' : ''}>مراجَع</option>
-          </select>
-          <select id="admin-source-status">
-            <option value="">كل حالات المصدر</option>
-            <option value="cited">cited</option>
-            <option value="pending">pending</option>
-            <option value="needs_source">needs_source</option>
-            <option value="none">none</option>
-          </select>
-          <select id="admin-source-id">
-            <option value="">كل المصادر</option>
-            ${state.tafsirSources.map((s) => `<option value="${s.id}">${escapeHtml(s.name_ar)}</option>`).join('')}
-          </select>
-          <select id="admin-node-type">
-            <option value="">نوع العقدة</option>
-            <option value="prophet">نبي</option>
-            <option value="person">شخصية</option>
-            <option value="place">مكان</option>
-            <option value="theme">محور</option>
-            <option value="surah">سورة</option>
-          </select>
-          <select id="admin-evidence-status">
-            <option value="" ${state.filters.evidenceStatus === '' ? 'selected' : ''}>كل حالات الأدلة</option>
-            <option value="precise_evidence" ${state.filters.evidenceStatus === 'precise_evidence' ? 'selected' : ''}>precise_evidence</option>
-            <option value="needs_precise_mapping" ${state.filters.evidenceStatus === 'needs_precise_mapping' ? 'selected' : ''}>needs_precise_mapping</option>
-          </select>
-          <select id="admin-evidence-confidence">
-            <option value="" ${state.filters.evidenceConfidence === '' ? 'selected' : ''}>كل مستويات الثقة</option>
-            <option value="quran_explicit" ${state.filters.evidenceConfidence === 'quran_explicit' ? 'selected' : ''}>quran_explicit</option>
-            <option value="tafsir_based" ${state.filters.evidenceConfidence === 'tafsir_based' ? 'selected' : ''}>tafsir_based</option>
-            <option value="scholarly_inference" ${state.filters.evidenceConfidence === 'scholarly_inference' ? 'selected' : ''}>scholarly_inference</option>
-            <option value="needs_review" ${state.filters.evidenceConfidence === 'needs_review' ? 'selected' : ''}>needs_review</option>
+            <option value="">كل حالات المراجعة</option>
+            <option value="pending" ${state.filters.reviewStatus === 'pending' ? 'selected' : ''}>pending</option>
+            <option value="needs_source" ${state.filters.reviewStatus === 'needs_source' ? 'selected' : ''}>needs_source</option>
+            <option value="approved" ${state.filters.reviewStatus === 'approved' ? 'selected' : ''}>approved</option>
           </select>
           <label class="admin-check"><input type="checkbox" id="admin-not-final" ${state.filters.onlyNotFinal ? 'checked' : ''} /> غير نهائي فقط</label>
+          <button type="button" class="btn sm" id="save-filters">حفظ التصفية</button>
         </div>
-
+        <p class="muted" style="font-size:12px">اختصارات: j/k التالي/السابق · / بحث · Esc إغلاق</p>
         <h3 class="gold" style="margin-top:16px">غير قابل للعرض النهائي (${nonFinal.length})</h3>
-        <p class="muted" style="font-size:13px">محتوى يظهر للتجربة مع شارة مراجعة — لا يُعتبر تفسيرًا نهائيًا في الوضع العام.</p>
       </aside>
 
       <div class="admin-main glass pad">
         <div class="admin-queue-head">
           <h3 class="gold">قائمة المراجعة (${records.length})</h3>
-          ${state.toast ? `<div class="admin-toast">${escapeHtml(state.toast)}</div>` : ''}
+          <div class="admin-actions">
+            <button type="button" class="btn sm" id="prev-record" ${selectedIndex <= 0 ? 'disabled' : ''}>السابق</button>
+            <button type="button" class="btn sm" id="next-record" ${selectedIndex >= records.length - 1 ? 'disabled' : ''}>التالي</button>
+          </div>
         </div>
         <div class="admin-queue" id="admin-queue">
-          ${records.length ? records.map((r) => queueItemHtml(r, selected)).join('') : '<p class="muted">لا توجد سجلات مطابقة.</p>'}
+          ${records.length ? records.map((r) => queueItemHtml(r, selected)).join('') : '<div class="state-box">لا توجد سجلات مطابقة.</div>'}
         </div>
       </div>
 
       <div class="admin-detail glass pad" id="admin-detail">
-        ${selected ? detailHtml(selected, historyHtml) : '<p class="muted">اختر سجلًا للمراجعة.</p>'}
+        ${selected ? detailHtml(selected, historyHtml) : '<div class="state-box">اختر سجلًا للمراجعة.</div>'}
       </div>
     </div>
   `;
 
-  bindAdminEvents(root, records);
-
-  root.querySelector('[data-tab="curation"]')?.addEventListener('click', () => {
-    state.activeTab = 'curation';
-    state.toast = '';
-    renderAdminPanel(root);
-  });
-
-  root.querySelector('[data-tab="batches"]')?.addEventListener('click', () => {
-    state.activeTab = 'batches';
-    state.toast = '';
-    renderAdminPanel(root);
-  });
-}
-
-function providerLabel() {
-  const env = getEnvConfig();
-  if (env.effectiveDataMode === 'local') {
-    return env.dataMode === 'supabase' ? 'local JSON (supabase fallback)' : 'local JSON';
-  }
-  if (!env.isSupabaseConfigured) return 'supabase (fallback → local)';
-  return 'supabase';
+  bindReviewQueueEvents(panel, records, selectedIndex);
 }
 
 function queueItemHtml(record, selected) {
   const active =
-    selected && selected.id === record.id && selected.recordType === record.recordType
-      ? ' active'
-      : '';
+    selected && selected.id === record.id && selected.recordType === record.recordType ? ' active' : '';
   return `
     <button type="button" class="admin-queue-item${active}" data-id="${record.id}" data-type="${record.recordType}">
       <span class="tag">${escapeHtml(record.recordType)}</span>
       ${reviewBadgeHtml(record.review_status)}
-      ${record.evidence_status === 'needs_precise_mapping' ? '<span class="tag rose">needs_precise_mapping</span>' : ''}
       <strong>${escapeHtml(record.title_ar)}</strong>
       <span class="muted">${escapeHtml(record.id)}</span>
     </button>`;
 }
 
-function detailHtml(record, historyHtml = '<p class="muted">—</p>') {
+function detailHtml(record, historyHtml) {
   const sources = resolveSourceLabels(state.tafsirSources, record.source_ids);
-  const ayahList =
-    record.ayahs?.length > 0
-      ? record.ayahs
-          .map(
-            (a) =>
-              `<li>${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)} (${escapeHtml(a.relation_type)}) — ${escapeHtml(a.note_ar || '')}</li>`
-          )
-          .join('')
-      : '<li class="muted">لا توجد آيات مرتبطة — يحتاج needs_precise_mapping</li>';
-
-  const evidenceWarnings = [];
-  if (record.recordType === 'event' && record.evidence_status === 'needs_precise_mapping') {
-    evidenceWarnings.push('⚠️ لا يوجد ربط آيات دقيق — لا يُعرض كدليل نهائي.');
-  }
-  if (record.recordType === 'event' && !record.ayahs?.length) {
-    evidenceWarnings.push('⚠️ نطاق آيات مفقود.');
-  }
-  if (record.evidence_confidence === 'needs_review') {
-    evidenceWarnings.push('⚠️ الأدلة القرآنية مسودة وتحتاج مراجعة.');
-  }
-  const evidenceWarningHtml = evidenceWarnings.length
-    ? `<div class="admin-warning">${evidenceWarnings.map((w) => escapeHtml(w)).join('<br/>')}</div>`
-    : '';
-
-  const sourceList =
-    sources.length > 0
-      ? sources
-          .map(
-            (s) =>
-              `<li>${escapeHtml(s.name_ar)} ${s.is_approved ? '<span class="tag green">مسجّل</span>' : '<span class="tag rose">غير معتمد</span>'}</li>`
-          )
-          .join('')
-      : '<li class="muted">لا مصادر مسجّلة — يحتاج needs_source أو pending</li>';
-
   const finalLabel = isFinalContent(record.raw || record)
     ? '<span class="tag green">نهائي في الوضع العام</span>'
     : '<span class="tag rose">غير نهائي في الوضع العام</span>';
@@ -377,18 +461,14 @@ function detailHtml(record, historyHtml = '<p class="muted">—</p>') {
   return `
     <h3 class="gold">${escapeHtml(record.title_ar)}</h3>
     <p>${reviewBadgeHtml(record.review_status)} ${finalLabel}</p>
-    <p class="muted">المعرف: ${escapeHtml(record.id)} · النوع: ${escapeHtml(record.recordType)}${record.node_type ? ` · ${escapeHtml(record.node_type)}` : ''}${record.evidence_status ? ` · ${escapeHtml(record.evidence_status)}` : ''}${record.evidence_confidence ? ` · ${escapeHtml(record.evidence_confidence)}` : ''}</p>
-    ${evidenceWarningHtml}
+    <p class="muted">${escapeHtml(record.id)} · ${escapeHtml(record.recordType)}</p>
     <p style="margin-top:12px">${escapeHtml(record.summary_ar || '—')}</p>
 
-    <h4 class="gold" style="margin-top:18px">مراجع الآيات</h4>
-    <ul class="source-list">${ayahList}</ul>
-
-    <h4 class="gold">مراجع المصادر</h4>
-    <ul class="source-list">${sourceList}</ul>
-
-    <h4 class="gold" style="margin-top:18px">ملاحظة المراجع</h4>
-    <textarea id="admin-note" rows="3" placeholder="ملاحظة للمراجع (اختياري)">${escapeHtml(record.mockOverride?.note || '')}</textarea>
+    <h4 class="gold" style="margin-top:18px">ملاحظات المراجع</h4>
+    <textarea id="admin-note" rows="2" placeholder="reviewer_note (مطلوب للاعتماد/الرفض)">${escapeHtml(record.mockOverride?.note || '')}</textarea>
+    <label class="qsu-confirm-field">ملاحظة داخلية<textarea id="admin-internal-note" rows="2"></textarea></label>
+    <label class="qsu-confirm-field">ملاحظة المصدر<textarea id="admin-source-note" rows="2"></textarea></label>
+    <label class="qsu-confirm-field">ملاحظة الأدلة<textarea id="admin-evidence-note" rows="2"></textarea></label>
 
     <div class="admin-actions">
       <button type="button" class="btn primary sm" data-action="approve">اعتماد</button>
@@ -396,58 +476,134 @@ function detailHtml(record, historyHtml = '<p class="muted">—</p>') {
       <button type="button" class="btn sm" data-action="reject">رفض</button>
       <button type="button" class="btn sm" data-action="request_revision">طلب تعديل</button>
     </div>
-    <p class="muted" style="margin-top:10px;font-size:13px">${isLocalRuntime() ? 'الإجراءات تُحفظ في الجلسة فقط — لا تُعتمد تلقائيًا على المحتوى العام.' : 'الإجراءات تُسجَّل في Supabase — لا تُحدّث جداول المحتوى المعتمد تلقائيًا.'}</p>
 
     <h4 class="gold" style="margin-top:18px">سجل إجراءات المراجعة</h4>
     ${historyHtml}
   `;
 }
 
-function bindAdminEvents(root, records) {
+function bindReviewQueueEvents(root, records, selectedIndex) {
+  const rerender = () => renderAdminPanel(document.querySelector('#admin-review-root'));
+
   const applyFilters = () => {
     state.filters.q = root.querySelector('#admin-q')?.value || '';
     state.filters.recordType = root.querySelector('#admin-type')?.value || '';
     state.filters.reviewStatus = root.querySelector('#admin-review-status')?.value || '';
-    state.filters.sourceStatus = root.querySelector('#admin-source-status')?.value || '';
-    state.filters.sourceId = root.querySelector('#admin-source-id')?.value || '';
-    state.filters.nodeType = root.querySelector('#admin-node-type')?.value || '';
-    state.filters.evidenceStatus = root.querySelector('#admin-evidence-status')?.value || '';
-    state.filters.evidenceConfidence = root.querySelector('#admin-evidence-confidence')?.value || '';
     state.filters.onlyNotFinal = root.querySelector('#admin-not-final')?.checked || false;
-    renderAdminPanel(root);
+    rerender();
   };
 
-  ['#admin-q', '#admin-type', '#admin-review-status', '#admin-source-status', '#admin-source-id', '#admin-node-type', '#admin-evidence-status', '#admin-evidence-confidence', '#admin-not-final'].forEach(
-    (sel) => {
-      const el = root.querySelector(sel);
-      el?.addEventListener('input', applyFilters);
-      el?.addEventListener('change', applyFilters);
-    }
-  );
+  ['#admin-q', '#admin-type', '#admin-review-status', '#admin-not-final'].forEach((sel) => {
+    root.querySelector(sel)?.addEventListener('input', applyFilters);
+    root.querySelector(sel)?.addEventListener('change', applyFilters);
+  });
+
+  root.querySelector('#save-filters')?.addEventListener('click', () => {
+    saveReviewFilters(state.filters);
+    showToast('تم حفظ التصفية', 'success');
+  });
+
+  root.querySelectorAll('[data-chip]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.activeChip = btn.dataset.chip;
+      rerender();
+    });
+  });
+  root.querySelector('#clear-chip')?.addEventListener('click', () => {
+    state.activeChip = '';
+    rerender();
+  });
 
   root.querySelectorAll('.admin-queue-item').forEach((btn) => {
     btn.addEventListener('click', () => {
       state.selectedId = btn.dataset.id;
       state.selectedType = btn.dataset.type;
-      state.toast = '';
-      renderAdminPanel(root);
+      rerender();
     });
   });
 
+  root.querySelector('#prev-record')?.addEventListener('click', () => {
+    if (selectedIndex > 0) {
+      const prev = records[selectedIndex - 1];
+      state.selectedId = prev.id;
+      state.selectedType = prev.recordType;
+      rerender();
+    }
+  });
+
+  root.querySelector('#next-record')?.addEventListener('click', () => {
+    if (selectedIndex < records.length - 1) {
+      const next = records[selectedIndex + 1];
+      state.selectedId = next.id;
+      state.selectedType = next.recordType;
+      rerender();
+    }
+  });
+
+  const onKey = (e) => {
+    if (document.querySelector('.qsu-confirm-overlay')) return;
+    if (e.target.matches('textarea, input, select')) {
+      if (e.key === 'Escape') e.target.blur();
+      return;
+    }
+    if (e.key === 'j') root.querySelector('#next-record')?.click();
+    if (e.key === 'k') root.querySelector('#prev-record')?.click();
+    if (e.key === '/') {
+      e.preventDefault();
+      root.querySelector('#admin-q')?.focus();
+    }
+  };
+  if (state._keyHandler) document.removeEventListener('keydown', state._keyHandler);
+  state._keyHandler = onKey;
+  document.addEventListener('keydown', onKey);
+
   root.querySelectorAll('[data-action]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      const selected = records.find(
-        (r) => r.id === state.selectedId && r.recordType === state.selectedType
-      );
+      const selected = records.find((r) => r.id === state.selectedId && r.recordType === state.selectedType);
       if (!selected) return;
       const action = btn.dataset.action;
-      const note = root.querySelector('#admin-note')?.value || '';
-      if (isLocalRuntime()) {
-        saveMockOverride(selected, action, note);
+      const notes = {
+        reviewer_note: root.querySelector('#admin-note')?.value?.trim() || '',
+        internal_note: root.querySelector('#admin-internal-note')?.value?.trim() || '',
+        source_note: root.querySelector('#admin-source-note')?.value?.trim() || '',
+        evidence_note: root.querySelector('#admin-evidence-note')?.value?.trim() || '',
+      };
+
+      if (actionRequiresConfirmation(action)) {
+        const nextStatus = action === 'approve' ? 'approved' : action === 'needs_source' ? 'needs_source' : 'pending';
+        const confirmed = await showConfirmDialog({
+          title: 'تأكيد إجراء المراجعة',
+          actionLabel: action,
+          recordLabel: `${selected.recordType}:${selected.id}`,
+          currentStatus: selected.review_status,
+          newStatus: nextStatus,
+          affectsPublicFinal: action === 'approve',
+          requireNote: actionRequiresNote(action),
+          showInternalNote: true,
+          showSourceNote: true,
+          showEvidenceNote: true,
+        });
+        if (!confirmed.confirmed) return;
+        notes.reviewer_note = confirmed.reviewer_note || notes.reviewer_note;
+        notes.internal_note = confirmed.internal_note || notes.internal_note;
+        notes.source_note = confirmed.source_note || notes.source_note;
+        notes.evidence_note = confirmed.evidence_note || notes.evidence_note;
       }
-      const result = await submitReviewAction(state.repo, { record: selected, action, note });
-      state.toast = result.message || `تم تسجيل «${action}» لـ ${selected.title_ar}`;
-      await renderAdminPanel(root);
+
+      if (actionRequiresNote(action) && !notes.reviewer_note) {
+        showToast('ملاحظة المراجع مطلوبة لهذا الإجراء', 'error');
+        return;
+      }
+
+      if (isLocalRuntime()) saveMockOverride(selected, action, notes.reviewer_note);
+      const result = await submitReviewAction(state.repo, {
+        record: selected,
+        action,
+        notes,
+        reviewerName: state.auth.user?.displayName || state.auth.user?.email || 'reviewer',
+      });
+      showToast(result.message || `تم تسجيل «${action}»`, result.ok ? 'success' : 'error');
+      rerender();
     });
   });
 }

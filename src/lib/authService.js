@@ -144,7 +144,7 @@ export async function signIn(email, password) {
   }
 
   const { data, error } = await client.auth.signInWithPassword({ email, password });
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: formatAuthError(error.message) };
   invalidateAuthCache();
   return { ok: true, user: data.user };
 }
@@ -182,6 +182,17 @@ async function fetchReviewerRole(userId) {
     return data.role;
   }
   return 'viewer';
+}
+
+export function formatAuthError(error) {
+  if (!error) return 'حدث خطأ غير معروف أثناء تسجيل الدخول.';
+  const msg = String(error).toLowerCase();
+  if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
+    return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+  }
+  if (msg.includes('email not confirmed')) return 'يرجى تأكيد البريد الإلكتروني قبل تسجيل الدخول.';
+  if (msg.includes('not configured')) return 'خدمة المصادقة غير مهيأة — الوضع المحلي نشط.';
+  return 'تعذّر تسجيل الدخول. تحقق من البيانات وحاول مجددًا.';
 }
 
 export function invalidateAuthCache() {

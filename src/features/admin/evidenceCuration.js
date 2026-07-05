@@ -63,6 +63,49 @@ export function buildMappingQueue(events, nodes, themes, eventAyahs) {
 /** @type {Map<string, Object>} */
 export const sessionEvidencePatches = new Map();
 
+const CURATION_DRAFT_STORAGE_KEY = 'qsu_curation_drafts';
+
+function readDraftStore() {
+  if (typeof localStorage === 'undefined') return {};
+  try {
+    return JSON.parse(localStorage.getItem(CURATION_DRAFT_STORAGE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function writeDraftStore(store) {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(CURATION_DRAFT_STORAGE_KEY, JSON.stringify(store));
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * @param {string} eventId
+ * @param {Object} patch
+ */
+export function saveDraftToStorage(eventId, patch) {
+  const store = readDraftStore();
+  store[eventId] = { ...patch, event_id: eventId, saved_at: new Date().toISOString() };
+  writeDraftStore(store);
+}
+
+/** @param {string} eventId */
+export function loadDraftFromStorage(eventId) {
+  const store = readDraftStore();
+  return store[eventId] || null;
+}
+
+/**
+ * @param {string} eventId
+ */
+export function getDraftForEvent(eventId) {
+  return getSessionPatch(eventId) || loadDraftFromStorage(eventId);
+}
+
 /**
  * @param {string} eventId
  * @param {Object} patch

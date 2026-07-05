@@ -111,6 +111,43 @@ export function createLocalJsonRepository(data, quranIndex = null) {
       );
     },
 
+    async getAllReviewActionHistory(limit = 100) {
+      return sessionReviewHistory.slice(0, limit);
+    },
+
+    async getEvidencePatchSubmissions(limit = 50) {
+      return sessionEvidencePatches.slice(0, limit);
+    },
+
+    async getReviewerProfile() {
+      return {
+        email: 'local-mock@demo.local',
+        display_name: 'Local Demo Reviewer',
+        role: 'reviewer',
+        is_active: true,
+        last_activity: sessionReviewHistory[0]?.created_at || null,
+      };
+    },
+
+    async getReviewerProfiles() {
+      return [
+        {
+          email: 'local-mock@demo.local',
+          display_name: 'Local Demo Reviewer',
+          role: 'reviewer',
+          is_active: true,
+          last_activity: sessionReviewHistory[0]?.created_at || null,
+        },
+        {
+          email: 'admin@demo.local',
+          display_name: 'Demo Admin',
+          role: 'admin',
+          is_active: true,
+          last_activity: null,
+        },
+      ];
+    },
+
     /**
      * @param {Object} patchPayload
      */

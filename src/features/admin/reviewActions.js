@@ -3,6 +3,31 @@
 import { escapeHtml } from '../../lib/utils.js';
 import { isLocalRuntime } from '../../config/env.js';
 
+/** Actions that require confirmation before execution. */
+export const CONFIRMATION_ACTIONS = new Set([
+  'approve',
+  'reject',
+  'needs_source',
+  'request_revision',
+]);
+
+/** Actions that require a reviewer note. */
+export const REQUIRED_NOTE_ACTIONS = new Set(['approve', 'reject', 'request_revision']);
+
+/**
+ * @param {string} action
+ */
+export function actionRequiresNote(action) {
+  return REQUIRED_NOTE_ACTIONS.has(action);
+}
+
+/**
+ * @param {string} action
+ */
+export function actionRequiresConfirmation(action) {
+  return CONFIRMATION_ACTIONS.has(action);
+}
+
 /**
  * Map UI action to target review_status for audit rows (not auto-applied to content).
  * @param {ReviewAction} action
@@ -24,16 +49,21 @@ export function mapReviewActionToStatus(action) {
 
 /**
  * @param {import('../lib/repository.js').Repository} repo
- * @param {{ record: Object, action: ReviewAction, note?: string, reviewerName?: string }} params
+ * @param {{ record: Object, action: ReviewAction, note?: string, notes?: Object, reviewerName?: string }} params
  */
-export async function submitReviewAction(repo, { record, action, note = '', reviewerName = 'reviewer' }) {
+export async function submitReviewAction(repo, { record, action, note = '', notes = {}, reviewerName = 'reviewer' }) {
   const nextStatus = mapReviewActionToStatus(action);
+  const mergedNote = note || notes.reviewer_note || '';
   const payload = {
     contentType: record.recordType,
     contentId: record.id,
     action,
     nextStatus,
-    note,
+    note: mergedNote,
+    reviewer_note: mergedNote,
+    internal_note: notes.internal_note || null,
+    source_note: notes.source_note || null,
+    evidence_note: notes.evidence_note || null,
     reviewerName,
     previousStatus: record.review_status,
     evidence_status: record.evidence_status || null,

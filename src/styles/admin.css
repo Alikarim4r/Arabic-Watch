@@ -329,3 +329,126 @@
 .admin-apply-pipeline.rejected {
   margin-top: 12px;
 }
+
+.qsu-toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.qsu-toast {
+  background: rgba(20, 20, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s, transform 0.25s;
+  max-width: 360px;
+}
+
+.qsu-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.qsu-toast-success { border-color: rgba(52, 211, 153, 0.45); }
+.qsu-toast-error { border-color: rgba(244, 63, 94, 0.45); }
+.qsu-toast-warn { border-color: rgba(251, 191, 36, 0.45); }
+
+.qsu-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  z-index: 10000;
+  padding: 16px;
+}
+
+.qsu-confirm-dialog {
+  width: min(520px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.qsu-confirm-field {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.qsu-confirm-field textarea,
+.sign-in-form input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: inherit;
+  padding: 8px;
+  font-family: inherit;
+}
+
+.auth-status-panel,
+.sign-in-view { margin-bottom: 14px; }
+
+.auth-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sign-in-form { display: grid; gap: 10px; margin-top: 10px; }
+.sign-in-form label { display: grid; gap: 4px; font-size: 13px; }
+
+.reviewer-nav { margin-bottom: 16px; flex-wrap: wrap; }
+
+.reviewer-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.reviewer-action-card {
+  text-align: right;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 6px;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.curation-sticky-panel { position: sticky; top: 80px; }
+
+.curation-event-sticky {
+  position: sticky;
+  top: 0;
+  background: inherit;
+  padding-bottom: 8px;
+  z-index: 1;
+}
+
+.admin-patch-preview.admin-error {
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #fecdd3;
+}
+
+.admin-patch-preview.admin-ok {
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #a7f3d0;
+}

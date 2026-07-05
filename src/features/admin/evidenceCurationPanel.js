@@ -3,6 +3,7 @@ import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
 import { getAuthModeLabelAr } from '../../lib/authService.js';
 import { quranTextStatusBadgeHtml } from '../../lib/ayahDisplay.js';
+import { showToast } from '../../components/toast.js';
 import {
   buildExportPatch,
   EVIDENCE_GUIDANCE_AR,
@@ -12,22 +13,26 @@ import { submitEvidencePatch } from './reviewActions.js';
 import {
   buildMappingQueue,
   getAllSessionPatches,
-  getSessionPatch,
+  getDraftForEvent,
+  saveDraftToStorage,
   saveSessionPatch,
   summarizeEvidenceStats,
 } from './evidenceCuration.js';
+
+const APPROX_MAPPING_WARNING =
+  'لا تستخدم الربط التقريبي. يجب أن يكون الربط بالآيات واضحًا أو موثقًا.';
 
 /**
  * @param {HTMLElement} root
  * @param {Object} ctx
  */
 export async function renderEvidenceCurationPanel(root, ctx) {
-  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo, isLocalMode, canSubmitPatches } = ctx;
+  const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo, isLocalMode, canSubmitPatches, showConfirmDialog } = ctx;
   const stats = summarizeEvidenceStats(events, eventAyahs);
   const queue = buildMappingQueue(events, nodes, themes, eventAyahs);
   const selectedId = ctx.curationSelectedId || queue[0]?.id || null;
   const selected = queue.find((q) => q.id === selectedId) || queue[0] || null;
-  const draft = getSessionPatch(selected?.id) || {};
+  const draft = selected ? getDraftForEvent(selected.id) || {} : {};
 
   const eventIds = new Set(events.map((e) => e.id));
   const sourceIds = new Set(tafsirSources.map((s) => s.id));
@@ -45,15 +50,11 @@ export async function renderEvidenceCurationPanel(root, ctx) {
   }
 
   const quranImported = repo?.isQuranTextImported ? await repo.isQuranTextImported() : false;
+  const draftStatus = selected ? summarizeDraftStatus(selected, draft, validationCtx) : null;
 
   root.innerHTML = `
     <div class="admin-curation">
       ${isLocalMode ? `<div class="draft-banner admin-demo-banner">${escapeHtml(getAuthModeLabelAr())}</div>` : ''}
-      <div class="admin-tabs">
-        <button type="button" class="btn sm" data-tab="review">مراجعة عامة</button>
-        <button type="button" class="btn sm primary" data-tab="curation">Evidence Curation</button>
-        <button type="button" class="btn sm" data-tab="batches">دفعات المحتوى</button>
-      </div>
 
       <div class="admin-evidence-stats glass pad">
         <div class="admin-stats admin-stats-6">
@@ -65,8 +66,9 @@ export async function renderEvidenceCurationPanel(root, ctx) {
           <div class="stat rose"><strong>${stats.blockedFromFinal}</strong><span>محجوب عن النهائي</span></div>
         </div>
         <p class="muted" style="margin-top:10px">
-          حالة النص القرآني: ${quranImported ? '<span class="tag green">النص متوفر (6236)</span>' : '<span class="tag rose">النص غير مستورد</span>'}
+          حالة النص القرآني: ${quranImported ? '<span class="tag green">النص متوفر</span>' : '<span class="tag rose">النص غير مستورد</span>'}
         </p>
+        <div class="admin-warning">${escapeHtml(APPROX_MAPPING_WARNING)}</div>
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
       </div>
 
@@ -79,156 +81,136 @@ export async function renderEvidenceCurationPanel(root, ctx) {
         </aside>
 
         <div class="glass pad admin-main">
-          <h3 class="gold">الأحداث التي تحتاج ربطًا دقيقًا بالآيات (${queue.length})</h3>
+          <h3 class="gold">الأحداث التي تحتاج ربطًا دقيقًا (${queue.length})</h3>
           <div class="admin-queue" id="curation-queue">
-            ${queue.length ? queue.map((q) => curationQueueItem(q, selected)).join('') : '<p class="muted">لا توجد أحداث في قائمة الانتظار.</p>'}
+            ${queue.length ? queue.map((q) => curationQueueItem(q, selected)).join('') : '<div class="state-box">لا توجد أحداث في قائمة الانتظار.</div>'}
           </div>
         </div>
 
-        <div class="glass pad admin-detail" id="curation-form-wrap">
-          ${selected ? curationFormHtml(selected, draft, tafsirSources, selectedTextStatus) : '<p class="muted">اختر حدثًا من القائمة.</p>'}
+        <div class="glass pad admin-detail curation-sticky-panel" id="curation-form-wrap">
+          ${selected ? curationFormHtml(selected, draft, tafsirSources, selectedTextStatus, draftStatus) : '<div class="state-box">اختر حدثًا من القائمة.</div>'}
         </div>
       </div>
 
       <div class="glass pad admin-export-bar">
-        <p class="muted">الجلسة: ${getAllSessionPatches().length} مسودة · لا يتم اعتماد تلقائي</p>
+        <p class="muted">الجلسة: ${getAllSessionPatches().length} مسودة · autosave في localStorage</p>
         <div class="admin-actions">
-          <button type="button" class="btn sm" id="curation-save-draft">حفظ مسودة الجلسة</button>
+          <button type="button" class="btn sm" id="curation-copy-event-id" ${selected ? '' : 'disabled'}>copy event_id</button>
+          <button type="button" class="btn sm" id="curation-copy-patch">copy patch JSON</button>
+          <button type="button" class="btn sm" id="curation-save-draft">حفظ مسودة</button>
+          <button type="button" class="btn sm" id="curation-preview-patch">معاينة التحقق</button>
           <button type="button" class="btn primary sm" id="curation-export-patch">تصدير JSON Patch</button>
-          ${!isLocalMode && canSubmitPatches ? '<button type="button" class="btn sm" id="curation-submit-patch">إرسال Patch إلى Supabase</button>' : ''}
+          ${!isLocalMode && canSubmitPatches ? '<button type="button" class="btn sm" id="curation-submit-patch">إرسال Patch</button>' : ''}
         </div>
         <pre class="admin-patch-preview" id="curation-validation-msg"></pre>
       </div>
     </div>
   `;
 
-  root.querySelector('[data-tab="review"]')?.addEventListener('click', () => {
-    ctx.onTabChange('review');
-  });
-
-  root.querySelector('[data-tab="batches"]')?.addEventListener('click', () => {
-    ctx.onTabChange('batches');
-  });
-
   root.querySelectorAll('.curation-queue-item').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      ctx.onSelectEvent(btn.dataset.id);
-    });
+    btn.addEventListener('click', () => ctx.onSelectEvent(btn.dataset.id));
   });
 
-  root.querySelector('#curation-save-draft')?.addEventListener('click', () => {
+  const autosave = debounce(() => {
     if (!selected) return;
     const entry = readForm(root);
-    const result = validatePatchEntry(entry, validationCtx);
-    const msgEl = root.querySelector('#curation-validation-msg');
-    if (!result.valid) {
-      msgEl.textContent = result.errors.join('\n');
-      msgEl.className = 'admin-patch-preview admin-error';
-      return;
-    }
+    if (!entry?.event_id) return;
     saveSessionPatch(selected.id, entry);
-    msgEl.textContent = `تم حفظ مسودة الجلسة لـ ${selected.id} (غير معتمد)`;
-    msgEl.className = 'admin-patch-preview admin-ok';
+    saveDraftToStorage(selected.id, entry);
+    showToast('تم حفظ المسودة تلقائيًا', 'info', 2200);
+  }, 900);
+
+  root.querySelector('#curation-form')?.addEventListener('input', autosave);
+  root.querySelector('#curation-form')?.addEventListener('change', autosave);
+
+  root.querySelector('#curation-copy-event-id')?.addEventListener('click', async () => {
+    if (!selected) return;
+    await copyText(selected.id);
+    showToast('تم نسخ event_id', 'success');
   });
 
-  root.querySelector('#curation-export-patch')?.addEventListener('click', () => {
-    const patches = getAllSessionPatches();
-    const msgEl = root.querySelector('#curation-validation-msg');
-
-    if (!patches.length && selected) {
-      const current = readForm(root);
-      if (current?.event_id) {
-        const result = validatePatchEntry(current, validationCtx);
-        if (!result.valid) {
-          msgEl.textContent = result.errors.join('\n');
-          msgEl.className = 'admin-patch-preview admin-error';
-          return;
-        }
-        patches.push(current);
-      }
-    }
-
+  root.querySelector('#curation-copy-patch')?.addEventListener('click', async () => {
+    const patches = collectPatches(root, selected, validationCtx);
     if (!patches.length) {
-      msgEl.textContent = 'لا توجد مسودات للتصدير — املأ النموذج واحفظ مسودة أولًا.';
-      msgEl.className = 'admin-patch-preview admin-error';
+      showToast('لا توجد مسودة للنسخ', 'error');
       return;
     }
-
-    for (const p of patches) {
-      const result = validatePatchEntry(p, validationCtx);
-      if (!result.valid) {
-        msgEl.textContent = `${p.event_id}:\n${result.errors.join('\n')}`;
-        msgEl.className = 'admin-patch-preview admin-error';
-        return;
-      }
-    }
-
-    const payload = buildExportPatch(patches);
-    downloadJson(payload, `evidence_patch_${Date.now()}.json`);
-    msgEl.textContent = `تم تصدير ${patches.length} mapping(s) — status: proposed (غير معتمد)`;
-    msgEl.className = 'admin-patch-preview admin-ok';
+    await copyText(JSON.stringify(buildExportPatch(patches), null, 2));
+    showToast('تم نسخ patch JSON', 'success');
   });
+
+  root.querySelector('#curation-save-draft')?.addEventListener('click', () => saveDraftAction(root, selected, validationCtx, onToast));
+  root.querySelector('#curation-preview-patch')?.addEventListener('click', () => previewPatch(root, selected, validationCtx));
+  root.querySelector('#curation-export-patch')?.addEventListener('click', () => exportPatch(root, selected, validationCtx, onToast));
 
   root.querySelector('#curation-submit-patch')?.addEventListener('click', async () => {
+    const patches = collectPatches(root, selected, validationCtx);
     const msgEl = root.querySelector('#curation-validation-msg');
-    const patches = getAllSessionPatches();
-    if (!patches.length && selected) {
-      const current = readForm(root);
-      if (current?.event_id) patches.push(current);
-    }
     if (!patches.length) {
       msgEl.textContent = 'لا توجد مسودات للإرسال.';
       msgEl.className = 'admin-patch-preview admin-error';
       return;
     }
-    for (const p of patches) {
-      const result = validatePatchEntry(p, validationCtx);
-      if (!result.valid) {
-        msgEl.textContent = `${p.event_id}:\n${result.errors.join('\n')}`;
-        msgEl.className = 'admin-patch-preview admin-error';
-        return;
-      }
+    if (showConfirmDialog) {
+      const confirmed = await showConfirmDialog({
+        title: 'تأكيد إرسال evidence patch',
+        actionLabel: 'submit evidence patch',
+        recordLabel: `${patches.length} mapping(s)`,
+        requireNote: false,
+        showEvidenceNote: true,
+      });
+      if (!confirmed.confirmed) return;
     }
     const payload = buildExportPatch(patches);
     const submitResult = await submitEvidencePatch(repo, payload);
-    if (!submitResult.ok) {
-      msgEl.textContent = submitResult.message || submitResult.error || 'فشل الإرسال';
-      msgEl.className = 'admin-patch-preview admin-error';
-      return;
-    }
-    msgEl.textContent = submitResult.message || 'تم إرسال patch — غير معتمد تلقائيًا';
-    msgEl.className = 'admin-patch-preview admin-ok';
+    msgEl.textContent = submitResult.message || submitResult.error || '—';
+    msgEl.className = `admin-patch-preview ${submitResult.ok ? 'admin-ok' : 'admin-error'}`;
+    showToast(submitResult.message || 'تم الإرسال', submitResult.ok ? 'success' : 'error');
     onToast?.(submitResult.message);
   });
 }
 
+function summarizeDraftStatus(item, draft, ctx) {
+  const entry = { ...draft, event_id: item.id };
+  const validation = validatePatchEntry(entry, ctx);
+  if (validation.valid && entry.proposed_review_status !== 'approved') {
+    return { label: 'valid draft', className: 'admin-ok', detail: 'مسودة صالحة — proposed فقط' };
+  }
+  if (!entry.surah_id || !entry.ayah_from || !entry.ayah_to) {
+    return { label: 'missing ayah range', className: 'admin-error', detail: 'نطاق الآيات غير مكتمل' };
+  }
+  if (!entry.source_id) {
+    return { label: 'missing source', className: 'admin-error', detail: 'source_id مطلوب' };
+  }
+  if (entry.proposed_review_status === 'approved') {
+    return { label: 'cannot approve yet', className: 'admin-error', detail: 'لا يمكن الاعتماد من الواجهة' };
+  }
+  if (!validation.valid) {
+    return { label: 'validation errors', className: 'admin-error', detail: validation.errors.join(' · ') };
+  }
+  return { label: 'draft', className: 'warn', detail: '—' };
+}
+
 function curationQueueItem(item, selected) {
   const active = selected?.id === item.id ? ' active' : '';
-  const noAyah = !item.ayahs?.length;
   return `
     <button type="button" class="admin-queue-item curation-queue-item${active}" data-id="${item.id}">
       <span class="muted">${escapeHtml(item.id)}</span>
       <strong>${escapeHtml(item.title_ar)}</strong>
-      <span class="tag">${escapeHtml(item.node_name_ar)}</span>
       ${reviewBadgeHtml(item.review_status)}
-      ${noAyah ? '<span class="tag rose">⚠ لا نطاق آيات</span>' : '<span class="tag rose quran-text-badge">النص غير مستورد</span>'}
+      <span class="tag rose">needs_precise_mapping</span>
     </button>`;
 }
 
-function curationFormHtml(item, draft, tafsirSources, textStatus) {
-  const themeTags = (item.theme_names || []).map((t) => `<span class="tag green">${escapeHtml(t)}</span>`).join('');
-  const ayahWarn = !item.ayahs?.length
-    ? '<div class="admin-warning">⚠️ لا يوجد نطاق آيات — هذا الحدث محجوب عن العرض النهائي.</div>'
-    : '';
+function curationFormHtml(item, draft, tafsirSources, textStatus, draftStatus) {
   const textBadge = quranTextStatusBadgeHtml(textStatus);
-
   return `
-    <h3 class="gold">${escapeHtml(item.title_ar)}</h3>
-    <p class="muted">${escapeHtml(item.id)} · ${escapeHtml(item.node_name_ar)}</p>
-    <p>${reviewBadgeHtml(item.review_status)} <span class="tag">${escapeHtml(item.evidence_status)}</span> <span class="tag">${escapeHtml(item.evidence_confidence)}</span> ${textBadge}</p>
-    ${ayahWarn}
-    <p style="margin-top:10px">${escapeHtml(item.summary_ar || '—')}</p>
-    <div style="margin-top:8px">${themeTags || '<span class="muted">—</span>'}</div>
+    <div class="curation-event-sticky">
+      <h3 class="gold">${escapeHtml(item.title_ar)}</h3>
+      <p class="muted">${escapeHtml(item.id)} · ${escapeHtml(item.node_name_ar)}</p>
+      <p>${reviewBadgeHtml(item.review_status)} ${textBadge}</p>
+      ${draftStatus ? `<div class="admin-warning ${draftStatus.className}">${escapeHtml(draftStatus.label)} — ${escapeHtml(draftStatus.detail)}</div>` : ''}
+    </div>
 
     <h4 class="gold" style="margin-top:18px">نموذج ربط الأدلة (مسودة)</h4>
     <form class="admin-curation-form" id="curation-form">
@@ -238,23 +220,13 @@ function curationFormHtml(item, draft, tafsirSources, textStatus) {
       <label>ayah_to <input name="ayah_to" type="number" min="1" value="${draft.ayah_to ?? ''}" required /></label>
       <label>relation_type
         <select name="relation_type" required>
-          ${['main', 'supporting', 'parallel', 'contrast']
-            .map(
-              (v) =>
-                `<option value="${v}" ${(draft.relation_type || 'main') === v ? 'selected' : ''}>${v}</option>`
-            )
-            .join('')}
+          ${['main', 'supporting', 'parallel', 'contrast'].map((v) => `<option value="${v}" ${(draft.relation_type || 'main') === v ? 'selected' : ''}>${v}</option>`).join('')}
         </select>
       </label>
       <label>evidence_note_ar <textarea name="evidence_note_ar" rows="2">${escapeHtml(draft.evidence_note_ar || '')}</textarea></label>
       <label>evidence_confidence
         <select name="evidence_confidence" required>
-          ${['quran_explicit', 'tafsir_based', 'scholarly_inference', 'needs_review']
-            .map(
-              (v) =>
-                `<option value="${v}" ${(draft.evidence_confidence || 'needs_review') === v ? 'selected' : ''}>${v}</option>`
-            )
-            .join('')}
+          ${['quran_explicit', 'tafsir_based', 'scholarly_inference', 'needs_review'].map((v) => `<option value="${v}" ${(draft.evidence_confidence || 'needs_review') === v ? 'selected' : ''}>${v}</option>`).join('')}
         </select>
       </label>
       <label>source_id
@@ -264,14 +236,11 @@ function curationFormHtml(item, draft, tafsirSources, textStatus) {
         </select>
       </label>
       <label>reviewer_note <textarea name="reviewer_note" rows="2">${escapeHtml(draft.reviewer_note || '')}</textarea></label>
+      <label>internal_note <textarea name="internal_note" rows="2">${escapeHtml(draft.internal_note || '')}</textarea></label>
+      <label>source_note <textarea name="source_note" rows="2">${escapeHtml(draft.source_note || '')}</textarea></label>
       <label>proposed_review_status
         <select name="proposed_review_status">
-          ${['pending', 'approved', 'needs_source']
-            .map(
-              (v) =>
-                `<option value="${v}" ${(draft.proposed_review_status || 'pending') === v ? 'selected' : ''}>${v}</option>`
-            )
-            .join('')}
+          ${['pending', 'needs_source'].map((v) => `<option value="${v}" ${(draft.proposed_review_status || 'pending') === v ? 'selected' : ''}>${v}</option>`).join('')}
         </select>
       </label>
     </form>
@@ -293,7 +262,97 @@ function readForm(root) {
     evidence_confidence: fd.get('evidence_confidence'),
     source_id: fd.get('source_id'),
     reviewer_note: fd.get('reviewer_note'),
+    internal_note: fd.get('internal_note'),
+    source_note: fd.get('source_note'),
     proposed_review_status: fd.get('proposed_review_status') || 'pending',
+  };
+}
+
+function collectPatches(root, selected, ctx) {
+  const patches = getAllSessionPatches();
+  if (!patches.length && selected) {
+    const current = readForm(root);
+    if (current?.event_id) {
+      const result = validatePatchEntry(current, ctx);
+      if (result.valid) patches.push(current);
+    }
+  }
+  return patches;
+}
+
+function saveDraftAction(root, selected, ctx, onToast) {
+  if (!selected) return;
+  const entry = readForm(root);
+  const result = validatePatchEntry(entry, ctx);
+  const msgEl = root.querySelector('#curation-validation-msg');
+  if (!result.valid) {
+    msgEl.textContent = result.errors.join('\n');
+    msgEl.className = 'admin-patch-preview admin-error';
+    showToast('خطأ في التحقق', 'error');
+    return;
+  }
+  saveSessionPatch(selected.id, entry);
+  saveDraftToStorage(selected.id, entry);
+  msgEl.textContent = `تم حفظ مسودة ${selected.id}`;
+  msgEl.className = 'admin-patch-preview admin-ok';
+  showToast('تم حفظ المسودة', 'success');
+  onToast?.(msgEl.textContent);
+}
+
+function previewPatch(root, selected, ctx) {
+  const msgEl = root.querySelector('#curation-validation-msg');
+  const entry = readForm(root);
+  const result = validatePatchEntry(entry, ctx);
+  if (!result.valid) {
+    msgEl.textContent = result.errors.join('\n');
+    msgEl.className = 'admin-patch-preview admin-error';
+    return;
+  }
+  msgEl.textContent = `معاينة صالحة لـ ${entry.event_id} — proposed فقط`;
+  msgEl.className = 'admin-patch-preview admin-ok';
+}
+
+function exportPatch(root, selected, ctx, onToast) {
+  const patches = collectPatches(root, selected, ctx);
+  const msgEl = root.querySelector('#curation-validation-msg');
+  if (!patches.length) {
+    msgEl.textContent = 'لا توجد مسودات للتصدير.';
+    msgEl.className = 'admin-patch-preview admin-error';
+    return;
+  }
+  for (const p of patches) {
+    const result = validatePatchEntry(p, ctx);
+    if (!result.valid) {
+      msgEl.textContent = `${p.event_id}:\n${result.errors.join('\n')}`;
+      msgEl.className = 'admin-patch-preview admin-error';
+      return;
+    }
+  }
+  downloadJson(buildExportPatch(patches), `evidence_patch_${Date.now()}.json`);
+  msgEl.textContent = `تم تصدير ${patches.length} mapping(s)`;
+  msgEl.className = 'admin-patch-preview admin-ok';
+  showToast('تم تصدير patch', 'success');
+  onToast?.(msgEl.textContent);
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  ta.remove();
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
   };
 }
 

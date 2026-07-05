@@ -295,6 +295,52 @@ export async function createSupabaseRepository(options = {}) {
       return data || [];
     },
 
+    async getAllReviewActionHistory(limit = 100) {
+      const { data, error } = await client
+        .from('review_actions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) {
+        console.warn('[QSU] review_actions list failed', error);
+        return [];
+      }
+      return data || [];
+    },
+
+    async getEvidencePatchSubmissions(limit = 50) {
+      const { data, error } = await client
+        .from('evidence_patch_submissions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) return [];
+      return data || [];
+    },
+
+    async getReviewerProfile() {
+      const user = await getCurrentUser();
+      if (!user?.id) return null;
+      const { data } = await client
+        .from('reviewer_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      return {
+        email: user.email,
+        display_name: user.user_metadata?.display_name || user.email,
+        role: data?.role || 'viewer',
+        is_active: data?.is_active !== false,
+        last_activity: data?.updated_at || null,
+      };
+    },
+
+    async getReviewerProfiles() {
+      const { data, error } = await client.from('reviewer_profiles').select('*').limit(50);
+      if (error) return [];
+      return data || [];
+    },
+
     async submitEvidencePatch(patchPayload) {
       const user = await getCurrentUser();
       if (!user?.id) {

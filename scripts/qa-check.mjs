@@ -326,4 +326,67 @@ if (
   pass('validate_content_change_batch still passes on draft sample');
 } else fail('validate_content_change_batch', '');
 
+try {
+  const { sortReviewQueueByPriority, buildFilterChips, loadSavedReviewFilters, saveReviewFilters } = await import(
+    pathToFileURL(join(root, 'src/features/admin/reviewQueue.js')).href
+  );
+  const { actionRequiresNote, actionRequiresConfirmation } = await import(
+    pathToFileURL(join(root, 'src/features/admin/reviewActions.js')).href
+  );
+  const { formatAuthError } = await import(pathToFileURL(join(root, 'src/lib/authService.js')).href);
+  const { renderAccessDeniedView } = await import(
+    pathToFileURL(join(root, 'src/features/auth/accessDeniedView.js')).href
+  );
+  const { isLocalRuntime } = await import(pathToFileURL(join(root, 'src/config/env.js')).href);
+
+  const sampleRecords = [
+    { review_status: 'pending', evidence_status: 'needs_precise_mapping', title_ar: 'b' },
+    { review_status: 'needs_source', evidence_status: 'needs_precise_mapping', title_ar: 'a' },
+  ];
+  const sorted = sortReviewQueueByPriority(sampleRecords);
+  if (sorted[0].review_status !== 'needs_source') fail('review queue priority sort', sorted[0].review_status);
+  else pass('review queue priority sort');
+
+  const chips = buildFilterChips(events.map((e) => ({ ...e, recordType: 'event', isFinal: isFinalContent(e) })));
+  if (!chips.length || chips.every((c) => c.count === 0)) fail('review filter chips', '');
+  else pass('review queue filter chips build');
+
+  const store = {};
+  globalThis.localStorage = {
+    getItem: (k) => store[k] ?? null,
+    setItem: (k, v) => {
+      store[k] = String(v);
+    },
+    removeItem: (k) => {
+      delete store[k];
+    },
+  };
+
+  saveReviewFilters({ q: 'qa-test-filter', recordType: 'event' });
+  const loaded = loadSavedReviewFilters();
+  if (loaded?.q !== 'qa-test-filter') fail('saved review filters persist', loaded?.q);
+  else pass('saved review filters persist');
+
+  if (!actionRequiresNote('approve') || !actionRequiresNote('reject')) fail('required note actions', '');
+  else pass('review action note required for approve/reject');
+
+  if (!actionRequiresConfirmation('approve')) fail('confirmation actions', '');
+  else pass('review action confirmation required');
+
+  const deniedHtml = renderAccessDeniedView({ role: 'viewer', user: { email: 'x@test.com' } });
+  if (!deniedHtml.includes('access-denied-view')) fail('access denied view renders', '');
+  else pass('access denied view renders');
+
+  const friendly = formatAuthError('Invalid login credentials');
+  if (friendly.includes('Invalid login')) fail('formatAuthError sanitizes', friendly);
+  else pass('formatAuthError readable messages');
+
+  invalidateAuthCache();
+  const viewerAccess = await canAccessAdminReview();
+  if (!viewerAccess && isLocalRuntime()) fail('local demo admin access', '');
+  else pass('local demo reviewer access works');
+} catch (err) {
+  fail('reviewer dashboard unit tests', err.message);
+}
+
 process.exit(failed ? 1 : 0);

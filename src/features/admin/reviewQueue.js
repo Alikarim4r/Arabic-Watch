@@ -1,5 +1,7 @@
 import { isFinalContent } from '../../lib/dataService.js';
 
+export const REVIEW_FILTERS_STORAGE_KEY = 'qsu_admin_review_filters';
+
 /**
  * @typedef {'node'|'event'|'theme'} ReviewRecordType
  * @typedef {'approve'|'needs_source'|'reject'|'request_revision'} ReviewAction
@@ -137,4 +139,86 @@ export function resolveSourceLabels(tafsirSources, sourceIds = []) {
     const src = tafsirSources.find((s) => s.id === id);
     return src ? { id, name_ar: src.name_ar, is_approved: src.is_approved } : { id, name_ar: id, is_approved: false };
   });
+}
+
+/**
+ * Priority sort for reviewer productivity.
+ * @param {Object[]} records
+ */
+export function sortReviewQueueByPriority(records) {
+  const rank = (r) => {
+    if (r.review_status === 'needs_source') return 1;
+    if (r.evidence_status === 'needs_precise_mapping') return 2;
+    if (r.review_status === 'pending') return 3;
+    if (r.evidence_confidence === 'needs_review') return 4;
+    if (r.review_status === 'approved') return 5;
+    return 6;
+  };
+  return [...records].sort((a, b) => {
+    const diff = rank(a) - rank(b);
+    if (diff !== 0) return diff;
+    return String(a.title_ar || '').localeCompare(String(b.title_ar || ''), 'ar');
+  });
+}
+
+/**
+ * @param {Object[]} records
+ */
+export function buildFilterChips(records) {
+  const count = (fn) => records.filter(fn).length;
+  return [
+    { key: 'needs_source', label: 'needs_source', label_ar: 'يحتاج مصدر', count: count((r) => r.review_status === 'needs_source') },
+    { key: 'needs_precise_mapping', label: 'needs_precise_mapping', label_ar: 'ربط آيات', count: count((r) => r.evidence_status === 'needs_precise_mapping') },
+    { key: 'pending', label: 'pending', label_ar: 'قيد المراجعة', count: count((r) => r.review_status === 'pending') },
+    { key: 'needs_review', label: 'needs_review', label_ar: 'needs_review', count: count((r) => r.evidence_confidence === 'needs_review') },
+    { key: 'approved', label: 'approved', label_ar: 'معتمد', count: count((r) => r.review_status === 'approved') },
+    { key: 'not_final', label: 'not_final', label_ar: 'غير نهائي', count: count((r) => !r.isFinal) },
+  ];
+}
+
+/**
+ * @returns {Object|null}
+ */
+export function loadSavedReviewFilters() {
+  if (typeof localStorage === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(REVIEW_FILTERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** @param {Object} filters */
+export function saveReviewFilters(filters) {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(REVIEW_FILTERS_STORAGE_KEY, JSON.stringify(filters));
+  } catch {
+    /* ignore quota errors */
+  }
+}
+
+/**
+ * Apply quick chip filter on top of base filters.
+ * @param {Object[]} records
+ * @param {string} chipKey
+ */
+export function applyChipFilter(records, chipKey) {
+  switch (chipKey) {
+    case 'needs_source':
+      return records.filter((r) => r.review_status === 'needs_source');
+    case 'needs_precise_mapping':
+      return records.filter((r) => r.evidence_status === 'needs_precise_mapping');
+    case 'pending':
+      return records.filter((r) => r.review_status === 'pending');
+    case 'needs_review':
+      return records.filter((r) => r.evidence_confidence === 'needs_review');
+    case 'approved':
+      return records.filter((r) => r.review_status === 'approved');
+    case 'not_final':
+      return records.filter((r) => !r.isFinal);
+    default:
+      return records;
+  }
 }
