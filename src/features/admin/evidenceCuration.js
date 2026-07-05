@@ -127,3 +127,36 @@ export function getAllSessionPatches() {
 export function getSessionPatch(eventId) {
   return sessionEvidencePatches.get(eventId) || null;
 }
+
+/** Sprint batches for reviewer filters — proposed patches only, not applied automatically. */
+export const EVIDENCE_SPRINT_BATCHES = [
+  {
+    id: 'evidence_mapping_sprint_01',
+    label_ar: 'Sprint Batch 1',
+    patchPath: 'examples/evidence_patch.batch_01.proposed.json',
+    eventIds: [
+      'adam_01__',
+      'adam_04__',
+      'ibrahim_04__',
+      'ibrahim_05__',
+      'maryam_03__',
+      'maryam_04__',
+      'musa_firawn',
+      'musa_03__',
+      'musa_09__',
+      'isa_04__',
+    ],
+  },
+];
+
+/**
+ * @param {Object[]} queue
+ * @param {string | null} batchId
+ */
+export function filterMappingQueueByBatch(queue, batchId) {
+  if (!batchId) return queue;
+  const batch = EVIDENCE_SPRINT_BATCHES.find((b) => b.id === batchId);
+  if (!batch) return queue;
+  const ids = new Set(batch.eventIds);
+  return queue.filter((q) => ids.has(q.id));
+}

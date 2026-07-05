@@ -22,6 +22,10 @@ if (patch.meta?.status === 'example') {
   console.log('NOTE sample file status=example — not production content');
 }
 
+if (patch.meta?.status === 'proposed') {
+  console.log('NOTE patch status=proposed — not production content; human review required');
+}
+
 if (result.valid) {
   console.log('PASS validate_evidence_patch', patchPath);
   console.log('mappings:', patch.mappings.length);

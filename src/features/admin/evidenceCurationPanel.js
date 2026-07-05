@@ -12,6 +12,8 @@ import {
 import { submitEvidencePatch } from './reviewActions.js';
 import {
   buildMappingQueue,
+  EVIDENCE_SPRINT_BATCHES,
+  filterMappingQueueByBatch,
   getAllSessionPatches,
   getDraftForEvent,
   saveDraftToStorage,
@@ -29,7 +31,10 @@ const APPROX_MAPPING_WARNING =
 export async function renderEvidenceCurationPanel(root, ctx) {
   const { events, nodes, themes, eventAyahs, tafsirSources, surahs, onToast, repo, isLocalMode, canSubmitPatches, showConfirmDialog } = ctx;
   const stats = summarizeEvidenceStats(events, eventAyahs);
-  const queue = buildMappingQueue(events, nodes, themes, eventAyahs);
+  const fullQueue = buildMappingQueue(events, nodes, themes, eventAyahs);
+  const batchFilterId = ctx.curationBatchFilterId || null;
+  const activeBatch = EVIDENCE_SPRINT_BATCHES.find((b) => b.id === batchFilterId) || null;
+  const queue = filterMappingQueueByBatch(fullQueue, batchFilterId);
   const selectedId = ctx.curationSelectedId || queue[0]?.id || null;
   const selected = queue.find((q) => q.id === selectedId) || queue[0] || null;
   const draft = selected ? getDraftForEvent(selected.id) || {} : {};
@@ -69,6 +74,7 @@ export async function renderEvidenceCurationPanel(root, ctx) {
           حالة النص القرآني: ${quranImported ? '<span class="tag green">النص متوفر</span>' : '<span class="tag rose">النص غير مستورد</span>'}
         </p>
         <div class="admin-warning">${escapeHtml(APPROX_MAPPING_WARNING)}</div>
+        ${activeBatch ? `<div class="admin-warning warn">مسودة Sprint فقط — ${escapeHtml(activeBatch.label_ar)} · <code>${escapeHtml(activeBatch.patchPath)}</code> · proposed-only · لا يُدمج تلقائيًا</div>` : ''}
         <p class="disclaimer-banner admin-disclaimer">${DISCLAIMER_AR}</p>
       </div>
 
@@ -81,7 +87,15 @@ export async function renderEvidenceCurationPanel(root, ctx) {
         </aside>
 
         <div class="glass pad admin-main">
-          <h3 class="gold">الأحداث التي تحتاج ربطًا دقيقًا (${queue.length})</h3>
+          <div class="admin-curation-filters" style="margin-bottom:12px">
+            <span class="muted">تصفية:</span>
+            <button type="button" class="btn sm curation-batch-filter ${!batchFilterId ? 'primary' : ''}" data-batch="">الكل (${fullQueue.length})</button>
+            ${EVIDENCE_SPRINT_BATCHES.map(
+              (b) =>
+                `<button type="button" class="btn sm curation-batch-filter ${batchFilterId === b.id ? 'primary' : ''}" data-batch="${escapeHtml(b.id)}" title="${escapeHtml(b.patchPath)}">${escapeHtml(b.label_ar)} (${b.eventIds.length})</button>`
+            ).join('')}
+          </div>
+          <h3 class="gold">الأحداث التي تحتاج ربطًا دقيقًا (${queue.length}${activeBatch ? ` · ${activeBatch.label_ar}` : ''})</h3>
           <div class="admin-queue" id="curation-queue">
             ${queue.length ? queue.map((q) => curationQueueItem(q, selected)).join('') : '<div class="state-box">لا توجد أحداث في قائمة الانتظار.</div>'}
           </div>
@@ -109,6 +123,13 @@ export async function renderEvidenceCurationPanel(root, ctx) {
 
   root.querySelectorAll('.curation-queue-item').forEach((btn) => {
     btn.addEventListener('click', () => ctx.onSelectEvent(btn.dataset.id));
+  });
+
+  root.querySelectorAll('.curation-batch-filter').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const batchId = btn.dataset.batch || null;
+      ctx.onBatchFilterChange?.(batchId);
+    });
   });
 
   const autosave = debounce(() => {

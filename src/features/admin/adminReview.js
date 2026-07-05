@@ -107,6 +107,7 @@ export async function renderAdminReview(container) {
       allRecords: buildReviewQueue({ nodes, events, themes, eventAyahs, tafsirSources }),
       activeTab: 'dashboard',
       curationSelectedId: null,
+      curationBatchFilterId: null,
       batchSelectedId: null,
       historyFilters: {},
       authLoading: false,
@@ -254,6 +255,7 @@ async function buildSubCtx() {
     tafsirSources: state.tafsirSources,
     surahs: state.surahs,
     curationSelectedId: state.curationSelectedId,
+    curationBatchFilterId: state.curationBatchFilterId,
     batchSelectedId: state.batchSelectedId,
     onTabChange: (tab) => {
       state.activeTab = tab;
@@ -261,6 +263,11 @@ async function buildSubCtx() {
     },
     onSelectEvent: (id) => {
       state.curationSelectedId = id;
+      renderAdminPanel(document.querySelector('#admin-review-root'));
+    },
+    onBatchFilterChange: (batchId) => {
+      state.curationBatchFilterId = batchId || null;
+      state.curationSelectedId = null;
       renderAdminPanel(document.querySelector('#admin-review-root'));
     },
     onSelectBatch: (id) => {
