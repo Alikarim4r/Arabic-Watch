@@ -1,5 +1,5 @@
 import { getRepository } from '../../lib/dataService.js';
-import { escapeHtml } from '../../lib/utils.js';
+import { escapeHtml, getNodesForSurah } from '../../lib/utils.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { openStudyModal } from '../study/studyModal.js';
 
@@ -29,6 +29,7 @@ export async function renderSurahGrid(container) {
     const repo = await getRepository();
     const surahs = await repo.getSurahs();
     const nodes = await repo.getNodes();
+    const links = await repo.getLinks();
 
     grid.innerHTML = surahs
       .sort((a, b) => a.id - b.id)
@@ -46,10 +47,7 @@ export async function renderSurahGrid(container) {
         el.classList.toggle('active', Number(el.dataset.surah) === n);
       });
 
-      const linked = nodes.filter((node) => {
-        const eventSurahs = [12, 28, 20, 21, 2, 71, 11, 3, 19, 96];
-        return eventSurahs.includes(n) && ['prophet', 'person'].includes(node.node_type);
-      });
+      const linked = getNodesForSurah(n, nodes, links);
 
       container.querySelector('#surahDetail').innerHTML = `
         <h3>سورة ${escapeHtml(surahs.find((s) => s.id === n)?.name_ar || '')} <span class="tag blue">${n}</span></h3>

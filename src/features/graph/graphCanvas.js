@@ -141,12 +141,18 @@ export function createGraphCanvas(canvas, options) {
         if (node.id !== filters.placeId && !linked) visible = false;
       }
       if (filters.surahId) {
-        const sid = String(filters.surahId);
-        if (node.node_type === 'surah') {
-          visible = node.id.includes(sid) || node.name_ar.includes(sid);
-        } else if (!['prophet', 'person'].includes(node.node_type)) {
-          visible = false;
-        }
+        const sid = Number(filters.surahId);
+        const surahNodeId = `surah_${sid}`;
+        const linkedToSurah =
+          node.id === surahNodeId ||
+          (Array.isArray(node.surah_ids) && node.surah_ids.includes(sid)) ||
+          options.links.some(
+            (l) =>
+              l.relation_type === 'narrated_in' &&
+              ((l.source_node_id === node.id && l.target_node_id === surahNodeId) ||
+                (l.target_node_id === node.id && l.source_node_id === surahNodeId))
+          );
+        if (!linkedToSurah) visible = false;
       }
       if (q) {
         const hay = normalizeArabic([node.name_ar, node.summary_ar, node.short_title_ar].join(' ')).toLowerCase();

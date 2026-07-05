@@ -1,4 +1,4 @@
-import { getGraphData } from '../../lib/dataService.js';
+import { getGraphData, getRepository } from '../../lib/dataService.js';
 import { escapeHtml, nodeTypeLabel } from '../../lib/utils.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { createGraphCanvas } from './graphCanvas.js';
@@ -55,6 +55,20 @@ export async function renderGraphView(container) {
 
   try {
     const { nodes, links, themes } = await getGraphData();
+    const repo = await getRepository();
+    const surahs = await repo.getSurahs();
+    const linkedSurahIds = [
+      ...new Set(
+        nodes
+          .flatMap((n) => n.surah_ids || [])
+          .concat(
+            links
+              .filter((l) => l.relation_type === 'narrated_in' && l.target_node_id.startsWith('surah_'))
+              .map((l) => Number(l.target_node_id.replace('surah_', '')))
+          )
+      ),
+    ].sort((a, b) => a - b);
+
     fillSelect(container.querySelector('#graph-type'), uniqueTypes(nodes));
     fillSelect(container.querySelector('#graph-theme'), themes.map((t) => ({ v: t.id, l: t.name_ar })));
     fillSelect(
@@ -63,7 +77,10 @@ export async function renderGraphView(container) {
     );
     fillSelect(
       container.querySelector('#graph-surah'),
-      [12, 28, 20, 2, 71, 11, 3, 19, 96].map((id) => ({ v: String(id), l: `سورة ${id}` }))
+      linkedSurahIds.map((id) => ({
+        v: String(id),
+        l: `سورة ${surahs.find((s) => s.id === id)?.name_ar || id}`,
+      }))
     );
 
     const canvas = container.querySelector('#universe2d');

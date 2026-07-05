@@ -1,4 +1,4 @@
-import { escapeHtml } from '../../lib/utils.js';
+import { escapeHtml, isMainStoryNode } from '../../lib/utils.js';
 import { openStudyModal } from '../study/studyModal.js';
 
 const DEFAULT_ERAS = [
@@ -77,7 +77,7 @@ export function renderEraTimeline(container, nodes, eras = DEFAULT_ERAS) {
  * @param {Object[]} nodes
  */
 export function renderStudyCards(container, nodes) {
-  const prophets = nodes.filter((n) => ['prophet', 'person'].includes(n.node_type));
+  const prophets = nodes.filter(isMainStoryNode);
   container.innerHTML = `
     <section id="study">
       <div class="wrap">

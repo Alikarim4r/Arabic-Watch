@@ -2,6 +2,7 @@ import { renderDisclaimer, DISCLAIMER_AR } from './components/disclaimer.js';
 import { renderHero, renderStickyNav, renderFooter, renderMethodology } from './components/homeChrome.js';
 import { renderStateBox } from './components/loadingState.js';
 import { configure, getRepository } from './lib/dataService.js';
+import { isMainStoryNode } from './lib/utils.js';
 import { renderGraphView } from './features/graph/graphView.js';
 import { renderStoryMode } from './features/story/storyMode.js';
 import { renderSearchView } from './features/search/searchUI.js';
@@ -26,18 +27,19 @@ async function bootstrap() {
 
   try {
     const repo = await getRepository();
-    const [nodes, events, eventAyahs, themes] = await Promise.all([
+    const [nodes, events, eventAyahs, themes, eras] = await Promise.all([
       repo.getNodes(),
       repo.getEvents(),
       repo.getEventAyahs(),
       repo.getThemes(),
+      repo.getEras(),
     ]);
 
     loading.remove();
 
     renderDisclaimer(document.querySelector('#disclaimer-mount'));
     renderHero(document.querySelector('#hero-mount'), {
-      prophetCount: nodes.filter((n) => ['prophet', 'person'].includes(n.node_type)).length,
+      prophetCount: nodes.filter(isMainStoryNode).length,
       themeCount: themes.length,
       ayahRefCount: eventAyahs.length,
     });
@@ -53,7 +55,7 @@ async function bootstrap() {
       renderSurahGrid(document.querySelector('#surahs-mount')),
     ]);
 
-    renderEraTimeline(document.querySelector('#timeline-mount'), nodes);
+    renderEraTimeline(document.querySelector('#timeline-mount'), nodes, eras);
     renderStudyCards(document.querySelector('#study-mount'), nodes);
     renderFooter(document.querySelector('#footer-mount'));
   } catch (err) {

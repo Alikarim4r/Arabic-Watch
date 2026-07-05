@@ -54,6 +54,10 @@ export function createLocalJsonRepository(data) {
       const d = await this.loadAll();
       return d.tafsir_sources || [];
     },
+    async getEras() {
+      const d = await this.loadAll();
+      return d.eras || [];
+    },
   };
 }
 

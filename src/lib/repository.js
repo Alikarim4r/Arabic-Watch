@@ -41,6 +41,7 @@
  * @property {() => Promise<Object[]>} getThemes
  * @property {() => Promise<Object[]>} getSurahs
  * @property {() => Promise<Object[]>} getTafsirSources
+ * @property {() => Promise<Object[]>} getEras
  */
 
 export {};

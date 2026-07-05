@@ -1,5 +1,5 @@
 import { getStoryBundle, isFinalContent } from '../../lib/dataService.js';
-import { escapeHtml, formatAyahRef, getReviewBadge } from '../../lib/utils.js';
+import { escapeHtml, formatAyahRef, getReviewBadge, isMainStoryNode } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { renderStateBox } from '../../components/loadingState.js';
 import { openStudyModal } from '../study/studyModal.js';
@@ -28,9 +28,7 @@ export async function renderStoryMode(container, onReady) {
 
   const root = container.querySelector('#story-root');
   const repo = await (await import('../../lib/dataService.js')).getRepository();
-  const prophets = (await repo.getNodes()).filter((n) =>
-    ['prophet', 'person'].includes(n.node_type)
-  );
+  const prophets = (await repo.getNodes()).filter(isMainStoryNode);
 
   let selectedNodeId = prophets.find((p) => p.id === 'yusuf')?.id || prophets[0]?.id;
   let storyIndex = 0;

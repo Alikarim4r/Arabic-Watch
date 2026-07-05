@@ -1,5 +1,5 @@
 import { getRepository, isFinalContent, getStoryBundle } from '../../lib/dataService.js';
-import { escapeHtml, formatAyahRef, nodeTypeLabel } from '../../lib/utils.js';
+import { escapeHtml, formatAyahRef, getNodesForSurah, nodeTypeLabel } from '../../lib/utils.js';
 import { reviewBadgeHtml } from '../../components/reviewBadge.js';
 import { DISCLAIMER_AR } from '../../components/disclaimer.js';
 
@@ -37,7 +37,8 @@ export async function openStudyModal(target) {
     } else if (target.type === 'surah') {
       const surahs = await repo.getSurahs();
       const surah = surahs.find((s) => String(s.id) === String(target.id));
-      body.innerHTML = renderSurahStudy(surah, await repo.getNodes());
+      const [nodes, links] = await Promise.all([repo.getNodes(), repo.getLinks()]);
+      body.innerHTML = renderSurahStudy(surah, nodes, links);
     } else if (target.type === 'theme') {
       const themes = await repo.getThemes();
       const theme = themes.find((t) => t.id === target.id);
@@ -68,13 +69,36 @@ async function renderRichNodeStudy(node, bundle, repo) {
   if (!node) return `<div class="modal-body"><p>لا توجد مادة.</p>${closeBtn()}</div>`;
 
   const { events, eventAyahs, themes, tafsirSources } = bundle;
+  const [allNodes, links] = await Promise.all([repo.getNodes(), repo.getLinks()]);
   const draftNote = !isFinalContent(node)
     ? `<div class="draft-banner">${reviewBadgeHtml(node.review_status)} — محتوى تعليمي غير نهائي.</div>`
     : '';
 
+  const linkedThemeIds = links
+    .filter((l) => l.source_node_id === node.id && l.relation_type === 'embodies_theme')
+    .map((l) => l.target_node_id);
   const themeTags = themes
-    .filter((t) => events.some((e) => e.theme_ids?.includes(t.id)))
+    .filter(
+      (t) =>
+        linkedThemeIds.includes(t.id) || events.some((e) => e.theme_ids?.includes(t.id))
+    )
     .map((t) => `<span class="tag green">${escapeHtml(t.name_ar)}</span>`)
+    .join('');
+
+  const relatedPeople = links
+    .filter((l) => l.source_node_id === node.id && l.relation_type === 'related_to')
+    .map((l) => allNodes.find((n) => n.id === l.target_node_id))
+    .filter(Boolean);
+  const relatedPlaces = links
+    .filter((l) => l.source_node_id === node.id && l.relation_type === 'located_in')
+    .map((l) => allNodes.find((n) => n.id === l.target_node_id))
+    .filter(Boolean);
+
+  const peopleTags = relatedPeople
+    .map((p) => `<span class="tag rose">${escapeHtml(p.name_ar)}</span>`)
+    .join('');
+  const placeTags = relatedPlaces
+    .map((p) => `<span class="tag blue">${escapeHtml(p.name_ar)}</span>`)
     .join('');
 
   const eventSteps = events
@@ -91,10 +115,14 @@ async function renderRichNodeStudy(node, bundle, repo) {
         (a) => `
       <div class="ayah">
         <small>${formatAyahRef(a.surah_id, a.ayah_from, a.ayah_to)} — ${escapeHtml(a.relation_type)}</small>
-        <p>${escapeHtml(ev.summary_ar)}</p>
+        <p>${escapeHtml(a.note_ar || ev.summary_ar || '')}</p>
       </div>`
       );
     })
+    .join('');
+
+  const draftLessons = (node.lessons_ar || [])
+    .map((l) => `<li>${escapeHtml(l)} <span class="tag rose">مسودة</span></li>`)
     .join('');
 
   const sourceCards = (tafsirSources || [])
@@ -108,6 +136,17 @@ async function renderRichNodeStudy(node, bundle, repo) {
     )
     .join('');
 
+  const conclusion = node.network_conclusion_ar || networkConclusion(node.id);
+  const conclusionDraft =
+    node.network_conclusion_review_status && node.network_conclusion_review_status !== 'approved'
+      ? `<div class="draft-banner">${reviewBadgeHtml(node.network_conclusion_review_status)} — استنتاج تعليمي غير نهائي.</div>`
+      : '';
+
+  const storyBtn =
+    events.length > 0
+      ? `<button class="btn primary" type="button" data-goto-story style="margin-top:14px">افتح Story Mode</button>`
+      : '';
+
   return `
     <div class="modal-head">
       <h2>${escapeHtml(node.name_ar)}</h2>
@@ -120,21 +159,33 @@ async function renderRichNodeStudy(node, bundle, repo) {
           <h3 class="gold">المحور</h3>
           <p>${escapeHtml(node.short_title_ar || node.summary_ar || '')}</p>
           <div>${themeTags || '<span class="muted">—</span>'}</div>
+          ${
+            peopleTags || placeTags
+              ? `<h3 class="gold" style="margin-top:18px">الشخصيات والأماكن</h3>
+          <div>${peopleTags}${placeTags}</div>`
+              : ''
+          }
           <h3 class="gold" style="margin-top:18px">خط الأحداث</h3>
           <div class="timeline">${eventSteps || '<p class="muted">—</p>'}</div>
         </div>
         <div>
           <h3 class="gold">النوع والمراجعة</h3>
           <p><span class="tag">${escapeHtml(nodeTypeLabel(node.node_type))}</span> ${reviewBadgeHtml(node.review_status)}</p>
-          <button class="btn primary" type="button" data-goto-story style="margin-top:14px">افتح Story Mode</button>
+          ${storyBtn}
         </div>
       </div>
       <h3 class="gold" style="margin-top:18px">الآيات والمواضع</h3>
       ${ayahBlocks || '<p class="muted">لا توجد آيات مرتبطة بعد.</p>'}
+      ${
+        draftLessons
+          ? `<h3 class="gold">دروس تعليمية (مسودة)</h3><ul class="lesson-list">${draftLessons}</ul>`
+          : ''
+      }
       <h3 class="gold">المصادر والمراجع</h3>
       <div class="tafsirs">${sourceCards || '<p class="muted">لا توجد مادة مراجعة كافية بعد.</p>'}</div>
       <h3 class="gold" style="margin-top:18px">الاستنتاج الشبكي</h3>
-      <div class="card">${escapeHtml(networkConclusion(node.id))}</div>
+      ${conclusionDraft}
+      <div class="card">${escapeHtml(conclusion)}</div>
       <p class="disclaimer-banner" style="margin-top:16px;font-size:14px">${DISCLAIMER_AR}</p>
     </div>
   `;
@@ -181,8 +232,9 @@ function renderEventStudy(event, ayahs, sources) {
   `;
 }
 
-function renderSurahStudy(surah) {
+function renderSurahStudy(surah, nodes = [], links = []) {
   if (!surah) return `<div class="modal-body"><p>لا توجد مادة.</p>${closeBtn()}</div>`;
+  const linked = getNodesForSurah(surah.id, nodes, links);
   return `
     <div class="modal-head">
       <h2>${escapeHtml(surah.name_ar)}</h2>
@@ -190,7 +242,13 @@ function renderSurahStudy(surah) {
     </div>
     <div class="modal-body">
       <p>${surah.ayah_count} آية — ${surah.revelation_type === 'makkah' ? 'مكية' : 'مدنية'}</p>
-      <p class="disclaimer-banner" style="font-size:14px">${DISCLAIMER_AR}</p>
+      ${
+        linked.length
+          ? `<h3 class="gold" style="margin-top:18px">العقد المرتبطة</h3>
+      <ul class="source-list">${linked.map((n) => `<li>${escapeHtml(n.name_ar)} — ${escapeHtml(n.short_title_ar || n.summary_ar || '')}</li>`).join('')}</ul>`
+          : '<p class="muted">لا توجد عقد قصصية كبرى مصنّفة لهذه السورة بعد المراجعة.</p>'
+      }
+      <p class="disclaimer-banner" style="margin-top:16px;font-size:14px">${DISCLAIMER_AR}</p>
     </div>
   `;
 }
