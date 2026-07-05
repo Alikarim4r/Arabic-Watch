@@ -1,0 +1,166 @@
+.surah-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  gap: 9px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.surah {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 12px;
+  padding: 10px 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.surah:hover,
+.surah.active {
+  border-color: var(--gold);
+  background: rgba(197, 160, 89, 0.1);
+}
+
+.surah strong {
+  display: block;
+  font-family: var(--fontA);
+  color: var(--gold2);
+  font-size: 19px;
+}
+
+.surah span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-card {
+  width: min(1160px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  background: linear-gradient(145deg, #111827, #0b1220);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: 0 50px 120px rgba(0, 0, 0, 0.68);
+}
+
+.modal-head {
+  position: sticky;
+  top: 0;
+  background: rgba(11, 18, 32, 0.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(197, 160, 89, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 22px;
+}
+
+.modal-head h2 {
+  font-family: var(--fontA);
+  color: var(--gold2);
+  font-size: 31px;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.ayah {
+  font-family: var(--fontA);
+  font-size: 21px;
+  line-height: 2.1;
+  background: rgba(197, 160, 89, 0.055);
+  border: 1px solid rgba(197, 160, 89, 0.14);
+  border-radius: 14px;
+  padding: 17px 20px;
+  margin: 12px 0;
+}
+
+.ayah small {
+  font-family: var(--font);
+  display: block;
+  color: var(--gold2);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.tafsirs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 13px;
+}
+
+.tafsir {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 13px;
+  padding: 15px;
+}
+
+.tafsir b {
+  color: var(--gold2);
+}
+
+.source-list,
+.lesson-list {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.source-list li,
+.lesson-list li {
+  border-right: 3px solid var(--gold);
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 8px;
+}
+
+.draft-banner {
+  border: 1px dashed var(--gold);
+  color: var(--gold2);
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 480px) {
+  .modal-body {
+    padding: 17px;
+  }
+
+  .modal-head h2 {
+    font-size: 24px;
+  }
+
+  .ayah {
+    font-size: 18px;
+  }
+}
