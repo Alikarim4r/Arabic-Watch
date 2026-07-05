@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "1.0.0",
-    "description_ar": "خرائط أدلة قرآنية دقيقة لكل حدث — مرجع مسودة من v0.2 والنص الأصلي، وليست تفسيرًا معتمدًا تلقائيًا.",
+    "description_ar": "خرائط أدلة قرآنية دقيقة لكل حدث — مرجع مسودة من الإصدار 0.2 والنص الأصلي، وليست تفسيرًا معتمدًا تلقائيًا.",
     "policy": "Only events listed here receive precise_evidence. All others remain needs_precise_mapping."
   },
   "mappings": [

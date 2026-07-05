@@ -5,7 +5,10 @@ import {
   ARABIC_FIELD_NAMES,
   ARABIC_THEN_LATIN,
   HAS_LATIN,
+  KHIDR_LATIN_TYPO,
   MOJIBAKE_PATTERNS,
+  MOSTLY_ARABIC_ZERO_LATIN_FIELDS,
+  ZERO_LATIN_ARABIC_FIELDS,
 } from './lib/scholarDecisionConstants.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,13 +27,19 @@ const errors = [];
 const warnings = [];
 
 function isMostlyArabic(text) {
-  const letters = text.replace(/\s/g, '');
+  const letters = text.replace(/[\s\d\p{P}]/gu, '');
   if (!letters.length) return false;
   const arabic = (letters.match(/[\u0600-\u06FF]/g) || []).length;
-  return arabic / letters.length >= 0.5;
+  return arabic / letters.length >= 0.7;
 }
 
-function checkArabicString(value, fieldName, file, fieldPath) {
+function latinCodepoints(value) {
+  return [...value]
+    .filter((ch) => /[a-zA-Z]/.test(ch))
+    .map((ch) => `${ch} U+${ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')}`);
+}
+
+function checkArabicString(value, fieldName, file, fieldPath, isDataFile) {
   if (typeof value !== 'string') return;
   const trimmed = value.trim();
 
@@ -51,112 +60,88 @@ function checkArabicString(value, fieldName, file, fieldPath) {
     }
   }
 
-  const shouldCheckLatin =
-    fieldName === 'title_ar' ||
-    fieldName === 'name_ar' ||
-    fieldName === 'summary_ar' ||
-    fieldName === 'short_title_ar' ||
-    fieldName === 'corrected_event_title' ||
-    fieldName === 'proposed_title_ar' ||
-    (fieldName === 'evidence_note_ar' && isMostlyArabic(trimmed)) ||
-    ((fieldName === 'reviewer_note' || fieldName === 'scholar_note') &&
-      trimmed &&
-      isMostlyArabic(trimmed));
+  const isKnownArabicField =
+    ZERO_LATIN_ARABIC_FIELDS.has(fieldName) ||
+    MOSTLY_ARABIC_ZERO_LATIN_FIELDS.has(fieldName) ||
+    ARABIC_FIELD_NAMES.has(fieldName) ||
+    fieldName.endsWith('_ar');
 
-  if (!shouldCheckLatin) return;
+  if (!isKnownArabicField) return;
 
-  if (ARABIC_THEN_LATIN.test(trimmed)) {
-    errors.push(`${file} :: ${fieldPath} — Latin letter after Arabic (e.g. الخضr): "${trimmed}"`);
+  // Tier 1: title/name fields — zero Latin anywhere (catches الخضr in title_ar)
+  if (ZERO_LATIN_ARABIC_FIELDS.has(fieldName) && HAS_LATIN.test(trimmed)) {
+    errors.push(
+      `${file} :: ${fieldPath} — Latin letter in Arabic field (A–Z/a–z forbidden): "${trimmed}" [${latinCodepoints(trimmed).join(', ')}]`
+    );
     return;
   }
 
-  if (/الخضr/.test(trimmed)) {
-    errors.push(`${file} :: ${fieldPath} — confirmed typo «الخضr» (Latin r); should be «الخضر»: "${trimmed}"`);
+  // Explicit الخض + Latin typo anywhere in scanned Arabic fields
+  if (KHIDR_LATIN_TYPO.test(trimmed)) {
+    errors.push(
+      `${file} :: ${fieldPath} — typo «الخض» + Latin letter (use Arabic ر U+0631): "${trimmed}"`
+    );
+    return;
   }
 
-  if (isMostlyArabic(trimmed) && HAS_LATIN.test(trimmed) && fieldName !== 'note_ar') {
-    const latinWords = trimmed.match(/[a-zA-Z]+/g) || [];
-    const allowedInArabic = new Set([
-      'JSON',
-      'SQL',
-      'QA',
-      'API',
-      'ID',
-      'event',
-      'ayahs',
-      'seed',
-      'prototype',
-      'Phase',
-      'Sprint',
-      'Batch',
-      'Supabase',
-      'approved',
-      'pending',
-      'precise',
-      'evidence',
-      'metadata',
-      'main',
-      'supporting',
-      'promote',
-      'relation',
-      'type',
-      'review',
-      'status',
-      'NOT',
-    ]);
-    const suspicious = latinWords.filter((w) => !allowedInArabic.has(w));
-    if (suspicious.length && fieldName === 'title_ar') {
-      warnings.push(
-        `${file} :: ${fieldPath} — Latin inside Arabic title: ${suspicious.join(', ')}`
-      );
-    }
+  // Latin immediately after Arabic letter (embedded typo e.g. الخضr)
+  if (!ZERO_LATIN_ARABIC_FIELDS.has(fieldName) && ARABIC_THEN_LATIN.test(trimmed)) {
+    errors.push(
+      `${file} :: ${fieldPath} — Latin letter directly after Arabic (e.g. الخضr): "${trimmed}"`
+    );
+    return;
+  }
+
+  // Tier 2: mostly-Arabic note fields — zero Latin in seed/precise data only
+  if (
+    isDataFile &&
+    MOSTLY_ARABIC_ZERO_LATIN_FIELDS.has(fieldName) &&
+    isMostlyArabic(trimmed) &&
+    HAS_LATIN.test(trimmed)
+  ) {
+    errors.push(
+      `${file} :: ${fieldPath} — Latin in mostly-Arabic ${fieldName}: "${trimmed}" [${latinCodepoints(trimmed).join(', ')}]`
+    );
   }
 }
 
-function walk(value, file, path = '') {
+function walk(value, file, isDataFile, path = '') {
   if (value == null) return;
   if (Array.isArray(value)) {
-    value.forEach((item, i) => walk(item, file, `${path}[${i}]`));
+    value.forEach((item, i) => walk(item, file, isDataFile, `${path}[${i}]`));
     return;
   }
   if (typeof value === 'object') {
     for (const [key, child] of Object.entries(value)) {
       const next = path ? `${path}.${key}` : key;
       if (ARABIC_FIELD_NAMES.has(key) || key.endsWith('_ar')) {
-        if (typeof child === 'string') checkArabicString(child, key, file, next);
+        if (typeof child === 'string') checkArabicString(child, key, file, next, isDataFile);
         else if (Array.isArray(child)) {
           child.forEach((item, i) => {
-            if (typeof item === 'string') checkArabicString(item, key, file, `${next}[${i}]`);
+            if (typeof item === 'string') checkArabicString(item, key, file, `${next}[${i}]`, isDataFile);
           });
         }
       }
-      walk(child, file, next);
+      walk(child, file, isDataFile, next);
     }
-    return;
   }
 }
 
-function scanJsonFile(file, asError) {
+function scanJsonFile(file, isDataFile) {
   try {
     const data = JSON.parse(readFileSync(file, 'utf8'));
-    walk(data, file.replace(`${root}/`, ''));
+    walk(data, file.replace(`${root}/`, ''), isDataFile);
   } catch (err) {
-    (asError ? errors : warnings).push(`${file} — invalid JSON: ${err.message}`);
+    errors.push(`${file} — invalid JSON: ${err.message}`);
   }
 }
 
 function scanMarkdownFile(file) {
   const rel = file.replace(`${root}/`, '');
   const content = readFileSync(file, 'utf8');
-  if (content.includes('الخضr')) {
-    warnings.push(`${rel} — documents typo pattern الخضr (verify not in data)`);
+  if (KHIDR_LATIN_TYPO.test(content)) {
+    warnings.push(`${rel} — documents literal «الخضr» typo pattern (verify not in JSON data)`);
   }
-  const lines = content.split('\n');
-  lines.forEach((line, i) => {
-    if (line.includes('|') && ARABIC_THEN_LATIN.test(line)) {
-      warnings.push(`${rel}:${i + 1} — Arabic+Latin in table row`);
-    }
-  });
 }
 
 function listFiles(dir, ext) {
@@ -174,7 +159,7 @@ for (const file of DATA_PATHS) {
 }
 
 for (const file of listFiles(EXAMPLE_GLOB_DIR, '.json')) {
-  scanJsonFile(file, strict);
+  scanJsonFile(file, false);
 }
 
 for (const file of listFiles(DOC_GLOB_DIR, '.md')) {
@@ -183,9 +168,8 @@ for (const file of listFiles(DOC_GLOB_DIR, '.md')) {
 
 console.log('Arabic text hygiene scan');
 console.log(' strict:', strict);
+console.log(' zero-Latin fields:', [...ZERO_LATIN_ARABIC_FIELDS].join(', '));
 console.log(' data files:', DATA_PATHS.map((p) => p.replace(`${root}/`, '')).join(', '));
-console.log(' examples:', listFiles(EXAMPLE_GLOB_DIR, '.json').length, 'json files');
-console.log(' docs:', listFiles(DOC_GLOB_DIR, '.md').length, 'md files');
 
 if (warnings.length) {
   console.log(`\nWARNINGS (${warnings.length}):`);

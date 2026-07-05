@@ -33,11 +33,33 @@ export const ARABIC_FIELD_NAMES = new Set([
   'note_ar',
   'network_conclusion_ar',
   'caution_note',
-  'lessons_ar',
-  'name_ar',
 ]);
 
-/** Latin letter immediately after Arabic letters (e.g. الخضr). */
+/** No Latin A–Z / a–z allowed in these fields (any JSON file). */
+export const ZERO_LATIN_ARABIC_FIELDS = new Set([
+  'name_ar',
+  'title_ar',
+  'summary_ar',
+  'short_title_ar',
+  'corrected_event_title',
+  'proposed_title_ar',
+]);
+
+/** No Latin when field text is mostly Arabic (seed/precise data files only). */
+export const MOSTLY_ARABIC_ZERO_LATIN_FIELDS = new Set([
+  'evidence_note_ar',
+  'reviewer_note',
+  'scholar_note',
+  'description_ar',
+]);
+
+/** Known typo: Latin r (U+0072) instead of Arabic ر (U+0631). */
+export const KHIDR_LATIN_TYPO = /الخض[a-zA-Z]/;
+
+/** Latin immediately adjacent to Arabic script. */
+export const ARABIC_LATIN_ADJACENT = /[\u0600-\u06FF][a-zA-Z]|[a-zA-Z][\u0600-\u06FF]/;
+
+/** @deprecated use ARABIC_LATIN_ADJACENT */
 export const ARABIC_THEN_LATIN = /[\u0600-\u06FF][a-zA-Z]/;
 
 /** Any Latin letter in a string. */

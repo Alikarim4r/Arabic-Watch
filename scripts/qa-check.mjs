@@ -461,7 +461,20 @@ if (existsSync(batch01RevisedPath)) {
 
 if (!runNodeScript(['scripts/check_arabic_text_hygiene.mjs', '--strict'], true)) {
   fail('check_arabic_text_hygiene --strict', 'Arabic field errors including الخضr typo');
-} else pass('check_arabic_text_hygiene --strict (no الخضr in data)');
+} else pass('check_arabic_text_hygiene --strict (no Latin in title_ar / no الخضr)');
+
+if (!runNodeScript(['scripts/audit_khidr_unicode.mjs'], true)) {
+  fail('audit_khidr_unicode', 'musa_09__ title must be Arabic الخضر');
+} else pass('audit_khidr_unicode — musa_09__.title_ar is الخضر (U+0631)');
+
+const musa09 = events.find((e) => e.id === 'musa_09__');
+if (!musa09) fail('musa_09__ event missing', '');
+else if (musa09.title_ar !== 'الخضر') fail('musa_09__.title_ar must equal الخضر', musa09.title_ar);
+else pass('musa_09__.title_ar equals الخضر (no Latin r)');
+
+const latinTitleEvents = events.filter((e) => e.title_ar && /[a-zA-Z]/.test(e.title_ar));
+if (latinTitleEvents.length) fail('no Latin letters in any title_ar', latinTitleEvents.map((e) => e.id));
+else pass('no Latin letters inside story_events title_ar');
 
 const disclaimerPath = join(root, 'src/components/disclaimer.js');
 if (existsSync(disclaimerPath)) {
