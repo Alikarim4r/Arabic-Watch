@@ -1,0 +1,11 @@
+{
+  "name": "quran-story-universe",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Arabic-first Quranic story atlas",
+  "scripts": {
+    "dev": "npx --yes serve src -p 3000",
+    "start": "npm run dev"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "story_nodes": [
+    {
+      "id": "yusuf",
+      "node_type": "prophet",
+      "name_ar": "يوسف عليه السلام",
+      "short_title_ar": "التدبير الخفي",
+      "summary_ar": "قصة متصلة في سورة يوسف تجمع الرؤيا والابتلاء والعفة والسجن والتمكين والعفو."
+    },
+    {
+      "id": "sabr",
+      "node_type": "theme",
+      "name_ar": "الصبر",
+      "summary_ar": "محور قرآني يظهر في مسارات الابتلاء والتمكين."
+    }
+  ],
+  "story_events": [
+    {
+      "id": "yusuf_dream",
+      "node_id": "yusuf",
+      "title_ar": "الرؤيا الأولى",
+      "summary_ar": "بدأت القصة برؤيا يوسف عليه السلام التي أشارت إلى مستقبل عظيم.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit"
+    },
+    {
+      "id": "yusuf_well",
+      "node_id": "yusuf",
+      "title_ar": "الإلقاء في الجب",
+      "summary_ar": "تبدأ مرحلة الابتلاء العائلي حين أُلقي يوسف في الجب.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit"
+    }
+  ],
+  "event_ayahs": [
+    {
+      "event_id": "yusuf_dream",
+      "surah_id": 12,
+      "ayah_from": 4,
+      "ayah_to": 6,
+      "relation_type": "main"
+    },
+    {
+      "event_id": "yusuf_well",
+      "surah_id": 12,
+      "ayah_from": 7,
+      "ayah_to": 18,
+      "relation_type": "main"
+    }
+  ],
+  "node_links": [
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "sabr",
+      "relation_type": "embodies_theme",
+      "confidence": 1
+    }
+  ]
+}

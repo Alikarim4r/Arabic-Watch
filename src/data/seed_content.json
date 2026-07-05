@@ -1,0 +1,627 @@
+{
+  "meta": {
+    "version": "0.2.0",
+    "disclaimer_ar": "هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة.",
+    "public_mode_note": "المحتوى غير المراجع يُعرض للتجربة فقط وليس كحكم أو تفسير نهائي."
+  },
+  "tafsir_sources": [
+    {
+      "id": "quran_text",
+      "name_ar": "نص القرآن الكريم",
+      "author_ar": "وحي من الله تعالى",
+      "type": "quran",
+      "license_note": "يجب اعتماد نص رسمي مرخّص (مجمع الملك فهد / Tanzil) قبل النشر.",
+      "source_url": "https://quran.com",
+      "is_approved": true
+    },
+    {
+      "id": "ibn_kathir_summary",
+      "name_ar": "تفسير ابن كثير (ملخص تعليمي)",
+      "author_ar": "ابن كثير",
+      "type": "tafsir",
+      "license_note": "ملخص مختصر للعرض التعليمي — يحتاج ترخيص/مراجعة قبل النشر النهائي.",
+      "source_url": "",
+      "is_approved": false
+    }
+  ],
+  "themes": [
+    {
+      "id": "sabr",
+      "name_ar": "الصبر",
+      "description_ar": "محور قرآني في مسارات الابتلاء والتمكين.",
+      "review_status": "approved"
+    },
+    {
+      "id": "tawakkul",
+      "name_ar": "التوكل",
+      "description_ar": "الاعتماد على الله مع الأخذ بالأسباب.",
+      "review_status": "approved"
+    },
+    {
+      "id": "dawah",
+      "name_ar": "الدعوة",
+      "description_ar": "إبلاغ الرسالة بالحكمة والموعظة الحسنة.",
+      "review_status": "pending"
+    },
+    {
+      "id": "family_trial",
+      "name_ar": "ابتلاء الأسرة",
+      "description_ar": "اختبار العلاقات الأسرية في القصص القرآنية.",
+      "review_status": "approved"
+    },
+    {
+      "id": "justice",
+      "name_ar": "العدل",
+      "description_ar": "إقامة العدل ورفض الظلم.",
+      "review_status": "pending"
+    }
+  ],
+  "story_nodes": [
+    {
+      "id": "yusuf",
+      "node_type": "prophet",
+      "name_ar": "يوسف عليه السلام",
+      "name_en": "Yusuf",
+      "short_title_ar": "التدبير الخفي",
+      "summary_ar": "قصة متصلة في سورة يوسف تجمع الرؤيا والابتلاء والعفة والسجن والتمكين والعفو.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "musa",
+      "node_type": "prophet",
+      "name_ar": "موسى عليه السلام",
+      "name_en": "Musa",
+      "short_title_ar": "الرسالة والنجاة",
+      "summary_ar": "من ولادة سرية إلى رسالة فرعون ونجاة بني إسرائيل.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "ibrahim",
+      "node_type": "prophet",
+      "name_ar": "إبراهيم عليه السلام",
+      "name_en": "Ibrahim",
+      "short_title_ar": "الحنيف والبناء",
+      "summary_ar": "إخلاص التوحيد، ابتلاء الذبح، وبناء الكعبة مع إسماعيل.",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "nuh",
+      "node_type": "prophet",
+      "name_ar": "نوح عليه السلام",
+      "name_en": "Nuh",
+      "short_title_ar": "الدعوة الطويلة",
+      "summary_ar": "دعوة امتدت قرونًا ثم نجاة المؤمنين بالسفينة.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "maryam",
+      "node_type": "person",
+      "name_ar": "مريم عليها السلام",
+      "name_en": "Maryam",
+      "short_title_ar": "العبادة والكرامة",
+      "summary_ar": "قصة مريم في سورة مريم وآل عمران: عبادة، كرامة، ومعجزة ولادة عيسى.",
+      "review_status": "pending",
+      "source_status": "cited"
+    },
+    {
+      "id": "isa",
+      "node_type": "prophet",
+      "name_ar": "عيسى عليه السلام",
+      "name_en": "Isa",
+      "short_title_ar": "الآية والرسالة",
+      "summary_ar": "ولادة عيسى آية، ورسالته للبني إسرائيل في القرآن.",
+      "review_status": "pending",
+      "source_status": "cited"
+    },
+    {
+      "id": "muhammad",
+      "node_type": "prophet",
+      "name_ar": "محمد ﷺ",
+      "name_en": "Muhammad",
+      "short_title_ar": "الرسالة الخاتمة",
+      "summary_ar": "بعثة الرسول ﷺ ونزول الوحي في غار حراء ثم تبليغ الرسالة.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "sabr",
+      "node_type": "theme",
+      "name_ar": "الصبر",
+      "summary_ar": "محور يظهر في قصص يوسف وموسى وغيرهما.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "tawakkul",
+      "node_type": "theme",
+      "name_ar": "التوكل",
+      "summary_ar": "محور يظهر في قصة إبراهيم ونوح.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "dawah",
+      "node_type": "theme",
+      "name_ar": "الدعوة",
+      "summary_ar": "إبلاغ الرسالة بالحكمة والموعظة الحسنة.",
+      "review_status": "pending",
+      "source_status": "cited"
+    },
+    {
+      "id": "egypt",
+      "node_type": "place",
+      "name_ar": "مصر",
+      "summary_ar": "مسرح قصة يوسف وموسى.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "makkah",
+      "node_type": "place",
+      "name_ar": "مكة",
+      "summary_ar": "مهد البعثة وبناء الكعبة.",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_yusuf",
+      "node_type": "surah",
+      "name_ar": "سورة يوسف",
+      "summary_ar": "سورة مكية كاملة لقصة يوسف.",
+      "review_status": "approved",
+      "source_status": "cited"
+    }
+  ],
+  "story_events": [
+    {
+      "id": "yusuf_dream",
+      "node_id": "yusuf",
+      "title_ar": "الرؤيا الأولى",
+      "summary_ar": "بدأت القصة برؤيا يوسف عليه السلام التي أشارت إلى مستقبل عظيم.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "family_trial"
+      ],
+      "lessons_ar": [
+        "الرؤيا الصالحة جزء من الوحي أو بشارة.",
+        "الحذر من إظهار ما قد يثير الحسد."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة يوسف 4-6"
+        }
+      ]
+    },
+    {
+      "id": "yusuf_well",
+      "node_id": "yusuf",
+      "title_ar": "الإلقاء في الجب",
+      "summary_ar": "تبدأ مرحلة الابتلاء العائلي حين أُلقي يوسف في الجب.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr",
+        "family_trial"
+      ],
+      "lessons_ar": [
+        "الابتلاء قد يأتي من أقرب الناس.",
+        "الصبر عند المكروه من أخلاق الأنبياء."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة يوسف 7-18"
+        }
+      ]
+    },
+    {
+      "id": "yusuf_prison",
+      "node_id": "yusuf",
+      "title_ar": "السجن والتمكين",
+      "summary_ar": "بعد البراءة في فتنة، دخل السجن ثم تمكّن في الأرض.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr",
+        "justice"
+      ],
+      "lessons_ar": [
+        "العفة قد تُتبع بالابتلاء.",
+        "التمكين بعد الصبر جزء من سنن الله."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة يوسف 23-57"
+        }
+      ]
+    },
+    {
+      "id": "musa_birth",
+      "node_id": "musa",
+      "title_ar": "ولادة موسى ونجاته",
+      "summary_ar": "أُلقي موسى في اليم ثم أُرجع إلى أمه برحمة الله.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "tawakkul"
+      ],
+      "lessons_ar": [
+        "تدبير الله قد يأتي من حيث لا يُحتسب.",
+        "الأم المؤمنة جزء من حفظ الله."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة القصص 7-13"
+        }
+      ]
+    },
+    {
+      "id": "musa_firawn",
+      "node_id": "musa",
+      "title_ar": "الرسالة إلى فرعون",
+      "summary_ar": "عاد موسى إلى فرعون بالآيات والحجة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "dawah",
+        "justice"
+      ],
+      "lessons_ar": [
+        "الدعوة بالحكمة حتى مع الظالم.",
+        "الآيات تؤيّد الرسل."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة طه 24-56"
+        }
+      ]
+    },
+    {
+      "id": "ibrahim_idols",
+      "node_id": "ibrahim",
+      "title_ar": "تحطيم الأصنام",
+      "summary_ar": "برهان إبراهيم على بطلان عبادة الأصنام.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "dawah"
+      ],
+      "lessons_ar": [
+        "إظهار الحق قد يحتاج إلى حجة واضحة."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة الأنبياء 51-70"
+        }
+      ]
+    },
+    {
+      "id": "ibrahim_kaaba",
+      "node_id": "ibrahim",
+      "title_ar": "رفع قواعد البيت",
+      "summary_ar": "إبراهيم وإسماعيل يرفعان قواعد الكعبة ويدعوان ربهم.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "needs_source",
+      "source_status": "none",
+      "theme_ids": [
+        "tawakkul"
+      ],
+      "lessons_ar": [
+        "العبادة والدعاء مع العمل."
+      ],
+      "sources": []
+    },
+    {
+      "id": "nuh_dawah",
+      "node_id": "nuh",
+      "title_ar": "الدعوة الطويلة",
+      "summary_ar": "دعا نوح قومه ليلًا ونهارًا فأصرّوا على الكفر.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "dawah",
+        "sabr"
+      ],
+      "lessons_ar": [
+        "استمرار الدعوة واجب رغم قلة المؤمنين."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة نوح 5-20"
+        }
+      ]
+    },
+    {
+      "id": "nuh_ark",
+      "node_id": "nuh",
+      "title_ar": "السفينة والنجاة",
+      "summary_ar": "أُمر نوح بصنع السفينة ونجا المؤمنون.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "tawakkul"
+      ],
+      "lessons_ar": [
+        "الطاعة للأمر الإلهي حتى إن بدا غريبًا."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة هود 36-44"
+        }
+      ]
+    },
+    {
+      "id": "maryam_withdraw",
+      "node_id": "maryam",
+      "title_ar": "اعتزال مريم",
+      "summary_ar": "اعتزلت مريم عن قومها للعبادة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr"
+      ],
+      "lessons_ar": [
+        "العبادة والخلوة لله من كرامة الأولياء."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة آل عمران 37"
+        }
+      ]
+    },
+    {
+      "id": "isa_birth",
+      "node_id": "isa",
+      "title_ar": "ولادة عيسى آية",
+      "summary_ar": "ولد عيسى معجزة بكلمة من الله.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "cited",
+      "theme_ids": [
+        "tawakkul"
+      ],
+      "lessons_ar": [
+        "قدرة الله ليست مقيدة بالأسباب المعتادة."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة مريم 16-21"
+        }
+      ]
+    },
+    {
+      "id": "muhammad_revelation",
+      "node_id": "muhammad",
+      "title_ar": "نزول أول الوحي",
+      "summary_ar": "بدأ الوحي في غار حراء بـ «اقرأ».",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "dawah"
+      ],
+      "lessons_ar": [
+        "بداية الوحي كانت بالعلم والقراءة.",
+        "الرسالة تحمل أمانة."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة العلق 1-5"
+        }
+      ]
+    }
+  ],
+  "event_ayahs": [
+    {
+      "event_id": "yusuf_dream",
+      "surah_id": 12,
+      "ayah_from": 4,
+      "ayah_to": 6,
+      "relation_type": "main",
+      "note_ar": "الرؤيا"
+    },
+    {
+      "event_id": "yusuf_well",
+      "surah_id": 12,
+      "ayah_from": 7,
+      "ayah_to": 18,
+      "relation_type": "main",
+      "note_ar": "الجب والبيع"
+    },
+    {
+      "event_id": "yusuf_prison",
+      "surah_id": 12,
+      "ayah_from": 23,
+      "ayah_to": 57,
+      "relation_type": "main",
+      "note_ar": "الفتنة والسجن والتمكين"
+    },
+    {
+      "event_id": "musa_birth",
+      "surah_id": 28,
+      "ayah_from": 7,
+      "ayah_to": 13,
+      "relation_type": "main",
+      "note_ar": "الولادة"
+    },
+    {
+      "event_id": "musa_firawn",
+      "surah_id": 20,
+      "ayah_from": 24,
+      "ayah_to": 56,
+      "relation_type": "main",
+      "note_ar": "الدعوة"
+    },
+    {
+      "event_id": "ibrahim_idols",
+      "surah_id": 21,
+      "ayah_from": 51,
+      "ayah_to": 70,
+      "relation_type": "main",
+      "note_ar": "الأصنام"
+    },
+    {
+      "event_id": "ibrahim_kaaba",
+      "surah_id": 2,
+      "ayah_from": 127,
+      "ayah_to": 129,
+      "relation_type": "main",
+      "note_ar": "البناء والدعاء"
+    },
+    {
+      "event_id": "nuh_dawah",
+      "surah_id": 71,
+      "ayah_from": 5,
+      "ayah_to": 20,
+      "relation_type": "main",
+      "note_ar": "الدعوة"
+    },
+    {
+      "event_id": "nuh_ark",
+      "surah_id": 11,
+      "ayah_from": 36,
+      "ayah_to": 44,
+      "relation_type": "main",
+      "note_ar": "السفينة"
+    },
+    {
+      "event_id": "maryam_withdraw",
+      "surah_id": 3,
+      "ayah_from": 37,
+      "ayah_to": 37,
+      "relation_type": "main",
+      "note_ar": "الاعتزال"
+    },
+    {
+      "event_id": "isa_birth",
+      "surah_id": 19,
+      "ayah_from": 16,
+      "ayah_to": 21,
+      "relation_type": "main",
+      "note_ar": "الولادة"
+    },
+    {
+      "event_id": "muhammad_revelation",
+      "surah_id": 96,
+      "ayah_from": 1,
+      "ayah_to": 5,
+      "relation_type": "main",
+      "note_ar": "أول الوحي"
+    }
+  ],
+  "node_links": [
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "sabr",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "مسار الابتلاء في سورة يوسف"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "egypt",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "سياق القصة"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "surah_yusuf",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة كاملة"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "sabr",
+      "relation_type": "embodies_theme",
+      "confidence": 0.9,
+      "evidence_note_ar": "ابتلاءات موسى"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "egypt",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "فرعون ومصر"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "tawakkul",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "ابتلاء الذبح"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "makkah",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "بناء الكعبة"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "tawakkul",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "السفينة"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "isa",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "قصة الولادة"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "makkah",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "غار حراء"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "dawah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "الرسالة الخاتمة"
+    }
+  ]
+}

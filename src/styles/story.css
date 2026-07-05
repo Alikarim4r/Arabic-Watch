@@ -1,0 +1,84 @@
+.story-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 14px;
+}
+
+.story-timeline {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: var(--panel);
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.timeline-item {
+  width: 100%;
+  text-align: right;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ivory);
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.timeline-item:hover,
+.timeline-item.active {
+  border-color: var(--line2);
+  background: rgba(243, 214, 138, 0.08);
+}
+
+.timeline-item .order {
+  color: var(--gold2);
+  font-size: 11px;
+  font-family: 'Reem Kufi', sans-serif;
+}
+
+.story-detail .ayah-card {
+  border: 1px solid var(--line2);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: rgba(243, 214, 138, 0.06);
+  margin: 12px 0;
+}
+
+.story-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.lesson-list,
+.source-list {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.lesson-list li,
+.source-list li {
+  border-right: 3px solid var(--gold3);
+  padding: 8px 10px;
+  background: rgba(8, 16, 36, 0.45);
+  border-radius: 8px;
+}
+
+.draft-banner {
+  border: 1px dashed var(--gold2);
+  color: var(--gold);
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+@media (max-width: 860px) {
+  .story-layout {
+    grid-template-columns: 1fr;
+  }
+}
