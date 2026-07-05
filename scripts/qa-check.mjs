@@ -1,0 +1,818 @@
+import { readFileSync, existsSync, writeFileSync, unlinkSync } from 'fs';
+import { pathToFileURL } from 'url';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import { spawnSync } from 'child_process';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const seed = JSON.parse(readFileSync(join(root, 'src/data/seed_content.json'), 'utf8'));
+const surahsPayload = JSON.parse(readFileSync(join(root, 'src/data/surahs.json'), 'utf8'));
+
+const { configure, isFinalContent } = await import(pathToFileURL(join(root, 'src/lib/dataService.js')).href);
+const { searchIndex } = await import(pathToFileURL(join(root, 'src/features/search/searchEngine.js')).href);
+const { matchesAllTokens } = await import(pathToFileURL(join(root, 'src/lib/arabicNormalize.js')).href);
+const { getEnvConfig } = await import(pathToFileURL(join(root, 'src/config/env.js')).href);
+const { createRepository } = await import(
+  pathToFileURL(join(root, 'src/data/repositories/repositoryFactory.js')).href
+);
+const { buildReviewQueue, summarizeReviewStats } = await import(
+  pathToFileURL(join(root, 'src/features/admin/reviewQueue.js')).href
+);
+
+configure({ publicMode: true, dataMode: 'local' });
+
+const nodes = seed.story_nodes || [];
+const events = seed.story_events || [];
+const themes = seed.themes || [];
+const surahs = surahsPayload.surahs;
+
+let failed = 0;
+const pass = (name) => console.log('PASS', name);
+const fail = (name, detail) => {
+  console.log('FAIL', name, detail);
+  failed++;
+};
+
+const badFinal = [...nodes, ...events].filter((x) => isFinalContent(x) && x.review_status !== 'approved');
+if (badFinal.length) fail('isFinalContent approved check', badFinal.map((x) => x.id));
+else pass('isFinalContent requires approved review_status');
+
+const noneFinal = [...nodes, ...events].filter((x) => isFinalContent(x) && x.source_status === 'none');
+if (noneFinal.length) fail('isFinalContent source none', noneFinal.map((x) => x.id));
+else pass('isFinalContent rejects source_status none');
+
+const unreviewedFinal = [...nodes, ...events, ...themes].filter(
+  (x) => ['pending', 'needs_source'].includes(x.review_status) && isFinalContent(x)
+);
+if (unreviewedFinal.length) fail('pending not shown as final', unreviewedFinal.map((x) => x.id));
+else pass('public mode excludes pending/needs_source from final content');
+
+if (!matchesAllTokens('صبر', 'الصبر عند المكروه')) fail('arabic normalization', '');
+else pass('arabic normalization');
+
+const eventFilter = searchIndex({ nodes, events, themes, surahs, query: '', filters: { type: 'event' }, publicMode: true });
+if (!eventFilter.every((r) => r.resultType === 'event')) fail('search event filter', '');
+else pass('search event filter');
+
+const pendingFilter = searchIndex({ nodes, events, themes, surahs, query: '', filters: { reviewStatus: 'pending' }, publicMode: true });
+if (!pendingFilter.every((r) => r.review_status === 'pending')) fail('search review filter', '');
+else pass('search review filter');
+
+for (const ev of events) {
+  if (ev.evidence_status === 'precise_evidence') {
+    const ay = (seed.event_ayahs || []).filter((a) => a.event_id === ev.id);
+    if (!ay.length) fail(`precise event ${ev.id} missing ayah`, 'missing');
+  }
+  if (ev.evidence_status === 'needs_precise_mapping') {
+    const ay = (seed.event_ayahs || []).filter((a) => a.event_id === ev.id);
+    if (ay.length) fail(`needs_precise_mapping event ${ev.id} has ayah`, 'forbidden fallback');
+  }
+}
+pass('evidence ayah rules for events');
+
+const finalEvents = events.filter((e) => isFinalContent(e));
+const badFinalEvidence = finalEvents.filter(
+  (e) => e.evidence_status !== 'precise_evidence' || e.evidence_confidence === 'needs_review'
+);
+if (badFinalEvidence.length) fail('final events require precise evidence', badFinalEvidence.map((e) => e.id));
+else pass('final events require precise_evidence');
+
+if (surahs.length !== 114) fail('surah count', surahs.length);
+else pass('114 surahs in data');
+
+const env = getEnvConfig();
+if (env.dataMode !== 'local') fail('env default data mode', env.dataMode);
+else pass('env defaults to local data mode');
+
+// Mock fetch for repository factory tests in Node (404 when optional files missing)
+globalThis.fetch = async (url) => {
+  const rel = String(url).replace(/^\.\//, '');
+  const file = join(root, 'src', rel);
+  if (!existsSync(file)) {
+    return { ok: false, status: 404, async json() { throw new Error(`missing ${rel}`); } };
+  }
+  return {
+    ok: true,
+    async json() {
+      return JSON.parse(readFileSync(file, 'utf8'));
+    },
+  };
+};
+
+try {
+  const localRepo = await createRepository({ dataMode: 'local' });
+  const localNodes = await localRepo.getNodes();
+  if (!localNodes.length) fail('local repository load', 'empty nodes');
+  else pass('local repository loads seed JSON');
+
+  const supaRepo = await createRepository({
+    dataMode: 'supabase',
+    supabaseUrl: '',
+    supabaseAnonKey: '',
+  });
+  const supaNodes = await supaRepo.getNodes();
+  if (!supaNodes.length) fail('supabase fallback repository', 'empty nodes');
+  else pass('missing Supabase env falls back to local demo');
+} catch (err) {
+  fail('repository factory', err.message);
+}
+
+const queue = buildReviewQueue({
+  nodes,
+  events,
+  themes,
+  eventAyahs: seed.event_ayahs || [],
+  tafsirSources: seed.tafsir_sources || [],
+});
+const stats = summarizeReviewStats(queue);
+if (!queue.length || stats.total !== queue.length) fail('admin review queue build', '');
+else pass('admin review queue builds records');
+if (stats.pending + stats.needs_source < 1) fail('admin pending records exist', '');
+else pass('admin queue includes pending/needs_source records');
+
+const { validateQuranText } = await import(
+  pathToFileURL(join(root, 'scripts/lib/quranTextValidation.mjs')).href
+);
+const sampleQuran = JSON.parse(
+  readFileSync(join(root, 'src/data/quran/quran_text.sample.json'), 'utf8')
+);
+const sampleValidation = validateQuranText(sampleQuran, {
+  fileLabel: 'quran_text.sample.json',
+});
+if (!sampleValidation.valid) fail('validate_quran_text sample', sampleValidation.errors.join('; '));
+else pass('validate_quran_text passes on sample file');
+
+try {
+  const localRepo = await createRepository({ dataMode: 'local' });
+  const ayah = await localRepo.getAyah(12, 4);
+  if (ayah.available) fail('getAyah without import should not be available', '');
+  else if (!ayah.placeholder_ar?.includes('غير مستورد')) fail('getAyah placeholder text', ayah.placeholder_ar);
+  else pass('getAyah returns safe placeholder without Quran import');
+
+  const range = await localRepo.getAyahRange(12, 4, 6);
+  if (range.some((r) => r.available)) fail('getAyahRange without import', 'unexpected available');
+  else pass('getAyahRange safe without Quran import');
+
+  const imported = await localRepo.isQuranTextImported();
+  if (imported) fail('isQuranTextImported without index', 'should be false');
+  else pass('isQuranTextImported false without full import');
+
+  const finalWithoutQuran = events.filter((e) => isFinalContent(e));
+  if (finalWithoutQuran.length < 1) fail('public final gate without quran text', 'no final events');
+  else pass('public final gate works without full Quran text');
+} catch (err) {
+  fail('quran repository methods', err.message);
+}
+
+const { getEffectiveDataMode } = await import(
+  pathToFileURL(join(root, 'src/config/env.js')).href
+);
+const { invalidateAuthCache, getAuthState, canAccessAdminReview } = await import(
+  pathToFileURL(join(root, 'src/lib/authService.js')).href
+);
+
+invalidateAuthCache();
+const envCfg = getEnvConfig();
+if (envCfg.effectiveDataMode !== 'local') fail('default effective data mode', envCfg.effectiveDataMode);
+else pass('app loads in local mode without env');
+
+if (getEffectiveDataMode({ dataMode: 'supabase' }) !== 'local') {
+  fail('supabase env missing fallback', 'expected local');
+} else pass('repository fallback when Supabase env missing');
+
+try {
+  invalidateAuthCache();
+  const auth = await getAuthState();
+  if (!auth.isMock || auth.role !== 'viewer') fail('local auth defaults to viewer mock', auth.role);
+  else pass('local auth mock viewer by default');
+
+  invalidateAuthCache();
+  const canAccess = await canAccessAdminReview();
+  if (!canAccess) fail('local admin review demo access', '');
+  else pass('local admin review accessible as demo');
+} catch (err) {
+  fail('auth service local mode', err.message);
+}
+
+try {
+  const supaAttempt = await createRepository({
+    dataMode: 'supabase',
+    supabaseUrl: '',
+    supabaseAnonKey: '',
+  });
+  const provider = await supaAttempt.getProvider();
+  if (provider !== 'local') pass('supabase repository does not crash when env missing');
+  else pass('supabase repository does not crash when env missing');
+
+  const history = await supaAttempt.getReviewActionHistory?.('event', 'test');
+  if (!Array.isArray(history)) fail('local review history method', '');
+  else pass('review action session history API available locally');
+
+  const patchResult = await supaAttempt.submitEvidencePatch?.({ meta: { status: 'proposed' }, mappings: [] });
+  if (!patchResult?.ok) fail('local evidence patch session submit', '');
+  else pass('evidence patch validation/session path still works locally');
+} catch (err) {
+  fail('supabase missing env handling', err.message);
+}
+
+try {
+  const localRepo = await createRepository({ dataMode: 'local' });
+  const batches = await localRepo.getContentChangeBatches?.();
+  if (!Array.isArray(batches)) fail('getContentChangeBatches local', '');
+  else pass('content change batches API available locally');
+
+  const submitBatch = await localRepo.submitContentChangeBatch?.({
+    batch_type: 'evidence_promotion',
+    status: 'draft',
+    summary: 'qa test batch',
+    payload: { items: [{ change_type: 'review_action', record_type: 'event', event_id: 'musa_03__', proposed_review_status: 'pending', promote_as_final: false }] },
+  });
+  if (!submitBatch?.ok) fail('submitContentChangeBatch local session', '');
+  else pass('content batch session submit works locally');
+
+  const pendingFinal = events.filter((e) => e.review_status !== 'approved' && isFinalContent(e));
+  if (pendingFinal.length) fail('pending events must not pass final gate', pendingFinal.map((e) => e.id));
+  else pass('no pending/needs_precise_mapping appears as verified final');
+} catch (err) {
+  fail('content batch local tests', err.message);
+}
+
+function runNodeScript(scriptArgs, expectOk = true) {
+  const result = spawnSync(process.execPath, scriptArgs, {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  const output = `${result.stdout || ''}${result.stderr || ''}`;
+  const ok = result.status === 0;
+  const met = expectOk ? ok : !ok;
+  if (!met) {
+    fail(
+      `script ${scriptArgs[1]}`,
+      expectOk ? output || `exit ${result.status}` : `expected failure but exited 0: ${output}`
+    );
+  }
+  return met;
+}
+
+const draftBatch = join(root, 'examples/content_change_batch.sample.json');
+const approvedBatch = join(root, 'examples/content_change_batch.approved.sample.json');
+const sampleSql = join(root, 'examples/apply_batch.sample.sql');
+
+if (runNodeScript(['scripts/apply_content_change_batch.mjs', '--file', draftBatch], false)) {
+  pass('apply_content_change_batch rejects non-approved batch');
+} else fail('apply rejects non-approved batch', 'draft batch should fail');
+
+if (
+  runNodeScript([
+    'scripts/apply_content_change_batch.mjs',
+    '--file',
+    approvedBatch,
+    '--dry-run',
+  ])
+) {
+  pass('apply_content_change_batch accepts approved sample in dry-run');
+} else fail('apply dry-run approved sample', '');
+
+if (
+  runNodeScript([
+    'scripts/apply_content_change_batch.mjs',
+    '--file',
+    approvedBatch,
+    '--generate-sql',
+    '--output',
+    sampleSql,
+  ])
+) {
+  pass('apply_content_change_batch generates SQL');
+} else fail('apply generate SQL', '');
+
+if (
+  runNodeScript([
+    'scripts/verify_applied_batch.mjs',
+    '--file',
+    approvedBatch,
+    '--sql',
+    sampleSql,
+  ])
+) {
+  pass('verify_applied_batch passes on generated safe SQL');
+} else fail('verify safe SQL', '');
+
+const badSqlPath = join(root, 'supabase/generated/qa_bad_uthmani.sql');
+writeFileSync(
+  badSqlPath,
+  `-- batch id: example-approved-batch-001
+BEGIN;
+UPDATE public.ayahs SET text_uthmani = 'bad' WHERE id = 1;
+COMMIT;
+`,
+  'utf8'
+);
+if (runNodeScript(['scripts/verify_applied_batch.mjs', '--file', approvedBatch, '--sql', badSqlPath], false)) {
+  pass('verify_applied_batch rejects SQL touching ayahs.text_uthmani');
+} else fail('verify should reject text_uthmani SQL', '');
+try {
+  unlinkSync(badSqlPath);
+} catch {
+  /* ignore */
+}
+
+if (
+  runNodeScript([
+    'scripts/validate_content_change_batch.mjs',
+    'examples/content_change_batch.sample.json',
+  ])
+) {
+  pass('validate_content_change_batch still passes on draft sample');
+} else fail('validate_content_change_batch', '');
+
+try {
+  const { sortReviewQueueByPriority, buildFilterChips, loadSavedReviewFilters, saveReviewFilters } = await import(
+    pathToFileURL(join(root, 'src/features/admin/reviewQueue.js')).href
+  );
+  const { actionRequiresNote, actionRequiresConfirmation } = await import(
+    pathToFileURL(join(root, 'src/features/admin/reviewActions.js')).href
+  );
+  const { formatAuthError } = await import(pathToFileURL(join(root, 'src/lib/authService.js')).href);
+  const { renderAccessDeniedView } = await import(
+    pathToFileURL(join(root, 'src/features/auth/accessDeniedView.js')).href
+  );
+  const { isLocalRuntime } = await import(pathToFileURL(join(root, 'src/config/env.js')).href);
+
+  const sampleRecords = [
+    { review_status: 'pending', evidence_status: 'needs_precise_mapping', title_ar: 'b' },
+    { review_status: 'needs_source', evidence_status: 'needs_precise_mapping', title_ar: 'a' },
+  ];
+  const sorted = sortReviewQueueByPriority(sampleRecords);
+  if (sorted[0].review_status !== 'needs_source') fail('review queue priority sort', sorted[0].review_status);
+  else pass('review queue priority sort');
+
+  const chips = buildFilterChips(events.map((e) => ({ ...e, recordType: 'event', isFinal: isFinalContent(e) })));
+  if (!chips.length || chips.every((c) => c.count === 0)) fail('review filter chips', '');
+  else pass('review queue filter chips build');
+
+  const store = {};
+  globalThis.localStorage = {
+    getItem: (k) => store[k] ?? null,
+    setItem: (k, v) => {
+      store[k] = String(v);
+    },
+    removeItem: (k) => {
+      delete store[k];
+    },
+  };
+
+  saveReviewFilters({ q: 'qa-test-filter', recordType: 'event' });
+  const loaded = loadSavedReviewFilters();
+  if (loaded?.q !== 'qa-test-filter') fail('saved review filters persist', loaded?.q);
+  else pass('saved review filters persist');
+
+  if (!actionRequiresNote('approve') || !actionRequiresNote('reject')) fail('required note actions', '');
+  else pass('review action note required for approve/reject');
+
+  if (!actionRequiresConfirmation('approve')) fail('confirmation actions', '');
+  else pass('review action confirmation required');
+
+  const deniedHtml = renderAccessDeniedView({ role: 'viewer', user: { email: 'x@test.com' } });
+  if (!deniedHtml.includes('access-denied-view')) fail('access denied view renders', '');
+  else pass('access denied view renders');
+
+  const friendly = formatAuthError('Invalid login credentials');
+  if (friendly.includes('Invalid login')) fail('formatAuthError sanitizes', friendly);
+  else pass('formatAuthError readable messages');
+
+  invalidateAuthCache();
+  const viewerAccess = await canAccessAdminReview();
+  if (!viewerAccess && isLocalRuntime()) fail('local demo admin access', '');
+  else pass('local demo reviewer access works');
+
+  const { getAuthModeBadge, canManageReviewers, setLocalMockRole } = await import(
+    pathToFileURL(join(root, 'src/lib/authService.js')).href
+  );
+  const badge = getAuthModeBadge();
+  if (!badge.labelAr || !badge.key) fail('auth mode badge', badge.key);
+  else pass('auth mode badge renders');
+
+  setLocalMockRole('reviewer');
+  invalidateAuthCache();
+  const reviewerManage = await canManageReviewers();
+  setLocalMockRole('admin');
+  invalidateAuthCache();
+  const adminManage = await canManageReviewers();
+  setLocalMockRole(null);
+  invalidateAuthCache();
+  if (reviewerManage) fail('reviewer cannot manage reviewers', '');
+  else pass('reviewer management placeholder is admin-only');
+  if (!adminManage) fail('admin can see reviewer management in local demo', '');
+  else pass('admin reviewer management allowed in local demo');
+
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  if (!pkg.scripts['qa:staging']) fail('qa:staging script missing', '');
+  else pass('qa:staging command exists');
+
+  if (!runNodeScript(['scripts/supabase_staging_smoke.mjs'], true)) {
+    fail('staging smoke exits cleanly when env missing', '');
+  } else pass('staging smoke script exits cleanly when env missing');
+} catch (err) {
+  fail('reviewer dashboard unit tests', err.message);
+}
+
+const batch01Path = join(root, 'examples/evidence_patch.batch_01.proposed.json');
+const batch01ReviewPath = join(root, 'examples/evidence_patch.batch_01.review_template.json');
+if (existsSync(batch01Path)) {
+  const batch01 = JSON.parse(readFileSync(batch01Path, 'utf8'));
+  const batch01Ids = new Set((batch01.mappings || []).map((m) => m.event_id));
+  const batch01Approved = (batch01.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch01Approved.length) fail('Batch 1 proposed patch has approved mappings', batch01Approved.map((m) => m.event_id));
+  else pass('Batch 1 proposed patch has no approved mappings');
+
+  const seedBatchEvents = events.filter((e) => batch01Ids.has(e.id));
+  const seedBatchApproved = seedBatchEvents.filter((e) => e.review_status === 'approved');
+  if (seedBatchApproved.length) fail('Batch 1 seed events must not be approved', seedBatchApproved.map((e) => e.id));
+  else pass('Batch 1 seed events remain not approved');
+}
+
+if (existsSync(batch01ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', batch01ReviewPath], true)) {
+    fail('validate_scholar_review_template', batch01ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 1 template');
+}
+
+const batch01RevisedPath = join(root, 'examples/evidence_patch.batch_01.revised.proposed.json');
+if (existsSync(batch01ReviewPath)) {
+  if (!runNodeScript(['scripts/compile_scholar_review_decisions.mjs'], true)) {
+    fail('compile_scholar_review_decisions on blank template', '');
+  } else pass('compile_scholar_review_decisions produces revised patch from blank template');
+}
+
+if (existsSync(batch01RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', batch01RevisedPath], true)) {
+    fail('validate_revised_evidence_patch', batch01RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 1 revised patch');
+
+  const revised = JSON.parse(readFileSync(batch01RevisedPath, 'utf8'));
+  const revisedApproved = (revised.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revisedApproved.length) fail('Batch 1 revised patch must not auto-approve', revisedApproved.map((m) => m.event_id));
+  else pass('Batch 1 revised patch has no auto-approved mappings');
+}
+
+const batch02Path = join(root, 'examples/evidence_patch.batch_02.proposed.json');
+const batch02ReviewPath = join(root, 'examples/evidence_patch.batch_02.review_template.json');
+const batch02RevisedPath = join(root, 'examples/evidence_patch.batch_02.revised.proposed.json');
+
+if (existsSync(batch02Path)) {
+  const batch02 = JSON.parse(readFileSync(batch02Path, 'utf8'));
+  const batch02Ids = new Set((batch02.mappings || []).map((m) => m.event_id));
+  const batch02Approved = (batch02.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch02Approved.length) fail('Batch 2 proposed patch has approved mappings', batch02Approved.map((m) => m.event_id));
+  else pass('Batch 2 proposed patch has no approved mappings');
+
+  const batch01Ids = existsSync(batch01Path)
+    ? new Set(JSON.parse(readFileSync(batch01Path, 'utf8')).mappings.map((m) => m.event_id))
+    : new Set();
+  const overlap = [...batch02Ids].filter((id) => batch01Ids.has(id));
+  if (overlap.length) fail('Batch 2 must not overlap Batch 1 event_ids', overlap);
+  else pass('Batch 2 event_ids do not overlap Batch 1');
+
+  const seedBatch02 = events.filter((e) => batch02Ids.has(e.id));
+  if (seedBatch02.some((e) => e.review_status === 'approved')) {
+    fail('Batch 2 seed events must not be approved', seedBatch02.filter((e) => e.review_status === 'approved').map((e) => e.id));
+  } else pass('Batch 2 seed events remain not approved');
+}
+
+if (existsSync(batch02ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', '--input', batch02ReviewPath], true)) {
+    fail('validate_scholar_review_template Batch 2', batch02ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 2 template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_scholar_review_decisions.mjs',
+        '--input',
+        batch02ReviewPath,
+        '--output',
+        batch02RevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_scholar_review_decisions Batch 2', '');
+  } else pass('compile_scholar_review_decisions produces Batch 2 revised patch');
+}
+
+if (existsSync(batch02RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', batch02RevisedPath], true)) {
+    fail('validate_revised_evidence_patch Batch 2', batch02RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 2 revised patch');
+
+  const revised02 = JSON.parse(readFileSync(batch02RevisedPath, 'utf8'));
+  const revised02Approved = (revised02.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revised02Approved.length) fail('Batch 2 revised patch must not auto-approve', revised02Approved.map((m) => m.event_id));
+  else pass('Batch 2 revised patch has no auto-approved mappings');
+}
+
+const batch03Path = join(root, 'examples/evidence_patch.batch_03.proposed.json');
+const batch03ReviewPath = join(root, 'examples/evidence_patch.batch_03.review_template.json');
+const batch03RevisedPath = join(root, 'examples/evidence_patch.batch_03.revised.proposed.json');
+
+if (existsSync(batch03Path)) {
+  const batch03 = JSON.parse(readFileSync(batch03Path, 'utf8'));
+  const batch03Ids = new Set((batch03.mappings || []).map((m) => m.event_id));
+  const batch03Approved = (batch03.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch03Approved.length) fail('Batch 3 proposed patch has approved mappings', batch03Approved.map((m) => m.event_id));
+  else pass('Batch 3 proposed patch has no approved mappings');
+
+  const batch01IdsFor03 = existsSync(batch01Path)
+    ? new Set(JSON.parse(readFileSync(batch01Path, 'utf8')).mappings.map((m) => m.event_id))
+    : new Set();
+  const batch02IdsFor03 = existsSync(batch02Path)
+    ? new Set(JSON.parse(readFileSync(batch02Path, 'utf8')).mappings.map((m) => m.event_id))
+    : new Set();
+  const overlap03 = [...batch03Ids].filter((id) => batch01IdsFor03.has(id) || batch02IdsFor03.has(id));
+  if (overlap03.length) fail('Batch 3 must not overlap Batch 1 or 2 event_ids', overlap03);
+  else pass('Batch 3 event_ids do not overlap Batches 1–2');
+
+  const seedBatch03 = events.filter((e) => batch03Ids.has(e.id));
+  if (seedBatch03.some((e) => e.review_status === 'approved')) {
+    fail('Batch 3 seed events must not be approved', seedBatch03.filter((e) => e.review_status === 'approved').map((e) => e.id));
+  } else pass('Batch 3 seed events remain not approved');
+}
+
+if (existsSync(batch03ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', '--input', batch03ReviewPath], true)) {
+    fail('validate_scholar_review_template Batch 3', batch03ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 3 template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_scholar_review_decisions.mjs',
+        '--input',
+        batch03ReviewPath,
+        '--output',
+        batch03RevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_scholar_review_decisions Batch 3', '');
+  } else pass('compile_scholar_review_decisions produces Batch 3 revised patch');
+}
+
+if (existsSync(batch03RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', batch03RevisedPath], true)) {
+    fail('validate_revised_evidence_patch Batch 3', batch03RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 3 revised patch');
+
+  const revised03 = JSON.parse(readFileSync(batch03RevisedPath, 'utf8'));
+  const revised03Approved = (revised03.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revised03Approved.length) fail('Batch 3 revised patch must not auto-approve', revised03Approved.map((m) => m.event_id));
+  else pass('Batch 3 revised patch has no auto-approved mappings');
+}
+
+const batch04Path = join(root, 'examples/evidence_patch.batch_04.proposed.json');
+const batch04ReviewPath = join(root, 'examples/evidence_patch.batch_04.review_template.json');
+const batch04RevisedPath = join(root, 'examples/evidence_patch.batch_04.revised.proposed.json');
+
+if (existsSync(batch04Path)) {
+  const batch04 = JSON.parse(readFileSync(batch04Path, 'utf8'));
+  const batch04Ids = new Set((batch04.mappings || []).map((m) => m.event_id));
+  const batch04Approved = (batch04.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch04Approved.length) fail('Batch 4 proposed patch has approved mappings', batch04Approved.map((m) => m.event_id));
+  else pass('Batch 4 proposed patch has no approved mappings');
+
+  const priorBatchIds = new Set();
+  for (const p of [batch01Path, batch02Path, batch03Path]) {
+    if (existsSync(p)) {
+      JSON.parse(readFileSync(p, 'utf8')).mappings.forEach((m) => priorBatchIds.add(m.event_id));
+    }
+  }
+  const overlap04 = [...batch04Ids].filter((id) => priorBatchIds.has(id));
+  if (overlap04.length) fail('Batch 4 must not overlap Batches 1–3 event_ids', overlap04);
+  else pass('Batch 4 event_ids do not overlap Batches 1–3');
+
+  const seedBatch04 = events.filter((e) => batch04Ids.has(e.id));
+  if (seedBatch04.some((e) => e.review_status === 'approved')) {
+    fail('Batch 4 seed events must not be approved', seedBatch04.filter((e) => e.review_status === 'approved').map((e) => e.id));
+  } else pass('Batch 4 seed events remain not approved');
+}
+
+if (existsSync(batch04ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', '--input', batch04ReviewPath], true)) {
+    fail('validate_scholar_review_template Batch 4', batch04ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 4 template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_scholar_review_decisions.mjs',
+        '--input',
+        batch04ReviewPath,
+        '--output',
+        batch04RevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_scholar_review_decisions Batch 4', '');
+  } else pass('compile_scholar_review_decisions produces Batch 4 revised patch');
+}
+
+if (existsSync(batch04RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', batch04RevisedPath], true)) {
+    fail('validate_revised_evidence_patch Batch 4', batch04RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 4 revised patch');
+
+  const revised04 = JSON.parse(readFileSync(batch04RevisedPath, 'utf8'));
+  const revised04Approved = (revised04.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revised04Approved.length) fail('Batch 4 revised patch must not auto-approve', revised04Approved.map((m) => m.event_id));
+  else pass('Batch 4 revised patch has no auto-approved mappings');
+}
+
+const batch05Path = join(root, 'examples/evidence_patch.batch_05.proposed.json');
+const batch05ReviewPath = join(root, 'examples/evidence_patch.batch_05.review_template.json');
+const batch05RevisedPath = join(root, 'examples/evidence_patch.batch_05.revised.proposed.json');
+
+if (existsSync(batch05Path)) {
+  const batch05 = JSON.parse(readFileSync(batch05Path, 'utf8'));
+  const batch05Ids = new Set((batch05.mappings || []).map((m) => m.event_id));
+  const batch05Approved = (batch05.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (batch05Approved.length) fail('Batch 5 proposed patch has approved mappings', batch05Approved.map((m) => m.event_id));
+  else pass('Batch 5 proposed patch has no approved mappings');
+
+  const priorBatchIds05 = new Set();
+  for (const p of [batch01Path, batch02Path, batch03Path, batch04Path]) {
+    if (existsSync(p)) {
+      JSON.parse(readFileSync(p, 'utf8')).mappings.forEach((m) => priorBatchIds05.add(m.event_id));
+    }
+  }
+  const overlap05 = [...batch05Ids].filter((id) => priorBatchIds05.has(id));
+  if (overlap05.length) fail('Batch 5 must not overlap Batches 1–4 event_ids', overlap05);
+  else pass('Batch 5 event_ids do not overlap Batches 1–4');
+
+  const seedBatch05 = events.filter((e) => batch05Ids.has(e.id));
+  if (seedBatch05.some((e) => e.review_status === 'approved')) {
+    fail('Batch 5 seed events must not be approved', seedBatch05.filter((e) => e.review_status === 'approved').map((e) => e.id));
+  } else pass('Batch 5 seed events remain not approved');
+}
+
+if (existsSync(batch05ReviewPath)) {
+  if (!runNodeScript(['scripts/validate_scholar_review_template.mjs', '--input', batch05ReviewPath], true)) {
+    fail('validate_scholar_review_template Batch 5', batch05ReviewPath);
+  } else pass('validate_scholar_review_template on Batch 5 template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_scholar_review_decisions.mjs',
+        '--input',
+        batch05ReviewPath,
+        '--output',
+        batch05RevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_scholar_review_decisions Batch 5', '');
+  } else pass('compile_scholar_review_decisions produces Batch 5 revised patch');
+}
+
+if (existsSync(batch05RevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', batch05RevisedPath], true)) {
+    fail('validate_revised_evidence_patch Batch 5', batch05RevisedPath);
+  } else pass('validate_revised_evidence_patch on Batch 5 revised patch');
+
+  const revised05 = JSON.parse(readFileSync(batch05RevisedPath, 'utf8'));
+  const revised05Approved = (revised05.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revised05Approved.length) fail('Batch 5 revised patch must not auto-approve', revised05Approved.map((m) => m.event_id));
+  else pass('Batch 5 revised patch has no auto-approved mappings');
+}
+
+const allBatchPaths = [batch01Path, batch02Path, batch03Path, batch04Path, batch05Path].filter((p) => existsSync(p));
+if (allBatchPaths.length === 5) {
+  const proposedIds = [];
+  for (const p of allBatchPaths) {
+    proposedIds.push(...JSON.parse(readFileSync(p, 'utf8')).mappings.map((m) => m.event_id));
+  }
+  const proposedSet = new Set(proposedIds);
+  const needsMapping = events.filter((e) => e.evidence_status === 'needs_precise_mapping').map((e) => e.id);
+  const needsSet = new Set(needsMapping);
+  const missing = needsMapping.filter((id) => !proposedSet.has(id));
+  const extra = proposedIds.filter((id) => !needsSet.has(id));
+  const dupes = proposedIds.filter((id, i) => proposedIds.indexOf(id) !== i);
+  if (dupes.length) fail('duplicate event_ids across sprint batches', [...new Set(dupes)]);
+  else pass('no duplicate event_ids across Batches 1–5');
+  if (missing.length) fail('needs_precise_mapping events missing batch proposal', missing);
+  else pass('all needs_precise_mapping events have a batch proposal');
+  if (extra.length) fail('batch proposals reference non-needs_precise_mapping events', extra);
+  else pass('batch proposals only target needs_precise_mapping events');
+  if (proposedSet.size !== needsSet.size) fail('proposed count must equal needs_precise_mapping count', `${proposedSet.size} vs ${needsSet.size}`);
+  else pass(`sprint batch coverage complete (${proposedSet.size}/48 proposed)`);
+}
+
+const allBatchesPath = join(root, 'examples/evidence_patch.all_batches.proposed.json');
+const allBatchesTemplatePath = join(root, 'examples/evidence_patch.all_batches.owner_review_template.json');
+const allBatchesCsvPath = join(root, 'examples/evidence_patch.all_batches.owner_review.csv');
+const allBatchesRevisedPath = join(root, 'examples/evidence_patch.all_batches.revised.proposed.json');
+const coverageReportPath = join(root, 'docs/evidence_mapping_all_batches_coverage_report.md');
+const ownerReviewMdPath = join(root, 'docs/owner_review_all_batches.md');
+const riskReportPath = join(root, 'docs/evidence_mapping_consolidated_risk_report.md');
+
+if (existsSync(allBatchesPath)) {
+  const allBatches = JSON.parse(readFileSync(allBatchesPath, 'utf8'));
+  const allIds = (allBatches.mappings || []).map((m) => m.event_id);
+  const allApproved = (allBatches.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (allBatches.meta?.status !== 'consolidated_proposed') {
+    fail('consolidated proposed meta.status must be consolidated_proposed', allBatches.meta?.status);
+  } else pass('consolidated proposed meta.status is consolidated_proposed');
+  if (allBatches.meta?.total_mappings !== 48) fail('consolidated proposed total_mappings must be 48', allBatches.meta?.total_mappings);
+  else pass('consolidated proposed has total_mappings=48');
+  if (allIds.length !== 48) fail('consolidated proposed must have 48 mappings', allIds.length);
+  else pass('consolidated proposed file has 48 mappings');
+  const allDupes = allIds.filter((id, i) => allIds.indexOf(id) !== i);
+  if (allDupes.length) fail('consolidated proposed duplicate event_ids', [...new Set(allDupes)]);
+  else pass('consolidated proposed has no duplicate event_ids');
+  if (allApproved.length) fail('consolidated proposed has approved mappings', allApproved.map((m) => m.event_id));
+  else pass('consolidated proposed has no approved mappings');
+
+  if (!runNodeScript(['scripts/validate_evidence_patch.mjs', allBatchesPath], true)) {
+    fail('validate_evidence_patch consolidated', allBatchesPath);
+  } else pass('validate_evidence_patch on consolidated proposed');
+}
+
+if (existsSync(allBatchesTemplatePath)) {
+  if (!runNodeScript(['scripts/validate_owner_review_template.mjs', '--input', allBatchesTemplatePath], true)) {
+    fail('validate_owner_review_template', allBatchesTemplatePath);
+  } else pass('validate_owner_review_template on consolidated template');
+
+  if (
+    !runNodeScript(
+      [
+        'scripts/compile_owner_review_decisions.mjs',
+        '--input',
+        allBatchesTemplatePath,
+        '--output',
+        allBatchesRevisedPath,
+      ],
+      true
+    )
+  ) {
+    fail('compile_owner_review_decisions', '');
+  } else pass('compile_owner_review_decisions produces consolidated revised patch');
+}
+
+if (existsSync(allBatchesCsvPath)) {
+  const csvLines = readFileSync(allBatchesCsvPath, 'utf8').trim().split('\n');
+  const csvDataRows = csvLines.length > 1 ? csvLines.length - 1 : 0;
+  if (csvDataRows !== 48) fail('owner review CSV must have 48 data rows', csvDataRows);
+  else pass('owner review CSV has 48 rows');
+} else {
+  fail('owner review CSV missing', allBatchesCsvPath);
+}
+
+if (existsSync(allBatchesRevisedPath)) {
+  if (!runNodeScript(['scripts/validate_revised_evidence_patch.mjs', '--input', allBatchesRevisedPath], true)) {
+    fail('validate_revised_evidence_patch consolidated', allBatchesRevisedPath);
+  } else pass('validate_revised_evidence_patch on consolidated revised patch');
+
+  const revisedAll = JSON.parse(readFileSync(allBatchesRevisedPath, 'utf8'));
+  const revisedAllApproved = (revisedAll.mappings || []).filter((m) => m.proposed_review_status === 'approved');
+  if (revisedAllApproved.length) fail('consolidated revised must have 0 approved', revisedAllApproved.length);
+  else pass('consolidated revised patch has 0 approved mappings');
+}
+
+for (const docPath of [coverageReportPath, ownerReviewMdPath, riskReportPath]) {
+  if (!existsSync(docPath)) fail('consolidated doc missing', docPath);
+  else pass(`consolidated doc exists: ${docPath.replace(`${root}/`, '')}`);
+}
+
+if (finalEvents.length !== 6) fail('public-final count unchanged', finalEvents.length);
+else pass('public-final safe event count remains 6');
+
+if (!runNodeScript(['scripts/check_arabic_text_hygiene.mjs', '--strict'], true)) {
+  fail('check_arabic_text_hygiene --strict', 'Arabic field errors including الخضr typo');
+} else pass('check_arabic_text_hygiene --strict (no Latin in title_ar / no الخضr)');
+
+if (!runNodeScript(['scripts/audit_khidr_unicode.mjs'], true)) {
+  fail('audit_khidr_unicode', 'musa_09__ title must be Arabic الخضر');
+} else pass('audit_khidr_unicode — musa_09__.title_ar is الخضر (U+0631)');
+
+const musa09 = events.find((e) => e.id === 'musa_09__');
+if (!musa09) fail('musa_09__ event missing', '');
+else if (musa09.title_ar !== 'الخضر') fail('musa_09__.title_ar must equal الخضر', musa09.title_ar);
+else pass('musa_09__.title_ar equals الخضر (no Latin r)');
+
+const latinTitleEvents = events.filter((e) => e.title_ar && /[a-zA-Z]/.test(e.title_ar));
+if (latinTitleEvents.length) fail('no Latin letters in any title_ar', latinTitleEvents.map((e) => e.id));
+else pass('no Latin letters inside story_events title_ar');
+
+const disclaimerPath = join(root, 'src/components/disclaimer.js');
+if (existsSync(disclaimerPath)) {
+  const disclaimerSrc = readFileSync(disclaimerPath, 'utf8');
+  if (!disclaimerSrc.includes('هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة')) {
+    fail('Arabic disclaimer text missing from disclaimer.js', '');
+  } else pass('Arabic disclaimer preserved in UI component');
+}
+
+process.exit(failed ? 1 : 0);

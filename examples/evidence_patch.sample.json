@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "status": "example",
+    "description_ar": "مثال توضيحي فقط — NOT approved production content. Do not merge without scholarly review.",
+    "disclaimer_ar": "هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة."
+  },
+  "mappings": [
+    {
+      "event_id": "adam_01__",
+      "surah_id": 2,
+      "ayah_from": 30,
+      "ayah_to": 37,
+      "relation_type": "main",
+      "evidence_note_ar": "مثال: تعليم الأسماء — مسودة للمراجعة فقط",
+      "evidence_confidence": "needs_review",
+      "source_id": "",
+      "reviewer_note": "مثال — يحتاج مراجعة عالم قبل الدمج",
+      "proposed_review_status": "pending"
+    },
+    {
+      "event_id": "musa_03__",
+      "surah_id": 28,
+      "ayah_from": 22,
+      "ayah_to": 28,
+      "relation_type": "main",
+      "evidence_note_ar": "مثال: مدين — مسودة",
+      "evidence_confidence": "quran_explicit",
+      "source_id": "quran_text",
+      "reviewer_note": "مثال — proposed فقط",
+      "proposed_review_status": "pending"
+    }
+  ]
+}
