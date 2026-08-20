@@ -38,4 +38,29 @@ const manifest = readFileSync(join(root, 'android/app/src/main/AndroidManifest.x
 assert(manifest.includes('android.permission.INTERNET'), 'INTERNET permission');
 assert(manifest.includes('supportsRtl="true"'), 'RTL support enabled');
 
+const variablesGradle = readFileSync(join(root, 'android/variables.gradle'), 'utf8');
+assert(
+  /compileSdkVersion\s*=\s*36\b/.test(variablesGradle),
+  'compileSdkVersion targets Android 16 (API 36)'
+);
+assert(
+  /targetSdkVersion\s*=\s*36\b/.test(variablesGradle),
+  'targetSdkVersion meets the Google Play API 36 requirement'
+);
+
+const rootGradle = readFileSync(join(root, 'android/build.gradle'), 'utf8');
+assert(
+  /com\.android\.tools\.build:gradle:8\.(?:9\.[1-9]|(?:[1-9][0-9])\.\d+)/.test(rootGradle),
+  'Android Gradle Plugin supports API 36'
+);
+
+const wrapperProperties = readFileSync(
+  join(root, 'android/gradle/wrapper/gradle-wrapper.properties'),
+  'utf8'
+);
+assert(
+  /gradle-8\.(?:11\.1|1[2-9](?:\.\d+)?)-/.test(wrapperProperties),
+  'Gradle wrapper is compatible with the Android Gradle Plugin'
+);
+
 process.exit(failed ? 1 : 0);

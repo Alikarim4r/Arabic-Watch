@@ -9,6 +9,7 @@
 | [Node.js](https://nodejs.org/) | 18+ |
 | [Android Studio](https://developer.android.com/studio) | أحدث إصدار مستقر |
 | JDK | 17 أو 21 (يأتي مع Android Studio) |
+| Android SDK | API 36 (Android 16) |
 | هاتف أندرويد أو محاكي | USB debugging مفعّل للهاتف |
 
 ## البنية
@@ -20,6 +21,8 @@ src/                    نفس واجهة الويب — تُنسخ إلى APK �
 ```
 
 **معرّف التطبيق:** `com.quranstory.universe`
+
+يستهدف المشروع Android 16 (API 36) ليتوافق مع متطلبات Google Play التي تبدأ في 31 أغسطس 2026.
 
 ## أوامر سريعة
 
