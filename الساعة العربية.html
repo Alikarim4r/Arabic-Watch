@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>الساعة العربية الزمنية — v6</title>
+<title>الزمن — الساعة العربية الفلكية · v7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;500;600&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
@@ -168,6 +168,77 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
 }
 
 
+.moon-panel{
+  position:relative;
+  z-index:2;
+  width:min(92vw,650px);
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:190px 1fr;
+  gap:22px;
+  align-items:center;
+  overflow:hidden;
+  border:1px solid rgba(200,212,255,.24);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 16% 34%,rgba(126,166,255,.17),transparent 34%),
+    linear-gradient(135deg,rgba(18,29,61,.86),rgba(6,12,29,.90));
+  padding:20px 22px;
+  box-shadow:0 22px 52px rgba(0,0,0,.31),inset 0 1px 0 rgba(255,255,255,.07);
+  backdrop-filter:blur(10px);
+}
+.moon-panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.28;
+  background-image:
+    radial-gradient(1px 1px at 75% 18%,#fff,transparent 58%),
+    radial-gradient(1px 1px at 89% 67%,#fff,transparent 58%),
+    radial-gradient(1px 1px at 58% 83%,#fff,transparent 58%),
+    radial-gradient(1px 1px at 39% 12%,#fff,transparent 58%);
+}
+.moon-art{position:relative;display:grid;place-items:center;min-height:170px}
+.moon-halo{
+  position:relative;
+  width:160px;
+  height:160px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(200,212,255,.14),rgba(126,166,255,.06) 48%,transparent 72%);
+  filter:drop-shadow(0 0 24px rgba(126,166,255,.16));
+}
+#moonCanvas{display:block;width:152px;height:152px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.48))}
+.moon-content{position:relative;min-width:0}
+.moon-kicker{font-family:'Reem Kufi','Amiri',sans-serif;color:rgba(200,212,255,.68);font-size:11px;letter-spacing:1.5px;margin-bottom:3px}
+.moon-name{font-family:'Reem Kufi','Amiri',sans-serif;color:#eef3ff;font-size:clamp(23px,5vw,31px);line-height:1.3;text-shadow:0 0 22px rgba(200,212,255,.28)}
+.moon-summary{color:rgba(246,239,220,.66);font-size:13px;line-height:1.65;margin:3px 0 12px}
+.moon-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.moon-stat{border:1px solid rgba(200,212,255,.13);border-radius:10px;background:rgba(3,7,18,.32);padding:8px 9px;min-width:0}
+.moon-stat .mk{display:block;color:rgba(200,212,255,.55);font-family:'Reem Kufi','Amiri',sans-serif;font-size:9px;margin-bottom:2px}
+.moon-stat .mv{display:block;color:#f4e9bd;font-family:'Amiri',serif;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.moon-progress{margin-top:11px}
+.moon-progress-meta{display:flex;justify-content:space-between;gap:12px;color:rgba(200,212,255,.56);font-size:10px;margin-bottom:5px}
+.moon-progress-track{height:3px;overflow:hidden;border-radius:999px;background:rgba(200,212,255,.10)}
+.moon-progress-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#3c508c,#e9efff,#7ea6ff);box-shadow:0 0 12px rgba(126,166,255,.55)}
+.moon-next{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:center;margin-top:12px;border-top:1px solid rgba(200,212,255,.12);padding-top:11px}
+.moon-next-icon{font-size:26px;line-height:1;filter:drop-shadow(0 0 10px rgba(200,212,255,.28))}
+.moon-next-title{font-family:'Reem Kufi','Amiri',sans-serif;color:#e8edff;font-size:12px}
+.moon-next-date{color:rgba(246,239,220,.62);font-size:11px;line-height:1.6}
+.moon-source-note{grid-column:1/-1;position:relative;color:rgba(200,212,255,.45);font-size:10px;line-height:1.6;text-align:center;margin-top:-5px}
+.moon-source-note a{color:rgba(243,214,138,.72);text-decoration:none;border-bottom:1px dotted rgba(243,214,138,.4)}
+@media(max-width:540px){
+  .moon-panel{grid-template-columns:1fr;gap:5px;padding:17px 15px}
+  .moon-art{min-height:146px}.moon-halo{width:146px;height:146px}#moonCanvas{width:138px;height:138px}
+  .moon-content{text-align:center}.moon-summary{margin-bottom:10px}
+  .moon-stat{padding:7px 5px}.moon-stat .mv{font-size:14px}
+  .moon-progress-meta,.moon-next{text-align:right}
+  .moon-source-note{margin-top:5px}
+}
+
+
 .timezone-card{
   position:relative;
   z-index:2;
@@ -216,7 +287,7 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
 </style>
 </head>
 <body>
-<header class="header"><div class="orn">✦ &nbsp; ✧ &nbsp; ✦</div><h1>السَّاعَةُ العَرَبِيَّةُ الفَلَكِيَّة</h1><div class="sub">v6 · Prayer anchored · Ratio based</div></header>
+<header class="header"><div class="orn">✦ &nbsp; ✧ &nbsp; ✦</div><h1>السَّاعَةُ العَرَبِيَّةُ الفَلَكِيَّة</h1><div class="sub">الزمن · v7 · الشمس والقمر</div></header>
 <div class="model-controls"><button class="model-btn active" id="modelFixed">النموذج A — أطوال ثابتة + سرعة متغيرة<small>الشكل متساوٍ، والفترة الطويلة تتحرك أبطأ</small></button><button class="model-btn" id="modelVariable">النموذج B — أطوال متغيرة + سرعة ثابتة<small>القطاع يكبر أو يصغر حسب مدة الفترة</small></button></div>
 <section class="stage"><div class="watch"><div class="ticks" id="ticks"></div><div class="ring" id="ring"></div><div class="reader-line" id="readerLine"></div><div class="clock"><div id="hourMarks"></div><div class="hand hour" id="handHour"></div><div class="hand minute" id="handMinute"></div><div class="hand second" id="handSecond"></div><div class="cap"></div></div></div></section>
 <section class="info"><div class="info-block left"><div class="k">previous · سابق</div><div class="v" id="prevName">—</div></div><div class="divider"></div><div class="info-block center"><div class="k">current period · حالياً</div><div class="v" id="curName">—</div><div class="lat" id="curLat">—</div></div></section>
@@ -232,16 +303,43 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
 </section>
 <div class="formula-card"><strong>القاعدة:</strong> طول الساعة العربية = مدة الفترة بين صلاتين × النسبة المحفوظة، ومجموع النِّسَب داخل كل فترة = 1.0 دائماً.</div>
 
-<div class="timezone-card" id="timezoneCard">المنطقة الزمنية: جاري التحديد...</div><div class="prayer-times-table" id="prayerTimesTable"></div><div class="controls"><span class="lbl">Tempo</span><button class="speed active" data-s="1">×1</button><button class="speed" data-s="60">×60</button><button class="speed" data-s="300">×300</button><button class="speed" data-s="1800">×1800</button><button id="pauseBtn">إيقاف</button><span class="lbl" id="clockReadout">00:00:00</span></div><div class="explain" id="explain"></div>
+<div class="timezone-card" id="timezoneCard">المنطقة الزمنية: جاري التحديد...</div>
+<div class="prayer-times-table" id="prayerTimesTable"></div>
+<section class="moon-panel" aria-labelledby="moonPhaseName">
+  <div class="moon-art">
+    <div class="moon-halo"><canvas id="moonCanvas" width="304" height="304" role="img" aria-label="رسم طور القمر الحالي"></canvas></div>
+  </div>
+  <div class="moon-content">
+    <div class="moon-kicker">طَوْرُ القَمَرِ الآن</div>
+    <div class="moon-name" id="moonPhaseName">—</div>
+    <div class="moon-summary" id="moonSummary">جاري حساب موضع القمر...</div>
+    <div class="moon-stats">
+      <div class="moon-stat"><span class="mk">الإضاءة</span><span class="mv" id="moonIllumination">—</span></div>
+      <div class="moon-stat"><span class="mk">عمر القمر</span><span class="mv" id="moonAge">—</span></div>
+      <div class="moon-stat"><span class="mk">التاريخ الهجري</span><span class="mv" id="hijriDate">—</span></div>
+    </div>
+    <div class="moon-progress">
+      <div class="moon-progress-meta"><span>بداية الدورة القمرية</span><span id="moonCyclePercent">—</span></div>
+      <div class="moon-progress-track"><div class="moon-progress-fill" id="moonProgressFill"></div></div>
+    </div>
+    <div class="moon-next">
+      <div class="moon-next-icon" id="nextMoonIcon" aria-hidden="true">◐</div>
+      <div><div class="moon-next-title" id="nextMoonTitle">الطور الرئيسي القادم: —</div><div class="moon-next-date" id="nextMoonDate">—</div></div>
+    </div>
+  </div>
+  <div class="moon-source-note">حساب فلكي جغرافي المركز وفق مواضع الشمس والقمر الدورية، ومتوسط الشهر الاقتراني 29.530588 يومًا. <a href="https://eclipse.gsfc.nasa.gov/phase/phasecat.html" target="_blank" rel="noopener">مرجع NASA/GSFC</a></div>
+</section>
+<div class="controls"><span class="lbl">Tempo</span><button class="speed active" data-s="1">×1</button><button class="speed" data-s="60">×60</button><button class="speed" data-s="300">×300</button><button class="speed" data-s="1800">×1800</button><button id="pauseBtn">إيقاف</button><span class="lbl" id="clockReadout">00:00:00</span></div><div class="explain" id="explain"></div>
 <script>
 (() => {
   "use strict";
 
   /*
-    Arabic Temporal Watch v6
+    Arabic Temporal Watch v7
     - Prayer times are the root anchors.
     - Arabic-hour order fixed exactly as requested: 1 الفجر ... 24 السحر.
     - Stored values are ratios, not fixed minutes.
+    - Moon phase, illumination and next principal phase are calculated locally.
   */
   const TEMPORAL_GROUPS=[
     /*
@@ -263,6 +361,38 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
 
   const DOHA={lat:25.2854,lon:51.5310};
   const API_METHOD=4;
+  const DAY_MS=86400000;
+  const DEG=Math.PI/180;
+  const SYNODIC_MONTH=29.530588;
+  const MOON_PHASES=[
+    {name:"المحاق",icon:"🌑",summary:"بداية دورة قمرية جديدة"},
+    {name:"هلال متزايد",icon:"🌒",summary:"تزداد إضاءة القمر ليلةً بعد ليلة"},
+    {name:"التربيع الأول",icon:"🌓",summary:"أُضيء نصف قرص القمر تقريبًا"},
+    {name:"أحدب متزايد",icon:"🌔",summary:"يتجه القمر نحو اكتمال البدر"},
+    {name:"البدر",icon:"🌕",summary:"بلغ القمر ذروة إضاءته في هذه الدورة"},
+    {name:"أحدب متناقص",icon:"🌖",summary:"بدأت الإضاءة بالتناقص بعد البدر"},
+    {name:"التربيع الأخير",icon:"🌗",summary:"بقي نصف قرص القمر مضاءً تقريبًا"},
+    {name:"هلال متناقص",icon:"🌘",summary:"يقترب القمر من نهاية دورته"}
+  ];
+  const PRINCIPAL_MOON_PHASES=[
+    {fraction:0,name:"المحاق",icon:"🌑"},
+    {fraction:.25,name:"التربيع الأول",icon:"🌓"},
+    {fraction:.5,name:"البدر",icon:"🌕"},
+    {fraction:.75,name:"التربيع الأخير",icon:"🌗"}
+  ];
+  /* معاملات الطول الكسوفي للقمر من خوارزمية Meeus الدورية (الدرجات). */
+  const LUNAR_LONGITUDE_TERMS=[
+    [6.288774,0,0,1,0],[1.274027,2,0,-1,0],[.658314,2,0,0,0],[.213618,0,0,2,0],[-.185116,0,1,0,0],
+    [-.114332,0,0,0,2],[.058793,2,0,-2,0],[.057066,2,-1,-1,0],[.053322,2,0,1,0],[.045758,2,-1,0,0],
+    [-.040923,0,1,-1,0],[-.034720,1,0,0,0],[-.030383,0,1,1,0],[.015327,2,0,0,-2],[-.012528,0,0,1,2],
+    [.010980,0,0,1,-2],[.010675,4,0,-1,0],[.010034,0,0,3,0],[.008548,4,0,-2,0],[-.007888,2,1,-1,0],
+    [-.006766,2,1,0,0],[-.005163,1,0,-1,0],[.004987,1,1,0,0],[.004036,2,-1,1,0],[.003994,2,0,2,0],
+    [.003861,4,0,0,0],[.003665,2,0,-3,0],[-.002689,0,1,-2,0],[-.002602,2,0,-1,2],[.002390,2,-1,-2,0],
+    [-.002348,1,0,1,0],[.002236,2,-2,0,0],[-.002120,0,1,2,0],[-.002069,0,2,0,0],[.002048,2,-2,-1,0],
+    [-.001773,2,0,1,-2],[-.001595,2,0,0,2],[.001215,4,-1,-1,0],[-.001110,0,0,2,2],[-.000892,3,0,-1,0],
+    [-.000810,2,1,1,0],[.000759,4,-1,-2,0],[-.000713,0,2,-1,0],[-.000700,2,2,-1,0],[.000691,2,1,-2,0],
+    [.000596,2,-1,0,-2],[.000549,4,0,1,0],[.000537,0,0,4,0],[.000520,4,-1,0,0],[-.000487,1,0,-2,0]
+  ];
 
   const FALLBACK_TIMES={
     Fajr:"03:22",
@@ -279,6 +409,7 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
   let timezoneLabel="Asia/Qatar";
   let timezoneOffsetText="GMT+3";
   let locationLabel="الدوحة";
+  let observerLatitude=DOHA.lat;
 
   const ring=document.getElementById("ring");
   const ticks=document.getElementById("ticks");
@@ -297,6 +428,17 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
   const clockReadout=document.getElementById("clockReadout");
   const modelFixedBtn=document.getElementById("modelFixed");
   const modelVariableBtn=document.getElementById("modelVariable");
+  const moonCanvas=document.getElementById("moonCanvas");
+  const moonPhaseName=document.getElementById("moonPhaseName");
+  const moonSummary=document.getElementById("moonSummary");
+  const moonIllumination=document.getElementById("moonIllumination");
+  const moonAge=document.getElementById("moonAge");
+  const hijriDate=document.getElementById("hijriDate");
+  const moonCyclePercent=document.getElementById("moonCyclePercent");
+  const moonProgressFill=document.getElementById("moonProgressFill");
+  const nextMoonIcon=document.getElementById("nextMoonIcon");
+  const nextMoonTitle=document.getElementById("nextMoonTitle");
+  const nextMoonDate=document.getElementById("nextMoonDate");
 
   const RADIUS=165;
   const ARC_RADIUS=181;
@@ -317,6 +459,8 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
   let prayerRingMarkers=[];
   let currentDateKey="";
   let currentRenderMinute=0;
+  let lastMoonMinuteStamp=null;
+  let lastMoonPaintReal=0;
 
   function mod(n,m){return ((n%m)+m)%m;}
 
@@ -329,6 +473,192 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
     let d=mod(a-b,24);
     if(d>12)d-=24;
     return d;
+  }
+
+  function normalizeDegrees(value){
+    return mod(value,360);
+  }
+
+  function julianCenturies(date){
+    const julianDate=date.getTime()/DAY_MS+2440587.5;
+    return (julianDate-2451545)/36525;
+  }
+
+  function solarEclipticLongitude(date){
+    const T=julianCenturies(date);
+    const T2=T*T;
+    const meanLongitude=normalizeDegrees(280.46646+36000.76983*T+.0003032*T2);
+    const anomaly=normalizeDegrees(357.52911+35999.05029*T-.0001537*T2);
+    const equation=(1.914602-.004817*T-.000014*T2)*Math.sin(anomaly*DEG)
+      +(.019993-.000101*T)*Math.sin(2*anomaly*DEG)
+      +.000289*Math.sin(3*anomaly*DEG);
+    return normalizeDegrees(meanLongitude+equation);
+  }
+
+  function lunarEclipticLongitude(date){
+    const T=julianCenturies(date);
+    const T2=T*T;
+    const T3=T2*T;
+    const T4=T3*T;
+    const L=normalizeDegrees(218.3164477+481267.88123421*T-.0015786*T2+T3/538841-T4/65194000);
+    const D=normalizeDegrees(297.8501921+445267.1114034*T-.0018819*T2+T3/545868-T4/113065000);
+    const M=normalizeDegrees(357.5291092+35999.0502909*T-.0001536*T2+T3/24490000);
+    const moonAnomaly=normalizeDegrees(134.9633964+477198.8675055*T+.0087414*T2+T3/69699-T4/14712000);
+    const F=normalizeDegrees(93.272095+483202.0175233*T-.0036539*T2-T3/3526000+T4/863310000);
+    const eccentricity=1-.002516*T-.0000074*T2;
+    let longitude=L;
+
+    for(const [coefficient,dFactor,mFactor,moonFactor,fFactor] of LUNAR_LONGITUDE_TERMS){
+      const angle=(dFactor*D+mFactor*M+moonFactor*moonAnomaly+fFactor*F)*DEG;
+      longitude+=coefficient*Math.pow(eccentricity,Math.abs(mFactor))*Math.sin(angle);
+    }
+
+    const A1=normalizeDegrees(119.75+131.849*T);
+    const A2=normalizeDegrees(53.09+479264.29*T);
+    longitude+=.003958*Math.sin(A1*DEG)+.001962*Math.sin((L-F)*DEG)+.000318*Math.sin(A2*DEG);
+    return normalizeDegrees(longitude);
+  }
+
+  function moonPhaseFraction(date){
+    return normalizeDegrees(lunarEclipticLongitude(date)-solarEclipticLongitude(date))/360;
+  }
+
+  function moonData(date){
+    const fraction=moonPhaseFraction(date);
+    const phaseIndex=Math.floor((fraction+1/16)*8)%8;
+    return {
+      fraction,
+      age:fraction*SYNODIC_MONTH,
+      illumination:(1-Math.cos(fraction*Math.PI*2))/2,
+      phase:MOON_PHASES[phaseIndex]
+    };
+  }
+
+  function nextPrincipalMoonPhase(date,currentFraction){
+    const candidates=PRINCIPAL_MOON_PHASES.map(item=>{
+      let advance=mod(item.fraction-currentFraction,1);
+      if(advance<.00002) advance=1;
+      return {item,advance};
+    }).sort((a,b)=>a.advance-b.advance);
+    const next=candidates[0];
+    const start=date.getTime();
+    let low=start;
+    let high=start+10*DAY_MS;
+
+    /* نبحث ثنائياً عن لحظة عبور زاوية الاستطالة للطور الرئيسي التالي. */
+    for(let i=0;i<44;i++){
+      const middle=(low+high)/2;
+      const advance=mod(moonPhaseFraction(new Date(middle))-currentFraction,1);
+      if(advance<next.advance) low=middle;
+      else high=middle;
+    }
+
+    return {...next.item,date:new Date((low+high)/2)};
+  }
+
+  function formatArabicNumber(value,digits=1){
+    return new Intl.NumberFormat("ar-QA",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(value);
+  }
+
+  function formatHijri(date){
+    try{
+      return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long",year:"numeric"}).format(date);
+    }catch(e){
+      return new Intl.DateTimeFormat("ar-QA-u-ca-islamic",{day:"numeric",month:"long",year:"numeric"}).format(date);
+    }
+  }
+
+  function formatMoonEventDate(date){
+    return new Intl.DateTimeFormat("ar-QA",{weekday:"long",day:"numeric",month:"long",hour:"numeric",minute:"2-digit"}).format(date);
+  }
+
+  function formatMoonRemaining(milliseconds){
+    const totalHours=Math.max(0,Math.round(milliseconds/3600000));
+    const days=Math.floor(totalHours/24);
+    const hours=totalHours%24;
+    if(days===0) return `بعد ${new Intl.NumberFormat("ar-QA").format(hours)} ساعة`;
+    if(hours===0) return `بعد ${new Intl.NumberFormat("ar-QA").format(days)} يوم`;
+    return `بعد ${new Intl.NumberFormat("ar-QA").format(days)} يوم و${new Intl.NumberFormat("ar-QA").format(hours)} ساعة`;
+  }
+
+  function drawMoonDisk(fraction){
+    if(!moonCanvas) return;
+    const context=moonCanvas.getContext("2d");
+    const width=moonCanvas.width;
+    const height=moonCanvas.height;
+    const centerX=width/2;
+    const centerY=height/2;
+    const radius=Math.min(width,height)*.43;
+    const image=context.createImageData(width,height);
+    const pixels=image.data;
+    const phaseAngle=fraction*Math.PI*2;
+    const hemisphere=observerLatitude<0 ? -1 : 1;
+    const sunX=Math.sin(phaseAngle)*hemisphere;
+    const sunZ=-Math.cos(phaseAngle);
+
+    for(let y=0;y<height;y++){
+      for(let x=0;x<width;x++){
+        const nx=(x-centerX)/radius;
+        const ny=(y-centerY)/radius;
+        const radiusSquared=nx*nx+ny*ny;
+        if(radiusSquared>1) continue;
+
+        const nz=Math.sqrt(Math.max(0,1-radiusSquared));
+        const light=nx*sunX+nz*sunZ;
+        const edge=Math.min(1,(1-radiusSquared)*34);
+        const texture=(Math.sin(nx*34+ny*19)+Math.sin(nx*71-ny*43)+Math.sin((nx+ny)*113))/3;
+        const lit=light>0;
+        const base=lit ? 88+158*Math.pow(light,.38) : 12+16*nz;
+        const grain=lit ? texture*8 : texture*2.4;
+        const index=(y*width+x)*4;
+        pixels[index]=Math.max(0,Math.min(255,base+grain+(lit?4:0)));
+        pixels[index+1]=Math.max(0,Math.min(255,base+grain+(lit?9:4)));
+        pixels[index+2]=Math.max(0,Math.min(255,base+grain+(lit?20:13)));
+        pixels[index+3]=Math.round(255*edge);
+      }
+    }
+
+    context.clearRect(0,0,width,height);
+    context.putImageData(image,0,0);
+    context.save();
+    context.beginPath();
+    context.arc(centerX,centerY,radius,0,Math.PI*2);
+    context.clip();
+    context.globalCompositeOperation="source-atop";
+    const craters=[[-.34,-.22,.12],[.22,-.35,.08],[.35,.20,.14],[-.12,.31,.07],[-.42,.36,.05],[.05,-.02,.045]];
+    for(const [cx,cy,cr] of craters){
+      context.beginPath();
+      context.arc(centerX+cx*radius,centerY+cy*radius,cr*radius,0,Math.PI*2);
+      context.fillStyle="rgba(8,15,32,.12)";
+      context.fill();
+      context.strokeStyle="rgba(238,243,255,.09)";
+      context.lineWidth=Math.max(1,width/220);
+      context.stroke();
+    }
+    context.restore();
+  }
+
+  function renderMoonPanel(date){
+    if(!moonPhaseName) return;
+    const data=moonData(date);
+    const next=nextPrincipalMoonPhase(date,data.fraction);
+    const waxing=data.fraction<.5;
+    const direction=data.fraction<.02 || data.fraction>.98 ? "عند بداية الدورة" : (waxing ? "في النصف المتزايد من دورته" : "في النصف المتناقص من دورته");
+    const illuminationPercent=Math.round(data.illumination*100);
+    const cyclePercent=data.fraction*100;
+
+    moonPhaseName.textContent=`${data.phase.icon} ${data.phase.name}`;
+    moonSummary.textContent=`${data.phase.summary} · ${direction}`;
+    moonIllumination.textContent=`${new Intl.NumberFormat("ar-QA").format(illuminationPercent)}٪`;
+    moonAge.textContent=`${formatArabicNumber(data.age,1)} يوم`;
+    hijriDate.textContent=formatHijri(date);
+    moonCyclePercent.textContent=`${formatArabicNumber(cyclePercent,1)}٪ من الدورة`;
+    moonProgressFill.style.width=`${cyclePercent.toFixed(3)}%`;
+    nextMoonIcon.textContent=next.icon;
+    nextMoonTitle.textContent=`الطور الرئيسي القادم: ${next.name}`;
+    nextMoonDate.textContent=`${formatMoonEventDate(next.date)} · ${formatMoonRemaining(next.date-date)}`;
+    moonCanvas.setAttribute("aria-label",`${data.phase.name}، إضاءة ${illuminationPercent} بالمئة`);
+    drawMoonDisk(data.fraction);
   }
 
   function toMin(t){
@@ -919,7 +1249,7 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
       }
     }
 
-    modelInfo.textContent="Adaptive v6: prayer anchors · ratio-based Arabic hours";
+    modelInfo.textContent="Adaptive v7: prayer anchors · lunar companion";
     explain.innerHTML="<strong>النموذج التكيفي:</strong> الحلقة تُحسب من زاوية العقرب ناقص موضع الساعة العربية الحالية، لذلك يبقى العقرب متوافقاً مع بداية ونهاية كل قطاع حتى لو تغيّر طول الساعة.";
   }
 
@@ -1007,6 +1337,14 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
 
     clockReadout.textContent=formatClock12(d);
 
+    const moonMinuteStamp=Math.floor(d.getTime()/60000);
+    const moonPaintReal=performance.now();
+    if(moonMinuteStamp!==lastMoonMinuteStamp && (lastMoonMinuteStamp===null || moonPaintReal-lastMoonPaintReal>=500)){
+      renderMoonPanel(d);
+      lastMoonMinuteStamp=moonMinuteStamp;
+      lastMoonPaintReal=moonPaintReal;
+    }
+
     const minute=minuteOfDay(d);
     currentRenderMinute=minute;
     renderPrayerTimesTable(minute);
@@ -1037,6 +1375,8 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
   }
 
   async function fetchPrayerTimes(lat,lon,label){
+    observerLatitude=lat;
+    lastMoonMinuteStamp=null;
     try{
       const d=new Date();
       const date=`${String(d.getDate()).padStart(2,"0")}-${String(d.getMonth()+1).padStart(2,"0")}-${d.getFullYear()}`;
@@ -1089,6 +1429,7 @@ h1{font-family:'Reem Kufi','Amiri',sans-serif;font-size:clamp(20px,4.6vw,30px);f
     timezoneLabel="Asia/Qatar";
     timezoneOffsetText="GMT+3";
     locationLabel="الدوحة";
+    observerLatitude=DOHA.lat;
     anchors=timesToAnchors(prayerTimes);
     buildTimeline();
     rebuildDynamicElements();
