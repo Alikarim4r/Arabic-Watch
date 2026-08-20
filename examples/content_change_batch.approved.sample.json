@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "status": "example",
+    "batch_id": "example-approved-batch-001",
+    "description_ar": "مثال دفعة معتمدة صغيرة — للاختبار والتوثيق فقط. NOT for automatic production apply.",
+    "disclaimer_ar": "هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة."
+  },
+  "id": "example-approved-batch-001",
+  "batch_type": "evidence_promotion",
+  "status": "approved",
+  "summary": "Example approved batch — reviewer_note + event_ayah sync for yusuf_dream (already public-final)",
+  "payload": {
+    "items": [
+      {
+        "change_type": "event_governance",
+        "record_type": "event",
+        "event_id": "yusuf_dream",
+        "previous_values": {
+          "review_status": "approved",
+          "source_status": "cited",
+          "evidence_status": "precise_evidence",
+          "evidence_confidence": "quran_explicit",
+          "source_id": "quran_text",
+          "reviewer_note": null
+        },
+        "proposed_review_status": "approved",
+        "proposed_source_status": "cited",
+        "proposed_evidence_status": "precise_evidence",
+        "proposed_evidence_confidence": "quran_explicit",
+        "source_id": "quran_text",
+        "reviewer_note": "مثال — دفعة معتمدة توضيحية فقط (example batch)",
+        "promote_as_final": false
+      },
+      {
+        "change_type": "evidence_mapping",
+        "record_type": "event",
+        "event_id": "yusuf_dream",
+        "surah_id": 12,
+        "ayah_from": 4,
+        "ayah_to": 6,
+        "ayah_key": "12:4-6",
+        "relation_type": "main",
+        "evidence_note_ar": "رؤيا يوسف للشمس والقمر",
+        "source_id": "quran_text",
+        "reviewer_note": "example batch — idempotent ayah mapping upsert",
+        "previous_values": {
+          "event_ayah_exists": true
+        },
+        "proposed_review_status": "approved",
+        "proposed_source_status": "cited",
+        "proposed_evidence_status": "precise_evidence",
+        "proposed_evidence_confidence": "quran_explicit",
+        "promote_as_final": false
+      }
+    ],
+    "generated_at": "2026-07-05T07:00:00.000Z"
+  },
+  "created_by": null,
+  "approved_by": null,
+  "applied_by": null,
+  "approved_at": "2026-07-05T07:00:00.000Z"
+}

@@ -1,0 +1,4714 @@
+{
+  "meta": {
+    "version": "0.4.0",
+    "migrated_from": "quran_story_universe_10_10_final.html",
+    "disclaimer_ar": "هذا ملخص تعليمي لا يغني عن المصحف وكتب التفسير المعتمدة.",
+    "public_mode_note": "المحتوى غير المراجع يُعرض للتجربة فقط وليس كحكم أو تفسير نهائي.",
+    "evidence_policy": "Round-robin ayah assignment removed. Only curated precise_event_evidence.json mappings are trusted."
+  },
+  "tafsir_sources": [
+    {
+      "id": "quran_text",
+      "name_ar": "نص القرآن الكريم",
+      "author_ar": "وحي من الله تعالى",
+      "type": "quran",
+      "license_note": "يجب اعتماد نص رسمي مرخّص (مجمع الملك فهد / Tanzil) قبل النشر.",
+      "source_url": "https://quran.com",
+      "is_approved": true
+    },
+    {
+      "id": "quran_direct_reference",
+      "name_ar": "القرآن الكريم — موضع الآيات",
+      "author_ar": "وحي من الله تعالى",
+      "type": "quran_reference",
+      "license_note": "هذا المصدر يعني أن الدليل هو نطاق الآيات المذكور دون ادعاء استيراد النص القرآني الكامل أو تفسير.",
+      "source_url": "",
+      "is_approved": true
+    },
+    {
+      "id": "ibn_kathir_summary",
+      "name_ar": "تفسير ابن كثير (ملخص تعليمي)",
+      "author_ar": "ابن كثير",
+      "type": "tafsir",
+      "license_note": "ملخص مختصر للعرض التعليمي — يحتاج ترخيص/مراجعة قبل النشر النهائي.",
+      "source_url": "",
+      "is_approved": false
+    }
+  ],
+  "eras": [
+    {
+      "icon": "🌍",
+      "title_ar": "بداية الخلق",
+      "node_ids": [
+        "adam"
+      ],
+      "summary_ar": "الكرامة والفتنة والتوبة"
+    },
+    {
+      "icon": "🚢",
+      "title_ar": "صبر الدعوة",
+      "node_ids": [
+        "nuh"
+      ],
+      "summary_ar": "سنن الدعوة والتكذيب"
+    },
+    {
+      "icon": "🔥",
+      "title_ar": "بناء التوحيد",
+      "node_ids": [
+        "ibrahim"
+      ],
+      "summary_ar": "التوحيد والبيت والذرية"
+    },
+    {
+      "icon": "🌙",
+      "title_ar": "التدبير الخفي",
+      "node_ids": [
+        "yusuf"
+      ],
+      "summary_ar": "من البئر إلى التمكين"
+    },
+    {
+      "icon": "⚡",
+      "title_ar": "مواجهة الطغيان",
+      "node_ids": [
+        "musa"
+      ],
+      "summary_ar": "السلطة والنجاة والعلم"
+    },
+    {
+      "icon": "👑",
+      "title_ar": "الملك الشاكر",
+      "node_ids": [
+        "dawud",
+        "sulayman",
+        "dhulqarnayn"
+      ],
+      "summary_ar": "القوة مع العدل والشكر"
+    },
+    {
+      "icon": "🕯️",
+      "title_ar": "الصبر والعودة",
+      "node_ids": [
+        "ayyub",
+        "yunus"
+      ],
+      "summary_ar": "البلاء والدعاء والرجوع"
+    },
+    {
+      "icon": "⭐",
+      "title_ar": "المعجزة والاصطفاء",
+      "node_ids": [
+        "maryam",
+        "isa"
+      ],
+      "summary_ar": "البشارة والطهر وتصحيح الغلو"
+    },
+    {
+      "icon": "🕊️",
+      "title_ar": "اكتمال الرسالة",
+      "node_ids": [
+        "muhammad"
+      ],
+      "summary_ar": "الوحي الخاتم وبناء الأمة"
+    }
+  ],
+  "themes": [
+    {
+      "id": "akhlaq",
+      "name_ar": "الأخلاق",
+      "description_ar": "محور قرآني: الأخلاق",
+      "review_status": "pending"
+    },
+    {
+      "id": "usrah",
+      "name_ar": "الأسرة",
+      "description_ar": "محور قرآني: الأسرة",
+      "review_status": "pending"
+    },
+    {
+      "id": "ummah",
+      "name_ar": "الأمة",
+      "description_ar": "محور قرآني: الأمة",
+      "review_status": "pending"
+    },
+    {
+      "id": "imamah",
+      "name_ar": "الإمامة",
+      "description_ar": "محور قرآني: الإمامة",
+      "review_status": "pending"
+    },
+    {
+      "id": "ibtilaa",
+      "name_ar": "الابتلاء",
+      "description_ar": "محور قرآني: الابتلاء",
+      "review_status": "pending"
+    },
+    {
+      "id": "istikbar",
+      "name_ar": "الاستكبار",
+      "description_ar": "محور قرآني: الاستكبار",
+      "review_status": "pending"
+    },
+    {
+      "id": "theme_37798439",
+      "name_ar": "الاصطفاء",
+      "description_ar": "محور قرآني: الاصطفاء",
+      "review_status": "pending"
+    },
+    {
+      "id": "iqtisad",
+      "name_ar": "الاقتصاد",
+      "description_ar": "محور قرآني: الاقتصاد",
+      "review_status": "pending"
+    },
+    {
+      "id": "bushra",
+      "name_ar": "البشارة",
+      "description_ar": "محور قرآني: البشارة",
+      "review_status": "pending"
+    },
+    {
+      "id": "bala",
+      "name_ar": "البلاء",
+      "description_ar": "محور قرآني: البلاء",
+      "review_status": "pending"
+    },
+    {
+      "id": "tawil",
+      "name_ar": "التأويل",
+      "description_ar": "محور قرآني: التأويل",
+      "review_status": "pending"
+    },
+    {
+      "id": "tathbeet",
+      "name_ar": "التثبيت",
+      "description_ar": "محور قرآني: التثبيت",
+      "review_status": "pending"
+    },
+    {
+      "id": "theme_fe493a82",
+      "name_ar": "التسبيح",
+      "description_ar": "محور قرآني: التسبيح",
+      "review_status": "pending"
+    },
+    {
+      "id": "tamkeen",
+      "name_ar": "التمكين",
+      "description_ar": "محور قرآني: التمكين",
+      "review_status": "pending"
+    },
+    {
+      "id": "tawbah",
+      "name_ar": "التوبة",
+      "description_ar": "محور قرآني: التوبة",
+      "review_status": "pending"
+    },
+    {
+      "id": "tawhid",
+      "name_ar": "التوحيد",
+      "description_ar": "محور قرآني: التوحيد",
+      "review_status": "pending"
+    },
+    {
+      "id": "hujjah",
+      "name_ar": "الحجة",
+      "description_ar": "محور قرآني: الحجة",
+      "review_status": "pending"
+    },
+    {
+      "id": "theme_0cfa8d19",
+      "name_ar": "الحكم",
+      "description_ar": "محور قرآني: الحكم",
+      "review_status": "pending"
+    },
+    {
+      "id": "khilafah",
+      "name_ar": "الخلافة",
+      "description_ar": "محور قرآني: الخلافة",
+      "review_status": "pending"
+    },
+    {
+      "id": "khalq",
+      "name_ar": "الخلق",
+      "description_ar": "محور قرآني: الخلق",
+      "review_status": "pending"
+    },
+    {
+      "id": "theme_a29381b7",
+      "name_ar": "الدعاء",
+      "description_ar": "محور قرآني: الدعاء",
+      "review_status": "pending"
+    },
+    {
+      "id": "dawah",
+      "name_ar": "الدعوة",
+      "description_ar": "محور قرآني: الدعوة",
+      "review_status": "pending"
+    },
+    {
+      "id": "rahmah",
+      "name_ar": "الرحمة",
+      "description_ar": "محور قرآني: الرحمة",
+      "review_status": "pending"
+    },
+    {
+      "id": "risalah",
+      "name_ar": "الرسالة",
+      "description_ar": "محور قرآني: الرسالة",
+      "review_status": "pending"
+    },
+    {
+      "id": "sa_y",
+      "name_ar": "السعي",
+      "description_ar": "محور قرآني: السعي",
+      "review_status": "pending"
+    },
+    {
+      "id": "sharia",
+      "name_ar": "الشريعة",
+      "description_ar": "محور قرآني: الشريعة",
+      "review_status": "pending"
+    },
+    {
+      "id": "shukr",
+      "name_ar": "الشكر",
+      "description_ar": "محور قرآني: الشكر",
+      "review_status": "pending"
+    },
+    {
+      "id": "sabr",
+      "name_ar": "الصبر",
+      "description_ar": "محور قرآني: الصبر",
+      "review_status": "approved"
+    },
+    {
+      "id": "tughyan",
+      "name_ar": "الطغيان",
+      "description_ar": "محور قرآني: الطغيان",
+      "review_status": "pending"
+    },
+    {
+      "id": "taharah",
+      "name_ar": "الطهر",
+      "description_ar": "محور قرآني: الطهر",
+      "review_status": "pending"
+    },
+    {
+      "id": "justice",
+      "name_ar": "العدل",
+      "description_ar": "محور قرآني: العدل",
+      "review_status": "pending"
+    },
+    {
+      "id": "adhab",
+      "name_ar": "العذاب",
+      "description_ar": "محور قرآني: العذاب",
+      "review_status": "pending"
+    },
+    {
+      "id": "iffah",
+      "name_ar": "العفة",
+      "description_ar": "محور قرآني: العفة",
+      "review_status": "pending"
+    },
+    {
+      "id": "afw",
+      "name_ar": "العفو",
+      "description_ar": "محور قرآني: العفو",
+      "review_status": "pending"
+    },
+    {
+      "id": "ilm",
+      "name_ar": "العلم",
+      "description_ar": "محور قرآني: العلم",
+      "review_status": "pending"
+    },
+    {
+      "id": "ghulu",
+      "name_ar": "الغلو",
+      "description_ar": "محور قرآني: الغلو",
+      "review_status": "pending"
+    },
+    {
+      "id": "fath",
+      "name_ar": "الفتح",
+      "description_ar": "محور قرآني: الفتح",
+      "review_status": "pending"
+    },
+    {
+      "id": "fitnah",
+      "name_ar": "الفتنة",
+      "description_ar": "محور قرآني: الفتنة",
+      "review_status": "pending"
+    },
+    {
+      "id": "qiyadah",
+      "name_ar": "القيادة",
+      "description_ar": "محور قرآني: القيادة",
+      "review_status": "pending"
+    },
+    {
+      "id": "mu_jiza",
+      "name_ar": "المعجزة",
+      "description_ar": "محور قرآني: المعجزة",
+      "review_status": "pending"
+    },
+    {
+      "id": "mulk",
+      "name_ar": "الملك",
+      "description_ar": "محور قرآني: الملك",
+      "review_status": "pending"
+    },
+    {
+      "id": "mizan",
+      "name_ar": "الميزان",
+      "description_ar": "محور قرآني: الميزان",
+      "review_status": "pending"
+    },
+    {
+      "id": "najah",
+      "name_ar": "النجاة",
+      "description_ar": "محور قرآني: النجاة",
+      "review_status": "pending"
+    },
+    {
+      "id": "hijrah",
+      "name_ar": "الهجرة",
+      "description_ar": "محور قرآني: الهجرة",
+      "review_status": "pending"
+    },
+    {
+      "id": "wahy",
+      "name_ar": "الوحي",
+      "description_ar": "محور قرآني: الوحي",
+      "review_status": "pending"
+    }
+  ],
+  "story_nodes": [
+    {
+      "id": "akhlaq",
+      "node_type": "theme",
+      "name_ar": "الأخلاق",
+      "summary_ar": "محور قرآني: الأخلاق",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "usrah",
+      "node_type": "theme",
+      "name_ar": "الأسرة",
+      "summary_ar": "محور قرآني: الأسرة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "ummah",
+      "node_type": "theme",
+      "name_ar": "الأمة",
+      "summary_ar": "محور قرآني: الأمة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "imamah",
+      "node_type": "theme",
+      "name_ar": "الإمامة",
+      "summary_ar": "محور قرآني: الإمامة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "ibtilaa",
+      "node_type": "theme",
+      "name_ar": "الابتلاء",
+      "summary_ar": "محور قرآني: الابتلاء",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "istikbar",
+      "node_type": "theme",
+      "name_ar": "الاستكبار",
+      "summary_ar": "محور قرآني: الاستكبار",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "theme_37798439",
+      "node_type": "theme",
+      "name_ar": "الاصطفاء",
+      "summary_ar": "محور قرآني: الاصطفاء",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "iqtisad",
+      "node_type": "theme",
+      "name_ar": "الاقتصاد",
+      "summary_ar": "محور قرآني: الاقتصاد",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "bushra",
+      "node_type": "theme",
+      "name_ar": "البشارة",
+      "summary_ar": "محور قرآني: البشارة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "bala",
+      "node_type": "theme",
+      "name_ar": "البلاء",
+      "summary_ar": "محور قرآني: البلاء",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "tawil",
+      "node_type": "theme",
+      "name_ar": "التأويل",
+      "summary_ar": "محور قرآني: التأويل",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "tathbeet",
+      "node_type": "theme",
+      "name_ar": "التثبيت",
+      "summary_ar": "محور قرآني: التثبيت",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "theme_fe493a82",
+      "node_type": "theme",
+      "name_ar": "التسبيح",
+      "summary_ar": "محور قرآني: التسبيح",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "tamkeen",
+      "node_type": "theme",
+      "name_ar": "التمكين",
+      "summary_ar": "محور قرآني: التمكين",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "tawbah",
+      "node_type": "theme",
+      "name_ar": "التوبة",
+      "summary_ar": "محور قرآني: التوبة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "tawhid",
+      "node_type": "theme",
+      "name_ar": "التوحيد",
+      "summary_ar": "محور قرآني: التوحيد",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "hujjah",
+      "node_type": "theme",
+      "name_ar": "الحجة",
+      "summary_ar": "محور قرآني: الحجة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "theme_0cfa8d19",
+      "node_type": "theme",
+      "name_ar": "الحكم",
+      "summary_ar": "محور قرآني: الحكم",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "khilafah",
+      "node_type": "theme",
+      "name_ar": "الخلافة",
+      "summary_ar": "محور قرآني: الخلافة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "khalq",
+      "node_type": "theme",
+      "name_ar": "الخلق",
+      "summary_ar": "محور قرآني: الخلق",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "theme_a29381b7",
+      "node_type": "theme",
+      "name_ar": "الدعاء",
+      "summary_ar": "محور قرآني: الدعاء",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "dawah",
+      "node_type": "theme",
+      "name_ar": "الدعوة",
+      "summary_ar": "محور قرآني: الدعوة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "rahmah",
+      "node_type": "theme",
+      "name_ar": "الرحمة",
+      "summary_ar": "محور قرآني: الرحمة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "risalah",
+      "node_type": "theme",
+      "name_ar": "الرسالة",
+      "summary_ar": "محور قرآني: الرسالة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "sa_y",
+      "node_type": "theme",
+      "name_ar": "السعي",
+      "summary_ar": "محور قرآني: السعي",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "sharia",
+      "node_type": "theme",
+      "name_ar": "الشريعة",
+      "summary_ar": "محور قرآني: الشريعة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "shukr",
+      "node_type": "theme",
+      "name_ar": "الشكر",
+      "summary_ar": "محور قرآني: الشكر",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "sabr",
+      "node_type": "theme",
+      "name_ar": "الصبر",
+      "summary_ar": "محور قرآني: الصبر",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "tughyan",
+      "node_type": "theme",
+      "name_ar": "الطغيان",
+      "summary_ar": "محور قرآني: الطغيان",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "taharah",
+      "node_type": "theme",
+      "name_ar": "الطهر",
+      "summary_ar": "محور قرآني: الطهر",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "justice",
+      "node_type": "theme",
+      "name_ar": "العدل",
+      "summary_ar": "محور قرآني: العدل",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "adhab",
+      "node_type": "theme",
+      "name_ar": "العذاب",
+      "summary_ar": "محور قرآني: العذاب",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "iffah",
+      "node_type": "theme",
+      "name_ar": "العفة",
+      "summary_ar": "محور قرآني: العفة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "afw",
+      "node_type": "theme",
+      "name_ar": "العفو",
+      "summary_ar": "محور قرآني: العفو",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "ilm",
+      "node_type": "theme",
+      "name_ar": "العلم",
+      "summary_ar": "محور قرآني: العلم",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "ghulu",
+      "node_type": "theme",
+      "name_ar": "الغلو",
+      "summary_ar": "محور قرآني: الغلو",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "fath",
+      "node_type": "theme",
+      "name_ar": "الفتح",
+      "summary_ar": "محور قرآني: الفتح",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "fitnah",
+      "node_type": "theme",
+      "name_ar": "الفتنة",
+      "summary_ar": "محور قرآني: الفتنة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "qiyadah",
+      "node_type": "theme",
+      "name_ar": "القيادة",
+      "summary_ar": "محور قرآني: القيادة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "mu_jiza",
+      "node_type": "theme",
+      "name_ar": "المعجزة",
+      "summary_ar": "محور قرآني: المعجزة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "mulk",
+      "node_type": "theme",
+      "name_ar": "الملك",
+      "summary_ar": "محور قرآني: الملك",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "mizan",
+      "node_type": "theme",
+      "name_ar": "الميزان",
+      "summary_ar": "محور قرآني: الميزان",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "najah",
+      "node_type": "theme",
+      "name_ar": "النجاة",
+      "summary_ar": "محور قرآني: النجاة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "hijrah",
+      "node_type": "theme",
+      "name_ar": "الهجرة",
+      "summary_ar": "محور قرآني: الهجرة",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "wahy",
+      "node_type": "theme",
+      "name_ar": "الوحي",
+      "summary_ar": "محور قرآني: الوحي",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "adam",
+      "node_type": "prophet",
+      "name_ar": "آدم عليه السلام",
+      "short_title_ar": "بداية الخلق",
+      "summary_ar": "الكرامة، الفتنة، التوبة",
+      "era_ar": "بداية الخلق",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "تأسيس الكرامة والعلم والتوبة"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        2,
+        7,
+        15,
+        20,
+        38
+      ]
+    },
+    {
+      "id": "place_fb9d3395f5",
+      "node_type": "place",
+      "name_ar": "الجنة",
+      "summary_ar": "مكان مرتبط بقصة آدم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_bc08b37f8f",
+      "node_type": "place",
+      "name_ar": "الأرض",
+      "summary_ar": "مكان مرتبط بقصة آدم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_097d3f83d3",
+      "node_type": "person",
+      "name_ar": "إبليس",
+      "summary_ar": "شخصية مرتبطة بقصة آدم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_2",
+      "node_type": "surah",
+      "name_ar": "سورة البقرة",
+      "summary_ar": "سورة 2 — البقرة",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_7",
+      "node_type": "surah",
+      "name_ar": "سورة الأعراف",
+      "summary_ar": "سورة 7 — الأعراف",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_15",
+      "node_type": "surah",
+      "name_ar": "سورة الحجر",
+      "summary_ar": "سورة 15 — الحجر",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_20",
+      "node_type": "surah",
+      "name_ar": "سورة طه",
+      "summary_ar": "سورة 20 — طه",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_38",
+      "node_type": "surah",
+      "name_ar": "سورة ص",
+      "summary_ar": "سورة 38 — ص",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "nuh",
+      "node_type": "prophet",
+      "name_ar": "نوح عليه السلام",
+      "short_title_ar": "صبر الدعوة",
+      "summary_ar": "دعوة طويلة ونجاة بالإيمان",
+      "era_ar": "صبر الدعوة",
+      "review_status": "approved",
+      "source_status": "cited",
+      "lessons_ar": [
+        "صبر الداعية وتنوع البلاغ"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        7,
+        10,
+        11,
+        23,
+        26,
+        29,
+        54,
+        71
+      ]
+    },
+    {
+      "id": "place_95d687dd78",
+      "node_type": "place",
+      "name_ar": "السفينة",
+      "summary_ar": "مكان مرتبط بقصة نوح عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_d4ace0f3d9",
+      "node_type": "place",
+      "name_ar": "الجودي",
+      "summary_ar": "مكان مرتبط بقصة نوح عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_a9bf7368e4",
+      "node_type": "person",
+      "name_ar": "قوم نوح",
+      "summary_ar": "شخصية مرتبطة بقصة نوح عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_ad377f7a8a",
+      "node_type": "person",
+      "name_ar": "ابن نوح",
+      "summary_ar": "شخصية مرتبطة بقصة نوح عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_10",
+      "node_type": "surah",
+      "name_ar": "سورة يونس",
+      "summary_ar": "سورة 10 — يونس",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_11",
+      "node_type": "surah",
+      "name_ar": "سورة هود",
+      "summary_ar": "سورة 11 — هود",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_23",
+      "node_type": "surah",
+      "name_ar": "سورة المؤمنون",
+      "summary_ar": "سورة 23 — المؤمنون",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_26",
+      "node_type": "surah",
+      "name_ar": "سورة الشعراء",
+      "summary_ar": "سورة 26 — الشعراء",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_29",
+      "node_type": "surah",
+      "name_ar": "سورة العنكبوت",
+      "summary_ar": "سورة 29 — العنكبوت",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_54",
+      "node_type": "surah",
+      "name_ar": "سورة القمر",
+      "summary_ar": "سورة 54 — القمر",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_71",
+      "node_type": "surah",
+      "name_ar": "سورة نوح",
+      "summary_ar": "سورة 71 — نوح",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "ibrahim",
+      "node_type": "prophet",
+      "name_ar": "إبراهيم عليه السلام",
+      "short_title_ar": "بناء التوحيد",
+      "summary_ar": "الحجة والابتلاء والإمامة",
+      "era_ar": "بناء التوحيد",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "الحجة العقلية",
+        "الإمامة بعد الابتلاء"
+      ],
+      "network_conclusion_ar": "شبكة إبراهيم تنقل التوحيد من الحجة إلى مشروع أمة وبيت — يحتاج بعض الأحداث مراجعة مصدر.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        2,
+        3,
+        6,
+        14,
+        15,
+        19,
+        21,
+        22,
+        26,
+        29,
+        37,
+        51,
+        60
+      ]
+    },
+    {
+      "id": "place_49b2b28c85",
+      "node_type": "place",
+      "name_ar": "بابل",
+      "summary_ar": "مكان مرتبط بقصة إبراهيم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_bb01334486",
+      "node_type": "place",
+      "name_ar": "مكة",
+      "summary_ar": "مكان مرتبط بقصة إبراهيم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_978c81711f",
+      "node_type": "place",
+      "name_ar": "بيت الله",
+      "summary_ar": "مكان مرتبط بقصة إبراهيم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_0184ee8db3",
+      "node_type": "person",
+      "name_ar": "آزر",
+      "summary_ar": "شخصية مرتبطة بقصة إبراهيم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_b7a3215d45",
+      "node_type": "person",
+      "name_ar": "إسماعيل",
+      "summary_ar": "شخصية مرتبطة بقصة إبراهيم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_477a1eb78b",
+      "node_type": "person",
+      "name_ar": "إسحاق",
+      "summary_ar": "شخصية مرتبطة بقصة إبراهيم عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_3",
+      "node_type": "surah",
+      "name_ar": "سورة آل عمران",
+      "summary_ar": "سورة 3 — آل عمران",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_6",
+      "node_type": "surah",
+      "name_ar": "سورة الأنعام",
+      "summary_ar": "سورة 6 — الأنعام",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_14",
+      "node_type": "surah",
+      "name_ar": "سورة إبراهيم",
+      "summary_ar": "سورة 14 — إبراهيم",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_19",
+      "node_type": "surah",
+      "name_ar": "سورة مريم",
+      "summary_ar": "سورة 19 — مريم",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_21",
+      "node_type": "surah",
+      "name_ar": "سورة الأنبياء",
+      "summary_ar": "سورة 21 — الأنبياء",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_22",
+      "node_type": "surah",
+      "name_ar": "سورة الحج",
+      "summary_ar": "سورة 22 — الحج",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_37",
+      "node_type": "surah",
+      "name_ar": "سورة الصافات",
+      "summary_ar": "سورة 37 — الصافات",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_51",
+      "node_type": "surah",
+      "name_ar": "سورة الذاريات",
+      "summary_ar": "سورة 51 — الذاريات",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_60",
+      "node_type": "surah",
+      "name_ar": "سورة الممتحنة",
+      "summary_ar": "سورة 60 — الممتحنة",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "yusuf",
+      "node_type": "prophet",
+      "name_ar": "يوسف عليه السلام",
+      "short_title_ar": "التدبير الخفي",
+      "summary_ar": "الألم والعفة والسجن والتمكين",
+      "era_ar": "التدبير الخفي",
+      "review_status": "approved",
+      "source_status": "cited",
+      "lessons_ar": [
+        "القصة المتصلة",
+        "قاعدة السورة المركزية"
+      ],
+      "network_conclusion_ar": "شبكة يوسف تكشف كيف يتحول الابتلاء إلى تمكين وعدل — دون تجاوز النص القرآني.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        12
+      ]
+    },
+    {
+      "id": "place_b32c08aa27",
+      "node_type": "place",
+      "name_ar": "البئر",
+      "summary_ar": "مكان مرتبط بقصة يوسف عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_8df90dec56",
+      "node_type": "place",
+      "name_ar": "مصر",
+      "summary_ar": "مكان مرتبط بقصة يوسف عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_f28fd9d1b5",
+      "node_type": "place",
+      "name_ar": "السجن",
+      "summary_ar": "مكان مرتبط بقصة يوسف عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_1c15ca4c38",
+      "node_type": "person",
+      "name_ar": "يعقوب",
+      "summary_ar": "شخصية مرتبطة بقصة يوسف عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_9474b7cebd",
+      "node_type": "person",
+      "name_ar": "إخوة يوسف",
+      "summary_ar": "شخصية مرتبطة بقصة يوسف عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_eb12b8661a",
+      "node_type": "person",
+      "name_ar": "امرأة العزيز",
+      "summary_ar": "شخصية مرتبطة بقصة يوسف عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_5fc7705f63",
+      "node_type": "person",
+      "name_ar": "الملك",
+      "summary_ar": "شخصية مرتبطة بقصة يوسف عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_12",
+      "node_type": "surah",
+      "name_ar": "سورة يوسف",
+      "summary_ar": "سورة 12 — يوسف",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "musa",
+      "node_type": "prophet",
+      "name_ar": "موسى عليه السلام",
+      "short_title_ar": "مواجهة الطغيان",
+      "summary_ar": "الخوف والرسالة والقيادة والعلم",
+      "era_ar": "مواجهة الطغيان",
+      "review_status": "approved",
+      "source_status": "cited",
+      "lessons_ar": [
+        "التدبير الخفي",
+        "حدود المعرفة"
+      ],
+      "network_conclusion_ar": "شبكة موسى تجمع بين الحفظ الإلهي، الإعداد النفسي، مواجهة الطغيان، وتربية الأمة — وفق ما ورد في القرآن.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        2,
+        5,
+        7,
+        10,
+        11,
+        17,
+        18,
+        20,
+        26,
+        27,
+        28,
+        40,
+        43,
+        44,
+        79
+      ]
+    },
+    {
+      "id": "place_e0cdc5ed14",
+      "node_type": "place",
+      "name_ar": "مدين",
+      "summary_ar": "مكان مرتبط بقصة موسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_14a180be03",
+      "node_type": "place",
+      "name_ar": "الطور",
+      "summary_ar": "مكان مرتبط بقصة موسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_54382b030c",
+      "node_type": "place",
+      "name_ar": "البحر",
+      "summary_ar": "مكان مرتبط بقصة موسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_8979ca6626",
+      "node_type": "person",
+      "name_ar": "فرعون",
+      "summary_ar": "شخصية مرتبطة بقصة موسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_45910dfd71",
+      "node_type": "person",
+      "name_ar": "هارون",
+      "summary_ar": "شخصية مرتبطة بقصة موسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_41a9d07c5c",
+      "node_type": "person",
+      "name_ar": "الخضر",
+      "summary_ar": "شخصية مرتبطة بقصة موسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_68d9ac4de6",
+      "node_type": "person",
+      "name_ar": "قارون",
+      "summary_ar": "شخصية مرتبطة بقصة موسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_5",
+      "node_type": "surah",
+      "name_ar": "سورة المائدة",
+      "summary_ar": "سورة 5 — المائدة",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_17",
+      "node_type": "surah",
+      "name_ar": "سورة الإسراء",
+      "summary_ar": "سورة 17 — الإسراء",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_18",
+      "node_type": "surah",
+      "name_ar": "سورة الكهف",
+      "summary_ar": "سورة 18 — الكهف",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_27",
+      "node_type": "surah",
+      "name_ar": "سورة النمل",
+      "summary_ar": "سورة 27 — النمل",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_28",
+      "node_type": "surah",
+      "name_ar": "سورة القصص",
+      "summary_ar": "سورة 28 — القصص",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_40",
+      "node_type": "surah",
+      "name_ar": "سورة غافر",
+      "summary_ar": "سورة 40 — غافر",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_43",
+      "node_type": "surah",
+      "name_ar": "سورة الزخرف",
+      "summary_ar": "سورة 43 — الزخرف",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_44",
+      "node_type": "surah",
+      "name_ar": "سورة الدخان",
+      "summary_ar": "سورة 44 — الدخان",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_79",
+      "node_type": "surah",
+      "name_ar": "سورة النازعات",
+      "summary_ar": "سورة 79 — النازعات",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "dawud",
+      "node_type": "prophet",
+      "name_ar": "داود عليه السلام",
+      "short_title_ar": "الملك الشاكر",
+      "summary_ar": "القوة والحكم والتسبيح",
+      "era_ar": "الملك الشاكر",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "الملك مع العدل"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        2,
+        4,
+        5,
+        17,
+        21,
+        27,
+        34,
+        38
+      ]
+    },
+    {
+      "id": "place_88ae1b49df",
+      "node_type": "place",
+      "name_ar": "بيت المقدس",
+      "summary_ar": "مكان مرتبط بقصة داود عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_5f708aa3bd",
+      "node_type": "person",
+      "name_ar": "طالوت",
+      "summary_ar": "شخصية مرتبطة بقصة داود عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_35e51bb5dd",
+      "node_type": "person",
+      "name_ar": "جالوت",
+      "summary_ar": "شخصية مرتبطة بقصة داود عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_4",
+      "node_type": "surah",
+      "name_ar": "سورة النساء",
+      "summary_ar": "سورة 4 — النساء",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_34",
+      "node_type": "surah",
+      "name_ar": "سورة سبأ",
+      "summary_ar": "سورة 34 — سبأ",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "sulayman",
+      "node_type": "prophet",
+      "name_ar": "سليمان عليه السلام",
+      "short_title_ar": "الملك الشاكر",
+      "summary_ar": "السلطان والعلم والشكر",
+      "era_ar": "الملك الشاكر",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "سلطة شاكرة داعية"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        2,
+        21,
+        27,
+        34,
+        38
+      ]
+    },
+    {
+      "id": "place_57eb0f94ab",
+      "node_type": "place",
+      "name_ar": "سبأ",
+      "summary_ar": "مكان مرتبط بقصة سليمان عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_b8987dc02c",
+      "node_type": "person",
+      "name_ar": "ملكة سبأ",
+      "summary_ar": "شخصية مرتبطة بقصة سليمان عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_77d1df30b8",
+      "node_type": "person",
+      "name_ar": "الهدهد",
+      "summary_ar": "شخصية مرتبطة بقصة سليمان عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "ayyub",
+      "node_type": "prophet",
+      "name_ar": "أيوب عليه السلام",
+      "short_title_ar": "الصبر الفردي",
+      "summary_ar": "الضر والصبر والفرج",
+      "era_ar": "الصبر الفردي",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "دعاء مختصر شديد العمق"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        21,
+        38
+      ]
+    },
+    {
+      "id": "person_fab16805b9",
+      "node_type": "person",
+      "name_ar": "أهل أيوب",
+      "summary_ar": "شخصية مرتبطة بقصة أيوب عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "yunus",
+      "node_type": "prophet",
+      "name_ar": "يونس عليه السلام",
+      "short_title_ar": "العودة بعد الخطأ",
+      "summary_ar": "الندم والدعاء في الظلمات",
+      "era_ar": "العودة بعد الخطأ",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "دعاء العودة"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        10,
+        21,
+        37,
+        68
+      ]
+    },
+    {
+      "id": "place_83639fe265",
+      "node_type": "place",
+      "name_ar": "بطن الحوت",
+      "summary_ar": "مكان مرتبط بقصة يونس عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_d12aafc24a",
+      "node_type": "person",
+      "name_ar": "قوم يونس",
+      "summary_ar": "شخصية مرتبطة بقصة يونس عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_68",
+      "node_type": "surah",
+      "name_ar": "سورة القلم",
+      "summary_ar": "سورة 68 — القلم",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "maryam",
+      "node_type": "person",
+      "name_ar": "مريم عليها السلام",
+      "short_title_ar": "المعجزة والاصطفاء",
+      "summary_ar": "الوحدة والألم والمعجزة",
+      "era_ar": "المعجزة والاصطفاء",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "الاصطفاء",
+        "التجربة النفسية"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        3,
+        4,
+        5,
+        19,
+        21,
+        66
+      ]
+    },
+    {
+      "id": "place_36d9625373",
+      "node_type": "place",
+      "name_ar": "المحراب",
+      "summary_ar": "مكان مرتبط بقصة مريم عليها السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_b474bbf282",
+      "node_type": "place",
+      "name_ar": "مكان قصي",
+      "summary_ar": "مكان مرتبط بقصة مريم عليها السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_eafcd8bcac",
+      "node_type": "person",
+      "name_ar": "زكريا",
+      "summary_ar": "شخصية مرتبطة بقصة مريم عليها السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_2cef62d5b8",
+      "node_type": "person",
+      "name_ar": "عيسى",
+      "summary_ar": "شخصية مرتبطة بقصة مريم عليها السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_66",
+      "node_type": "surah",
+      "name_ar": "سورة التحريم",
+      "summary_ar": "سورة 66 — التحريم",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "isa",
+      "node_type": "prophet",
+      "name_ar": "عيسى عليه السلام",
+      "short_title_ar": "المعجزة وتصحيح الغلو",
+      "summary_ar": "آية ورسول وتصحيح التأليه",
+      "era_ar": "المعجزة وتصحيح الغلو",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "براءة عيسى"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        2,
+        3,
+        4,
+        5,
+        19,
+        43,
+        57,
+        61
+      ]
+    },
+    {
+      "id": "place_fce202f328",
+      "node_type": "place",
+      "name_ar": "فلسطين",
+      "summary_ar": "مكان مرتبط بقصة عيسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_0323c8a60b",
+      "node_type": "person",
+      "name_ar": "مريم",
+      "summary_ar": "شخصية مرتبطة بقصة عيسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_4edf803c6b",
+      "node_type": "person",
+      "name_ar": "الحواريون",
+      "summary_ar": "شخصية مرتبطة بقصة عيسى عليه السلام",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_57",
+      "node_type": "surah",
+      "name_ar": "سورة الحديد",
+      "summary_ar": "سورة 57 — الحديد",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_61",
+      "node_type": "surah",
+      "name_ar": "سورة الصف",
+      "summary_ar": "سورة 61 — الصف",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "muhammad",
+      "node_type": "prophet",
+      "name_ar": "محمد ﷺ",
+      "short_title_ar": "اكتمال الرسالة",
+      "summary_ar": "الرسالة الخاتمة والتثبيت",
+      "era_ar": "اكتمال الرسالة",
+      "review_status": "approved",
+      "source_status": "cited",
+      "lessons_ar": [
+        "ختم النبوة",
+        "الفتح والتمكين"
+      ],
+      "network_conclusion_ar": "شبكة محمد ﷺ تمثل اكتمال الرسالة وبناء الأمة — محتوى مراجع جزئياً.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        3,
+        8,
+        9,
+        17,
+        33,
+        48,
+        49,
+        53,
+        93,
+        94,
+        108,
+        110
+      ]
+    },
+    {
+      "id": "place_a213cd1841",
+      "node_type": "place",
+      "name_ar": "المدينة",
+      "summary_ar": "مكان مرتبط بقصة محمد ﷺ",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_736eea1247",
+      "node_type": "person",
+      "name_ar": "المؤمنون",
+      "summary_ar": "شخصية مرتبطة بقصة محمد ﷺ",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_60f3ef1ca5",
+      "node_type": "person",
+      "name_ar": "المنافقون",
+      "summary_ar": "شخصية مرتبطة بقصة محمد ﷺ",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_56f0e4ea16",
+      "node_type": "person",
+      "name_ar": "قريش",
+      "summary_ar": "شخصية مرتبطة بقصة محمد ﷺ",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "surah_8",
+      "node_type": "surah",
+      "name_ar": "سورة الأنفال",
+      "summary_ar": "سورة 8 — الأنفال",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_9",
+      "node_type": "surah",
+      "name_ar": "سورة التوبة",
+      "summary_ar": "سورة 9 — التوبة",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_33",
+      "node_type": "surah",
+      "name_ar": "سورة الأحزاب",
+      "summary_ar": "سورة 33 — الأحزاب",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_48",
+      "node_type": "surah",
+      "name_ar": "سورة الفتح",
+      "summary_ar": "سورة 48 — الفتح",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_49",
+      "node_type": "surah",
+      "name_ar": "سورة الحجرات",
+      "summary_ar": "سورة 49 — الحجرات",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_53",
+      "node_type": "surah",
+      "name_ar": "سورة النجم",
+      "summary_ar": "سورة 53 — النجم",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_93",
+      "node_type": "surah",
+      "name_ar": "سورة الضحى",
+      "summary_ar": "سورة 93 — الضحى",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_94",
+      "node_type": "surah",
+      "name_ar": "سورة الشرح",
+      "summary_ar": "سورة 94 — الشرح",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_108",
+      "node_type": "surah",
+      "name_ar": "سورة الكوثر",
+      "summary_ar": "سورة 108 — الكوثر",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "surah_110",
+      "node_type": "surah",
+      "name_ar": "سورة النصر",
+      "summary_ar": "سورة 110 — النصر",
+      "review_status": "approved",
+      "source_status": "cited"
+    },
+    {
+      "id": "dhulqarnayn",
+      "node_type": "prophet",
+      "name_ar": "ذو القرنين",
+      "short_title_ar": "القوة والعدل",
+      "summary_ar": "الملك العادل وبناء السد",
+      "era_ar": "القوة والعدل",
+      "review_status": "pending",
+      "source_status": "pending",
+      "lessons_ar": [
+        "نموذج الحاكم العادل"
+      ],
+      "network_conclusion_ar": "هذه العقدة نموذجٌ تعليمي داخل شبكة القصص القرآني — راجع الآيات والمصادر قبل الاعتماد النهائي.",
+      "network_conclusion_review_status": "pending",
+      "surah_ids": [
+        18
+      ]
+    },
+    {
+      "id": "place_5f248c8df0",
+      "node_type": "place",
+      "name_ar": "المشرق",
+      "summary_ar": "مكان مرتبط بقصة ذو القرنين",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_0e5d7cf58a",
+      "node_type": "place",
+      "name_ar": "المغرب",
+      "summary_ar": "مكان مرتبط بقصة ذو القرنين",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "place_f06d8bea74",
+      "node_type": "place",
+      "name_ar": "بين السدين",
+      "summary_ar": "مكان مرتبط بقصة ذو القرنين",
+      "review_status": "pending",
+      "source_status": "pending"
+    },
+    {
+      "id": "person_cf77282ab2",
+      "node_type": "person",
+      "name_ar": "يأجوج ومأجوج",
+      "summary_ar": "شخصية مرتبطة بقصة ذو القرنين",
+      "review_status": "pending",
+      "source_status": "pending"
+    }
+  ],
+  "story_events": [
+    {
+      "id": "adam_01__",
+      "node_id": "adam",
+      "title_ar": "تعليم الأسماء",
+      "summary_ar": "مرحلة من القصة: تعليم الأسماء — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "khalq",
+        "khilafah",
+        "tawbah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "adam_02__",
+      "node_id": "adam",
+      "title_ar": "السجود لآدم",
+      "summary_ar": "مرحلة من القصة: السجود لآدم — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "khalq",
+        "khilafah",
+        "tawbah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "adam_03__",
+      "node_id": "adam",
+      "title_ar": "وسوسة إبليس",
+      "summary_ar": "مرحلة من القصة: وسوسة إبليس — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "khalq",
+        "khilafah",
+        "tawbah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "adam_04__",
+      "node_id": "adam",
+      "title_ar": "الهبوط والتلقي",
+      "summary_ar": "مرحلة من القصة: الهبوط والتلقي — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "khalq",
+        "khilafah",
+        "tawbah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ayyub_01__",
+      "node_id": "ayyub",
+      "title_ar": "الضر",
+      "summary_ar": "مرحلة من القصة: الضر — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "bala",
+        "theme_a29381b7"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ayyub_02__",
+      "node_id": "ayyub",
+      "title_ar": "الدعاء",
+      "summary_ar": "مرحلة من القصة: الدعاء — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "bala",
+        "theme_a29381b7"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ayyub_03__",
+      "node_id": "ayyub",
+      "title_ar": "الفرج",
+      "summary_ar": "مرحلة من القصة: الفرج — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "bala",
+        "theme_a29381b7"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "dawud_01__",
+      "node_id": "dawud",
+      "title_ar": "قتل جالوت",
+      "summary_ar": "مرحلة من القصة: قتل جالوت — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "theme_0cfa8d19",
+        "theme_fe493a82"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "dawud_02__",
+      "node_id": "dawud",
+      "title_ar": "الحكم",
+      "summary_ar": "مرحلة من القصة: الحكم — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "theme_0cfa8d19",
+        "theme_fe493a82"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "dawud_03__",
+      "node_id": "dawud",
+      "title_ar": "تسبيح الجبال",
+      "summary_ar": "مرحلة من القصة: تسبيح الجبال — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "theme_0cfa8d19",
+        "theme_fe493a82"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "dhulqarnayn_01__",
+      "node_id": "dhulqarnayn",
+      "title_ar": "السفر",
+      "summary_ar": "مرحلة من القصة: السفر — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "justice",
+        "sa_y"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "dhulqarnayn_02__",
+      "node_id": "dhulqarnayn",
+      "title_ar": "الحكم بالعدل",
+      "summary_ar": "مرحلة من القصة: الحكم بالعدل — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "justice",
+        "sa_y"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "dhulqarnayn_03__",
+      "node_id": "dhulqarnayn",
+      "title_ar": "بناء السد",
+      "summary_ar": "مرحلة من القصة: بناء السد — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "justice",
+        "sa_y"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ibrahim_idols",
+      "node_id": "ibrahim",
+      "title_ar": "النظر في الكواكب",
+      "summary_ar": "برهان إبراهيم على بطلان عبادة الأصنام.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawhid",
+        "hujjah",
+        "ibtilaa"
+      ],
+      "lessons_ar": [
+        "إظهار الحق قد يحتاج إلى حجة واضحة."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة الأنبياء 51-70"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ibrahim_kaaba",
+      "node_id": "ibrahim",
+      "title_ar": "تحطيم الأصنام",
+      "summary_ar": "إبراهيم وإسماعيل يرفعان قواعد الكعبة ويدعوان ربهم.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "needs_source",
+      "source_status": "needs_source",
+      "theme_ids": [
+        "tawhid",
+        "hujjah",
+        "ibtilaa"
+      ],
+      "lessons_ar": [
+        "العبادة والدعاء مع العمل."
+      ],
+      "sources": [],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ibrahim_03__",
+      "node_id": "ibrahim",
+      "title_ar": "النار",
+      "summary_ar": "مرحلة من القصة: النار — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawhid",
+        "hujjah",
+        "ibtilaa"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ibrahim_04__",
+      "node_id": "ibrahim",
+      "title_ar": "الذبح",
+      "summary_ar": "مرحلة من القصة: الذبح — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawhid",
+        "hujjah",
+        "ibtilaa"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "ibrahim_05__",
+      "node_id": "ibrahim",
+      "title_ar": "بناء البيت",
+      "summary_ar": "مرحلة من القصة: بناء البيت — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 5,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawhid",
+        "hujjah",
+        "ibtilaa"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "isa_birth",
+      "node_id": "isa",
+      "title_ar": "الميلاد",
+      "summary_ar": "ولد عيسى معجزة بكلمة من الله.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mu_jiza",
+        "ghulu",
+        "risalah"
+      ],
+      "lessons_ar": [
+        "قدرة الله ليست مقيدة بالأسباب المعتادة."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة مريم 16-21"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "isa_02__",
+      "node_id": "isa",
+      "title_ar": "المعجزات",
+      "summary_ar": "مرحلة من القصة: المعجزات — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mu_jiza",
+        "ghulu",
+        "risalah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "isa_03__",
+      "node_id": "isa",
+      "title_ar": "الحواريون",
+      "summary_ar": "مرحلة من القصة: الحواريون — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mu_jiza",
+        "ghulu",
+        "risalah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "isa_04__",
+      "node_id": "isa",
+      "title_ar": "الغلو",
+      "summary_ar": "مرحلة من القصة: الغلو — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mu_jiza",
+        "ghulu",
+        "risalah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "maryam_withdraw",
+      "node_id": "maryam",
+      "title_ar": "الكفالة",
+      "summary_ar": "اعتزلت مريم عن قومها للعبادة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "theme_37798439",
+        "taharah",
+        "mu_jiza"
+      ],
+      "lessons_ar": [
+        "العبادة والخلوة لله من كرامة الأولياء."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة آل عمران 37"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "maryam_02__",
+      "node_id": "maryam",
+      "title_ar": "البشارة",
+      "summary_ar": "مرحلة من القصة: البشارة — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "theme_37798439",
+        "taharah",
+        "mu_jiza"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "maryam_03__",
+      "node_id": "maryam",
+      "title_ar": "المخاض",
+      "summary_ar": "مرحلة من القصة: المخاض — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "theme_37798439",
+        "taharah",
+        "mu_jiza"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "maryam_04__",
+      "node_id": "maryam",
+      "title_ar": "العودة",
+      "summary_ar": "مرحلة من القصة: العودة — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "theme_37798439",
+        "taharah",
+        "mu_jiza"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "muhammad_revelation",
+      "node_id": "muhammad",
+      "title_ar": "الوحي",
+      "summary_ar": "بدأ الوحي في غار حراء بـ «اقرأ».",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "wahy",
+        "tathbeet",
+        "ummah"
+      ],
+      "lessons_ar": [
+        "بداية الوحي كانت بالعلم والقراءة.",
+        "الرسالة تحمل أمانة."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة العلق 1-5"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
+    },
+    {
+      "id": "muhammad_02__",
+      "node_id": "muhammad",
+      "title_ar": "الهجرة",
+      "summary_ar": "مرحلة من القصة: الهجرة — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "wahy",
+        "tathbeet",
+        "ummah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "muhammad_03__",
+      "node_id": "muhammad",
+      "title_ar": "بدر",
+      "summary_ar": "مرحلة من القصة: بدر — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "wahy",
+        "tathbeet",
+        "ummah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "muhammad_04__",
+      "node_id": "muhammad",
+      "title_ar": "الأحزاب",
+      "summary_ar": "مرحلة من القصة: الأحزاب — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "wahy",
+        "tathbeet",
+        "ummah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "muhammad_05__",
+      "node_id": "muhammad",
+      "title_ar": "الفتح",
+      "summary_ar": "مرحلة من القصة: الفتح — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 5,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "wahy",
+        "tathbeet",
+        "ummah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_birth",
+      "node_id": "musa",
+      "title_ar": "الولادة",
+      "summary_ar": "أُلقي موسى في اليم ثم أُرجع إلى أمه برحمة الله.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [
+        "تدبير الله قد يأتي من حيث لا يُحتسب.",
+        "الأم المؤمنة جزء من حفظ الله."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة القصص 7-13"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
+    },
+    {
+      "id": "musa_firawn",
+      "node_id": "musa",
+      "title_ar": "اليم",
+      "summary_ar": "عاد موسى إلى فرعون بالآيات والحجة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [
+        "الدعوة بالحكمة حتى مع الظالم.",
+        "الآيات تؤيّد الرسل."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة طه 24-56"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_03__",
+      "node_id": "musa",
+      "title_ar": "مدين",
+      "summary_ar": "مرحلة من القصة: مدين — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_04__",
+      "node_id": "musa",
+      "title_ar": "الوحي",
+      "summary_ar": "مرحلة من القصة: الوحي — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_05__",
+      "node_id": "musa",
+      "title_ar": "فرعون",
+      "summary_ar": "مرحلة من القصة: فرعون — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 5,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_06__",
+      "node_id": "musa",
+      "title_ar": "السحرة",
+      "summary_ar": "مرحلة من القصة: السحرة — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 6,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_07__",
+      "node_id": "musa",
+      "title_ar": "البحر",
+      "summary_ar": "مرحلة من القصة: البحر — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 7,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_08__",
+      "node_id": "musa",
+      "title_ar": "العجل",
+      "summary_ar": "مرحلة من القصة: العجل — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 8,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "musa_09__",
+      "node_id": "musa",
+      "title_ar": "الخضر",
+      "summary_ar": "مرحلة من القصة: الخضر — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 9,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tughyan",
+        "najah",
+        "sharia"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "nuh_dawah",
+      "node_id": "nuh",
+      "title_ar": "الدعوة سرًا وجهرًا",
+      "summary_ar": "دعا نوح قومه ليلًا ونهارًا فأصرّوا على الكفر.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr",
+        "dawah",
+        "najah"
+      ],
+      "lessons_ar": [
+        "استمرار الدعوة واجب رغم قلة المؤمنين."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة نوح 5-20"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
+    },
+    {
+      "id": "nuh_ark",
+      "node_id": "nuh",
+      "title_ar": "صناعة السفينة",
+      "summary_ar": "أُمر نوح بصنع السفينة ونجا المؤمنون.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr",
+        "dawah",
+        "najah"
+      ],
+      "lessons_ar": [
+        "الطاعة للأمر الإلهي حتى إن بدا غريبًا."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة هود 36-44"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
+    },
+    {
+      "id": "nuh_03__",
+      "node_id": "nuh",
+      "title_ar": "الطوفان",
+      "summary_ar": "مرحلة من القصة: الطوفان — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "dawah",
+        "najah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "nuh_04__",
+      "node_id": "nuh",
+      "title_ar": "نداء الابن",
+      "summary_ar": "مرحلة من القصة: نداء الابن — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "dawah",
+        "najah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "sulayman_01__",
+      "node_id": "sulayman",
+      "title_ar": "الهدهد",
+      "summary_ar": "مرحلة من القصة: الهدهد — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "shukr",
+        "ilm"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "sulayman_02__",
+      "node_id": "sulayman",
+      "title_ar": "ملكة سبأ",
+      "summary_ar": "مرحلة من القصة: ملكة سبأ — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "shukr",
+        "ilm"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "sulayman_03__",
+      "node_id": "sulayman",
+      "title_ar": "العرش",
+      "summary_ar": "مرحلة من القصة: العرش — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "mulk",
+        "shukr",
+        "ilm"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yunus_01__",
+      "node_id": "yunus",
+      "title_ar": "المغاضبة",
+      "summary_ar": "مرحلة من القصة: المغاضبة — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawbah",
+        "theme_a29381b7",
+        "najah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yunus_02__",
+      "node_id": "yunus",
+      "title_ar": "الحوت",
+      "summary_ar": "مرحلة من القصة: الحوت — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawbah",
+        "theme_a29381b7",
+        "najah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yunus_03__",
+      "node_id": "yunus",
+      "title_ar": "الدعاء",
+      "summary_ar": "مرحلة من القصة: الدعاء — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawbah",
+        "theme_a29381b7",
+        "najah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yunus_04__",
+      "node_id": "yunus",
+      "title_ar": "النجاة",
+      "summary_ar": "مرحلة من القصة: النجاة — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "tawbah",
+        "theme_a29381b7",
+        "najah"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yusuf_dream",
+      "node_id": "yusuf",
+      "title_ar": "الرؤيا",
+      "summary_ar": "بدأت القصة برؤيا يوسف عليه السلام التي أشارت إلى مستقبل عظيم.",
+      "event_order": 1,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [
+        "الرؤيا الصالحة جزء من الوحي أو بشارة.",
+        "الحذر من إظهار ما قد يثير الحسد."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة يوسف 4-6"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
+    },
+    {
+      "id": "yusuf_well",
+      "node_id": "yusuf",
+      "title_ar": "البئر",
+      "summary_ar": "تبدأ مرحلة الابتلاء العائلي حين أُلقي يوسف في الجب.",
+      "event_order": 2,
+      "certainty_level": "quran_explicit",
+      "review_status": "approved",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [
+        "الابتلاء قد يأتي من أقرب الناس.",
+        "الصبر عند المكروه من أخلاق الأنبياء."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة يوسف 7-18"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
+    },
+    {
+      "id": "yusuf_prison",
+      "node_id": "yusuf",
+      "title_ar": "البيع",
+      "summary_ar": "بعد البراءة في فتنة، دخل السجن ثم تمكّن في الأرض.",
+      "event_order": 3,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "cited",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [
+        "العفة قد تُتبع بالابتلاء.",
+        "التمكين بعد الصبر جزء من سنن الله."
+      ],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "سورة يوسف 23-57"
+        }
+      ],
+      "evidence_status": "precise_evidence",
+      "evidence_confidence": "quran_explicit"
+    },
+    {
+      "id": "yusuf_04__",
+      "node_id": "yusuf",
+      "title_ar": "الفتنة",
+      "summary_ar": "مرحلة من القصة: الفتنة — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 4,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yusuf_05__",
+      "node_id": "yusuf",
+      "title_ar": "السجن",
+      "summary_ar": "مرحلة من القصة: السجن — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 5,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yusuf_06__",
+      "node_id": "yusuf",
+      "title_ar": "التأويل",
+      "summary_ar": "مرحلة من القصة: التأويل — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 6,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yusuf_07__",
+      "node_id": "yusuf",
+      "title_ar": "التمكين",
+      "summary_ar": "مرحلة من القصة: التمكين — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 7,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    },
+    {
+      "id": "yusuf_08__",
+      "node_id": "yusuf",
+      "title_ar": "العفو",
+      "summary_ar": "مرحلة من القصة: العفو — ملخص تعليمي يحتاج مراجعة.",
+      "event_order": 8,
+      "certainty_level": "quran_explicit",
+      "review_status": "pending",
+      "source_status": "pending",
+      "theme_ids": [
+        "sabr",
+        "iffah",
+        "tawil"
+      ],
+      "lessons_ar": [],
+      "sources": [
+        {
+          "source_id": "quran_text",
+          "note_ar": "مرجع قرآني — راجع event_ayahs"
+        }
+      ],
+      "evidence_status": "needs_precise_mapping",
+      "evidence_confidence": "needs_review"
+    }
+  ],
+  "event_ayahs": [
+    {
+      "event_id": "ibrahim_idols",
+      "surah_id": 6,
+      "ayah_from": 74,
+      "ayah_to": 79,
+      "ayah_key": "6:74-79",
+      "relation_type": "main",
+      "evidence_note_ar": "النظر في الكواكب والحجة العقلية — مسودة تحتاج مراجعة",
+      "note_ar": "النظر في الكواكب والحجة العقلية — مسودة تحتاج مراجعة"
+    },
+    {
+      "event_id": "ibrahim_kaaba",
+      "surah_id": 21,
+      "ayah_from": 51,
+      "ayah_to": 70,
+      "ayah_key": "21:51-70",
+      "relation_type": "main",
+      "evidence_note_ar": "تحطيم الأصنام — مسودة تحتاج مراجعة ومصدر",
+      "note_ar": "تحطيم الأصنام — مسودة تحتاج مراجعة ومصدر"
+    },
+    {
+      "event_id": "isa_birth",
+      "surah_id": 19,
+      "ayah_from": 16,
+      "ayah_to": 21,
+      "ayah_key": "19:16-21",
+      "relation_type": "main",
+      "evidence_note_ar": "ولادة عيسى — مسودة تحتاج مراجعة",
+      "note_ar": "ولادة عيسى — مسودة تحتاج مراجعة"
+    },
+    {
+      "event_id": "maryam_withdraw",
+      "surah_id": 3,
+      "ayah_from": 37,
+      "ayah_to": 37,
+      "ayah_key": "3:37",
+      "relation_type": "main",
+      "evidence_note_ar": "اعتزال مريم — مسودة تحتاج مراجعة",
+      "note_ar": "اعتزال مريم — مسودة تحتاج مراجعة"
+    },
+    {
+      "event_id": "muhammad_revelation",
+      "surah_id": 96,
+      "ayah_from": 1,
+      "ayah_to": 5,
+      "ayah_key": "96:1-5",
+      "relation_type": "main",
+      "evidence_note_ar": "أول الوحي في غار حراء",
+      "note_ar": "أول الوحي في غار حراء"
+    },
+    {
+      "event_id": "musa_birth",
+      "surah_id": 28,
+      "ayah_from": 7,
+      "ayah_to": 13,
+      "ayah_key": "28:7-13",
+      "relation_type": "main",
+      "evidence_note_ar": "ولادة موسى وإلقاؤه في اليم",
+      "note_ar": "ولادة موسى وإلقاؤه في اليم"
+    },
+    {
+      "event_id": "nuh_dawah",
+      "surah_id": 71,
+      "ayah_from": 5,
+      "ayah_to": 20,
+      "ayah_key": "71:5-20",
+      "relation_type": "main",
+      "evidence_note_ar": "آيات دعوة نوح عليه السلام",
+      "note_ar": "آيات دعوة نوح عليه السلام"
+    },
+    {
+      "event_id": "nuh_ark",
+      "surah_id": 11,
+      "ayah_from": 36,
+      "ayah_to": 44,
+      "ayah_key": "11:36-44",
+      "relation_type": "main",
+      "evidence_note_ar": "صنع السفينة والطوفان",
+      "note_ar": "صنع السفينة والطوفان"
+    },
+    {
+      "event_id": "yusuf_dream",
+      "surah_id": 12,
+      "ayah_from": 4,
+      "ayah_to": 6,
+      "ayah_key": "12:4-6",
+      "relation_type": "main",
+      "evidence_note_ar": "رؤيا يوسف للشمس والقمر",
+      "note_ar": "رؤيا يوسف للشمس والقمر"
+    },
+    {
+      "event_id": "yusuf_well",
+      "surah_id": 12,
+      "ayah_from": 7,
+      "ayah_to": 18,
+      "ayah_key": "12:7-18",
+      "relation_type": "main",
+      "evidence_note_ar": "الإلقاء في الجب والبيع",
+      "note_ar": "الإلقاء في الجب والبيع"
+    },
+    {
+      "event_id": "yusuf_prison",
+      "surah_id": 12,
+      "ayah_from": 23,
+      "ayah_to": 57,
+      "ayah_key": "12:23-57",
+      "relation_type": "main",
+      "evidence_note_ar": "الفتنة والسجن",
+      "note_ar": "الفتنة والسجن"
+    }
+  ],
+  "node_links": [
+    {
+      "source_node_id": "adam",
+      "target_node_id": "khalq",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الخلق في قصة آدم عليه السلام"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "khilafah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الخلافة في قصة آدم عليه السلام"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "tawbah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور التوبة في قصة آدم عليه السلام"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "fitnah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الفتنة في قصة آدم عليه السلام"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "place_fb9d3395f5",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "الجنة"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "place_bc08b37f8f",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "الأرض"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "person_097d3f83d3",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "إبليس"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "surah_2",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 2"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "surah_7",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 7"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "surah_15",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 15"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "surah_20",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 20"
+    },
+    {
+      "source_node_id": "adam",
+      "target_node_id": "surah_38",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 38"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "sabr",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الصبر في قصة نوح عليه السلام"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "dawah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الدعوة في قصة نوح عليه السلام"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "najah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور النجاة في قصة نوح عليه السلام"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "place_95d687dd78",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "السفينة"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "place_d4ace0f3d9",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "الجودي"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "person_a9bf7368e4",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "قوم نوح"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "person_ad377f7a8a",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "ابن نوح"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_7",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 7"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_10",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 10"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_11",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 11"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_23",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 23"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_26",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 26"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_29",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 29"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_54",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 54"
+    },
+    {
+      "source_node_id": "nuh",
+      "target_node_id": "surah_71",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 71"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "tawhid",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور التوحيد في قصة إبراهيم عليه السلام"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "hujjah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الحجة في قصة إبراهيم عليه السلام"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "ibtilaa",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الابتلاء في قصة إبراهيم عليه السلام"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "imamah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الإمامة في قصة إبراهيم عليه السلام"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "place_49b2b28c85",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "بابل"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "place_bb01334486",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "مكة"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "place_978c81711f",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "بيت الله"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "person_0184ee8db3",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "آزر"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "person_b7a3215d45",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "إسماعيل"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "person_477a1eb78b",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "إسحاق"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_2",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 2"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_3",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 3"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_6",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 6"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_14",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 14"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_15",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 15"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_19",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 19"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_21",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 21"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_22",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 22"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_26",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 26"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_29",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 29"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_37",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 37"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_51",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 51"
+    },
+    {
+      "source_node_id": "ibrahim",
+      "target_node_id": "surah_60",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 60"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "sabr",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الصبر في قصة يوسف عليه السلام"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "iffah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور العفة في قصة يوسف عليه السلام"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "tawil",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور التأويل في قصة يوسف عليه السلام"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "tamkeen",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور التمكين في قصة يوسف عليه السلام"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "place_b32c08aa27",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "البئر"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "place_8df90dec56",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "مصر"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "place_f28fd9d1b5",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "السجن"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "person_1c15ca4c38",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "يعقوب"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "person_9474b7cebd",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "إخوة يوسف"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "person_eb12b8661a",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "امرأة العزيز"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "person_5fc7705f63",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "الملك"
+    },
+    {
+      "source_node_id": "yusuf",
+      "target_node_id": "surah_12",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 12"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "tughyan",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الطغيان في قصة موسى عليه السلام"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "najah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور النجاة في قصة موسى عليه السلام"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "sharia",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الشريعة في قصة موسى عليه السلام"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "ilm",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور العلم في قصة موسى عليه السلام"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "place_8df90dec56",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "مصر"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "place_e0cdc5ed14",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "مدين"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "place_14a180be03",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "الطور"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "place_54382b030c",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "البحر"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "person_8979ca6626",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "فرعون"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "person_45910dfd71",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "هارون"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "person_41a9d07c5c",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "الخضر"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "person_68d9ac4de6",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "قارون"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_2",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 2"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_5",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 5"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_7",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 7"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_10",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 10"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_11",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 11"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_17",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 17"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_18",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 18"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_20",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 20"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_26",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 26"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_27",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 27"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_28",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 28"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_40",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 40"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_43",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 43"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_44",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 44"
+    },
+    {
+      "source_node_id": "musa",
+      "target_node_id": "surah_79",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 79"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "mulk",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الملك في قصة داود عليه السلام"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "theme_0cfa8d19",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الحكم في قصة داود عليه السلام"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "theme_fe493a82",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور التسبيح في قصة داود عليه السلام"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "place_88ae1b49df",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "بيت المقدس"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "person_5f708aa3bd",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "طالوت"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "person_35e51bb5dd",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "جالوت"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_2",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 2"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_4",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 4"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_5",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 5"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_17",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 17"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_21",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 21"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_27",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 27"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_34",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 34"
+    },
+    {
+      "source_node_id": "dawud",
+      "target_node_id": "surah_38",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 38"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "mulk",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الملك في قصة سليمان عليه السلام"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "shukr",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الشكر في قصة سليمان عليه السلام"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "ilm",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور العلم في قصة سليمان عليه السلام"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "place_57eb0f94ab",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "سبأ"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "place_88ae1b49df",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "بيت المقدس"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "person_b8987dc02c",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "ملكة سبأ"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "person_77d1df30b8",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "الهدهد"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "surah_2",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 2"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "surah_21",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 21"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "surah_27",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 27"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "surah_34",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 34"
+    },
+    {
+      "source_node_id": "sulayman",
+      "target_node_id": "surah_38",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 38"
+    },
+    {
+      "source_node_id": "ayyub",
+      "target_node_id": "sabr",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الصبر في قصة أيوب عليه السلام"
+    },
+    {
+      "source_node_id": "ayyub",
+      "target_node_id": "bala",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور البلاء في قصة أيوب عليه السلام"
+    },
+    {
+      "source_node_id": "ayyub",
+      "target_node_id": "theme_a29381b7",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الدعاء في قصة أيوب عليه السلام"
+    },
+    {
+      "source_node_id": "ayyub",
+      "target_node_id": "person_fab16805b9",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "أهل أيوب"
+    },
+    {
+      "source_node_id": "ayyub",
+      "target_node_id": "surah_21",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 21"
+    },
+    {
+      "source_node_id": "ayyub",
+      "target_node_id": "surah_38",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 38"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "tawbah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور التوبة في قصة يونس عليه السلام"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "theme_a29381b7",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الدعاء في قصة يونس عليه السلام"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "najah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور النجاة في قصة يونس عليه السلام"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "place_54382b030c",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "البحر"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "place_83639fe265",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "بطن الحوت"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "person_d12aafc24a",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "قوم يونس"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "surah_10",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 10"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "surah_21",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 21"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "surah_37",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 37"
+    },
+    {
+      "source_node_id": "yunus",
+      "target_node_id": "surah_68",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 68"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "theme_37798439",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الاصطفاء في قصة مريم عليها السلام"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "taharah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الطهر في قصة مريم عليها السلام"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "mu_jiza",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور المعجزة في قصة مريم عليها السلام"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "place_36d9625373",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "المحراب"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "place_b474bbf282",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "مكان قصي"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "person_eafcd8bcac",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "زكريا"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "person_2cef62d5b8",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "عيسى"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "surah_3",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 3"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "surah_4",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 4"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "surah_5",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 5"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "surah_19",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 19"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "surah_21",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 21"
+    },
+    {
+      "source_node_id": "maryam",
+      "target_node_id": "surah_66",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 66"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "mu_jiza",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور المعجزة في قصة عيسى عليه السلام"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "ghulu",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الغلو في قصة عيسى عليه السلام"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "risalah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الرسالة في قصة عيسى عليه السلام"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "place_fce202f328",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "فلسطين"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "person_0323c8a60b",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "مريم"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "person_4edf803c6b",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "الحواريون"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_2",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 2"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_3",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 3"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_4",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 4"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_5",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 5"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_19",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 19"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_43",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 43"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_57",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 57"
+    },
+    {
+      "source_node_id": "isa",
+      "target_node_id": "surah_61",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 61"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "wahy",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الوحي في قصة محمد ﷺ"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "tathbeet",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور التثبيت في قصة محمد ﷺ"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "ummah",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الأمة في قصة محمد ﷺ"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "fath",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الفتح في قصة محمد ﷺ"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "place_bb01334486",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "مكة"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "place_a213cd1841",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "المدينة"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "person_736eea1247",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "المؤمنون"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "person_60f3ef1ca5",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "المنافقون"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "person_56f0e4ea16",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "قريش"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_3",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 3"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_8",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 8"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_9",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 9"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_17",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 17"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_33",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 33"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_48",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 48"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_49",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 49"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_53",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 53"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_93",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 93"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_94",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 94"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_108",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 108"
+    },
+    {
+      "source_node_id": "muhammad",
+      "target_node_id": "surah_110",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 110"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "mulk",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور الملك في قصة ذو القرنين"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "justice",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور العدل في قصة ذو القرنين"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "sa_y",
+      "relation_type": "embodies_theme",
+      "confidence": 1,
+      "evidence_note_ar": "محور السعي في قصة ذو القرنين"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "place_5f248c8df0",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "المشرق"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "place_0e5d7cf58a",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "المغرب"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "place_f06d8bea74",
+      "relation_type": "located_in",
+      "confidence": 1,
+      "evidence_note_ar": "بين السدين"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "person_cf77282ab2",
+      "relation_type": "related_to",
+      "confidence": 1,
+      "evidence_note_ar": "يأجوج ومأجوج"
+    },
+    {
+      "source_node_id": "dhulqarnayn",
+      "target_node_id": "surah_18",
+      "relation_type": "narrated_in",
+      "confidence": 1,
+      "evidence_note_ar": "سورة 18"
+    }
+  ]
+}
